@@ -13,6 +13,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Hash once at startup so the hot path uses constant-time verify, never plain ==
+_hashed_admin_password: str = _pwd_context.hash(settings.admin_password)
+
 
 def _create_access_token(subject: str) -> str:
     expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
@@ -26,7 +29,7 @@ def _create_access_token(subject: str) -> str:
 @router.post("/token", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     is_valid_user = form_data.username == settings.admin_username
-    is_valid_password = form_data.password == settings.admin_password
+    is_valid_password = _pwd_context.verify(form_data.password, _hashed_admin_password)
     if not (is_valid_user and is_valid_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
