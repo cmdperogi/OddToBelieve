@@ -16,12 +16,12 @@ jobs:
       - run: cd backend && black --check .
       - run: cd backend && pytest tests/ -v --cov=app --cov-report=term-missing
         env:
-          SECRET_KEY: test-secret-key
+          SECRET_KEY: ${{ secrets.SECRET_KEY || 'test-secret-key-32-characters-long' }}
           ADMIN_USERNAME: admin
-          ADMIN_PASSWORD: test-password
-          BETFAIR_USERNAME: test@example.com
-          BETFAIR_PASSWORD: test-password
-          BETFAIR_APP_KEY: test-app-key
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'test-password' }}
+          BETFAIR_USERNAME: ${{ secrets.BETFAIR_USERNAME || 'test@example.com' }}
+          BETFAIR_PASSWORD: ${{ secrets.BETFAIR_PASSWORD || 'test-password' }}
+          BETFAIR_APP_KEY: ${{ secrets.BETFAIR_APP_KEY || 'test-app-key' }}
   frontend:
     runs-on: ubuntu-latest
     if: hashFiles('frontend/package.json') != ''
