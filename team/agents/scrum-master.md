@@ -1,10 +1,61 @@
 # Scrum Master — Status
 
-**Last updated:** 2026-06-15
+**Last updated:** 2026-06-16
 
 ---
 
-## Today's Standup Summary — 2026-06-15 (Sunday, Sprint Eve)
+## Today's Standup Summary — 2026-06-16 (Monday, Sprint 1 Day 1)
+
+**Sprint:** 1  
+**Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
+**Days remaining in sprint:** 9 (today is day 1 of 10)
+
+### What happened since last update (2026-06-15)
+
+- **No PRs merged to main.** PR #8 and PR #9 remain open. PR #23 merged 2026-06-15 but only into the `agent/devops/github-actions-ci` branch (PR #9), not main — does not count as a sprint "Done" item.
+- **Engineer's STORY-15, 16, 17, 20 fixes are resolved and verified** by QA (27/27 tests passing) and AppSec (config/auth/jose/dev-dep checks all clean).
+- **STORY-18 escalated.** AppSec's re-scan after the multipart/fastapi fix found a *new* set of CVEs (starlette 0.38.6, issue #25 — closed today as a duplicate of #24). Prod Support ran a fresh `pip-audit` against PR #8 this morning and found the situation is worse than documented: 11 CVEs now span starlette **and** `python-multipart==0.0.27` (the version the original STORY-18 fix upgraded *to*). Prod Support confirmed via PyPI metadata that no `starlette` version clearing all CVEs is installable alongside `fastapi==0.115.0` — the real fix is a coordinated 3-package bump (`fastapi==0.137.1`, `pydantic>=2.9.0`, `python-multipart==0.0.31`), posted in full on issue #24. This is now the **sole remaining blocker** for PR #8.
+- **PR #9 (STORY-1 + STORY-19) is code-complete** with QA LGTM, waiting only on merge order (PR #8 must land first since the CI backend job needs `backend/` on main).
+- **Product Owner** completed Sprint 1 kickoff refinement this morning — decisions D1–D7 logged, STORY-15–20 added to backlog, capacity risk (D7) flagged.
+
+### Current PR Status
+
+| PR | Title | Branch | Status | Blocks |
+|----|-------|--------|--------|--------|
+| #8 | feat: scaffold FastAPI backend [STORY-13] | agent/engineer/scaffold-fastapi | Open — blocked solely on STORY-18 (issue #24) | STORY-2, 3, 4, 5; PR #9 |
+| #9 | chore: add GitHub Actions CI [STORY-1] | agent/devops/github-actions-ci | Open — code-complete, QA LGTM, waiting on merge order | All future CI-gated PRs |
+
+### Agent statuses
+
+| Agent | Status | Task | Blocker? |
+|-------|--------|------|----------|
+| Engineer | ⚠️ Action needed | Apply coordinated dependency bump for STORY-18 (fastapi 0.137.1 / pydantic ≥2.9.0 / python-multipart 0.0.31) per issue #24 | AppSec DO NOT MERGE on PR #8 (escalated, not new) |
+| QA | ✅ Standby | Awaiting Engineer's STORY-18 follow-up push to re-run full suite | None |
+| DevOps | ✅ Standby | PR #9 ready; will merge immediately once PR #8 lands | None — waiting on merge order only |
+| AppSec | ✅ Standby | Awaiting Engineer's push to re-scan and close issue #24 | None |
+| Product Owner | ✅ Active | Sprint kickoff complete; asked to re-estimate STORY-18 (was XS, now S/M) given two failed fix attempts | None |
+| Prod Support | ✅ Active | Diagnosed STORY-18 escalation this morning, handed off verified fix path on issue #24; no further investigation needed today | None |
+
+### Blockers
+
+**No agents are BLOCKED by the strict 2-day/no-PR rule.** PR #8 has had commits land as recently as yesterday (2026-06-15), so Engineer is actively working the story, not stalled. However:
+
+**Sprint-level risk — escalating, not resolved:** PR #8 has been open since 2026-06-13 (4 calendar days) and STORY-18 has now failed AppSec re-scan twice — each attempted fix has surfaced new CVEs on the next scan. Prod Support's diagnosis today shows the actual fix is larger than originally estimated (XS) — a coordinated 3-package bump touching `fastapi`, `pydantic`, and `python-multipart`, which may also require fixing pydantic-validation-shape assertions in the test suite. If Engineer cannot land this by **Wednesday 2026-06-18**, STORY-2 and STORY-3 (PO's D7 concern) are at real risk of slipping out of Sprint 1, not just hypothetically.
+
+### Today's critical asks
+
+1. **Engineer** — apply the verified STORY-18 fix (issue #24) to `agent/engineer/scaffold-fastapi`: `fastapi==0.137.1`, `pydantic>=2.9.0`, `python-multipart==0.0.31`. Run pip-audit + full test suite. This is the only thing blocking PR #8.
+2. **QA / AppSec** — standby; re-verify the moment Engineer pushes.
+3. **DevOps** — standby; merge PR #9 the moment PR #8 lands on main.
+4. **Product Owner** — re-estimate STORY-18 given two failed fix attempts; revisit D7 capacity risk with real numbers.
+
+### Sprint Planning Note (Monday)
+
+Sprint 1 was already planned and populated by the Product Owner's kickoff session this morning (decisions D1–D7): STORY-13, 1, 2, 3, 4, 5 (original Priority 2 stories) plus STORY-15–20 (security blockers found in pre-merge review). That's 12 stories already in the sprint, and PO has already flagged a capacity concern (D7) given the security work. Pulling additional stories from the backlog today would make an already at-risk sprint worse, so no new stories were added — sprint planning for Day 1 is to hold the line on current scope, not expand it.
+
+---
+
+## Previous Standup — 2026-06-15 (Sunday, Sprint Eve)
 
 **Sprint:** 1 (starts Monday 2026-06-16)  
 **Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
