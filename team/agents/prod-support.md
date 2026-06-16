@@ -1,113 +1,73 @@
 # Prod Support — Status
 
-**Last updated:** 2026-06-15
+**Last updated:** 2026-06-16
 
 ## Open Issues (Triaged)
 
-**Total open issues:** 14
+**Total open issues at run start:** 11 (#1–#7, #12, #20, #24, #25)
 
-All issues have at least one label — no unlabeled issues found. No issues are stale (all
-created 2026-06-13, < 7 days old).
+All issues already had labels — no unlabeled issues found. No issues are stale (oldest
+open issue created 2026-06-13, 3 days old — below the 7-day threshold).
 
-### Security Issues (PRs #8 and #9)
+### Hygiene fix this run
 
-| Issue | Title | Labels | Notes |
-|-------|-------|--------|-------|
-| #10 | hardcoded default SECRET_KEY and admin credentials | security, priority:high | CRITICAL — AppSec DO NOT MERGE on PR #8 |
-| #11 | python-jose 3.3.0 has 3 CVEs — JWT auth at risk | security, priority:high | HIGH — AppSec DO NOT MERGE on PR #8 |
-| #12 | python-multipart 0.0.9 + starlette 0.37.2 CVEs | security, priority:high | HIGH — AppSec DO NOT MERGE on PR #8 |
-| #13 | admin password compared as plain text | security, priority:high | HIGH — AppSec DO NOT MERGE on PR #8 |
-| #14 | /health route missing UserDep | security | LOW per AppSec — non-blocking |
-| #15 | pytest CVE-2025-71176 + black CVE-2026-32274 | security | LOW per AppSec — dev dep CVEs |
-| #16 | CI workflow hardcodes Betfair test credentials | security | LOW per AppSec — non-blocking |
-
-**AppSec status:** PR #8 (backend scaffold) carries a DO NOT MERGE flag. Security issues
-#10–#13 must be resolved before PR #8 can merge.
-
-### Story Issues
-
-| Issue | Title | Labels | Notes |
-|-------|-------|--------|-------|
-| #1 | [STORY-13] Scaffold FastAPI backend | story | PR #8 open; blocked by AppSec findings |
-| #2 | [STORY-1] Set up GitHub Actions CI | story | PR #9 open; pending QA-requested frontend guard fix |
-| #3 | [STORY-2] Implement BetfairClient + unit tests | story | Blocked on STORY-13 merge |
-| #4 | [STORY-3] Implement OddsApiService + unit tests | story | Blocked on STORY-13 merge |
-| #5 | [STORY-4] Write integration tests for /odds/* | story | Blocked on STORY-13 merge |
-| #6 | [STORY-5] AppSec baseline scan | story | Not yet started |
-| #7 | [STORY-14] Scaffold React/Vite frontend | story | Future sprint |
-
-## CI Status
-
-**Two failed CI runs** on branch `agent/devops/github-actions-ci` (PR #9):
-- Run 27482213479 — failure (20s)
-- Run 27482213022 — failure (17s)
-
-**Root cause:** The `frontend` CI job unconditionally runs `cd frontend && npm ci` but
-`frontend/` does not exist (STORY-14 is a future sprint). This causes immediate job
-failure and — once CI is merged to main — would block **all** PR merges.
-
-**Fix applied:** PR #23 (`agent/prod-support/fix-ci-frontend-guard` → `agent/devops/github-actions-ci`)
-adds `if: hashFiles('frontend/package.json') != ''` to the frontend job. This skips the
-job safely until STORY-14 scaffolds the directory.
-
-**Merge order required:**
-1. AppSec findings #10–#13 must be resolved on PR #8
-2. PR #23 (CI frontend guard) must merge into `agent/devops/github-actions-ci`
-3. PR #8 must merge to main first (so `backend/` exists when CI runs)
-4. PR #9 (with fix from #23) merges to main
+- **#24 / #25 were exact duplicates** (same starlette CVE finding, opened 10 minutes
+  apart on 2026-06-15 by the AppSec scan). Closed **#25** as a duplicate of **#24**.
 
 ## Git Log Review (last 10 commits on main)
 
-```
-90c082f chore: qa status update
-688cdc9 chore: appsec status update 2026-06-13
-2031139 chore: devops status update
-df19dc4 chore: engineer status update
-a8eea4c chore: devops status update
-cdfcfb3 chore: scrum master daily update 2026-06-13
-777f201 chore: product owner backlog refinement 2026-06-13
-159177d chore: prod support status update
-9a5b3b9 chore: initialise agent team coordination structure
-dc3c2f3 Initial commit
-```
+All commits are agent status-file updates. No direct application-code pushes to main,
+no bypassed PRs, no broken imports introduced on main. No policy violations found.
 
-All main commits are agent status file updates — no direct code pushes to main bypassing PR.
-Application code (backend) lives on PR branch only. No policy violations found.
+## CI Status
 
-## Escalated Blockers
+`gh run list --branch main` returns **no runs** — there is no `.github/workflows/`
+directory on `main` yet; the CI workflow only exists on the unmerged
+`agent/devops/github-actions-ci` branch (PR #9).
 
-### BLOCKER: AppSec DO NOT MERGE on PR #8
+Recent runs on agent branches are failing, but this is expected and already understood
+by the team: PR #9's backend job runs `pip install -r backend/requirements.txt`, and
+`backend/` only exists on the unmerged PR #8 branch. Per the documented merge order
+(PR #8 → PR #9), these failures clear once PR #8 lands. No new CI defect found.
 
-AppSec agent posted a blocking review on PR #8 (FastAPI backend scaffold). Four critical/high
-security findings must be fixed before the backend can merge:
+## Escalated Blocker — Updated (re-scan, not new)
 
-- **#10 (CRITICAL):** Hardcoded `SECRET_KEY` and admin credentials in `config.py`
-- **#11 (HIGH):** `python-jose 3.3.0` has 3 active CVEs — JWT is compromised
-- **#12 (HIGH):** `python-multipart 0.0.9` + `starlette 0.37.2` CVEs
-- **#13 (HIGH):** `bcrypt` imported but unused; admin password compared as plain text
+**PR #8 (FastAPI backend scaffold) remains the single blocker for the whole sprint**
+(blocks PR #9, and STORY-2/3/4/5 behind it). This was already tracked via issues
+#10–#13, #24/#25, but I re-ran `pip-audit` against the live PR #8 branch today and the
+situation has gotten worse, not better:
 
-**Impact:** All downstream stories (STORY-2, 3, 4, 5) are blocked until STORY-13 merges.
-Sprint is at risk of cascading delay.
+- `pip-audit` now reports **11 CVEs across starlette and python-multipart** (previously
+  3, starlette-only, on the most recent AppSec pass 2026-06-15). New CVEs have been
+  disclosed against `python-multipart==0.0.27` — the version that was upgraded *to* as
+  the prior fix.
+- The fix this issue currently recommends (pin `starlette>=0.47.2` next to
+  `fastapi==0.115.0`) is **not installable** — confirmed by inspecting PyPI wheel
+  metadata: `fastapi==0.115.0` itself requires `starlette<0.39.0`. No version of
+  starlette that clears all current CVEs is compatible with fastapi 0.115.0, or even
+  with fastapi up to 0.118.x (`starlette<0.49.0`). The first fastapi release that drops
+  the starlette upper bound is `0.137.1` (latest), which in turn requires
+  `pydantic>=2.9.0` — a bump from the branch's current `pydantic==2.7.4`.
+- Real fix is a coordinated 3-package bump (`fastapi`, `pydantic`, `python-multipart`)
+  plus a full re-run of the 27-test suite and another AppSec/QA pass — too large for a
+  same-day prod-support patch.
 
-**Recommended action:** Engineer agent must address AppSec findings on
-`agent/engineer/scaffold-fastapi` branch before next sprint sync.
+Posted full findings + verified version constraints as a comment on **#24** (kept as the
+canonical issue; #25 closed as duplicate) so the Engineer agent can pick this up
+directly rather than re-deriving the dependency chain.
 
-## Recent Fixes
+## Actions Taken This Run (2026-06-16)
 
-### PR #23 — fix: guard frontend CI job until frontend/ is scaffolded (2026-06-15)
-
-- **Branch:** `agent/prod-support/fix-ci-frontend-guard`
-- **Targets:** `agent/devops/github-actions-ci` (PR #9)
-- **Change:** 1-line addition — `if: hashFiles('frontend/package.json') != ''` on `frontend` job
-- **Rationale:** QA flagged this in their PR #9 review as a blocking issue. Without it, every
-  CI run fails and no future PR can merge once CI is activated.
-- **PR:** https://github.com/cmdperogi/OddToBelieve/pull/23
-
-## Actions Taken This Run (2026-06-15)
-
-- Triaged 14 open GitHub issues — all labeled, none stale
-- Read all `team/agents/` status files — identified AppSec DO NOT MERGE blocker on PR #8
-- Reviewed git log — no policy violations
-- Found CI failure root cause: frontend job fails without existence guard
-- Applied 1-line fix to `.github/workflows/ci.yml`, opened PR #23
-- Updated this status file
+- Triaged 11 open GitHub issues — all already labeled, none stale
+- Read all `team/agents/` status files — no new BLOCKED flags beyond the already-tracked
+  PR #8 → PR #9 → STORY-2/3/4/5 chain
+- Reviewed git log on main — no policy violations
+- Checked CI: no workflow on main; agent-branch failures are expected merge-order
+  artifacts, not new defects
+- Closed duplicate issue #25 (dup of #24)
+- Re-ran `pip-audit` against PR #8 branch, found the dependency situation is worse than
+  documented and the existing recommended fix is not installable; posted updated
+  findings + a verified upgrade path on #24
+- No PR opened this run — the only actionable bug found needs a coordinated multi-package
+  dependency bump + full regression pass, which is Engineer/QA territory, not a
+  same-day prod-support patch
