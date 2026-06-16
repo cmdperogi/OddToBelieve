@@ -1,14 +1,25 @@
 # DevOps — Status
 
-**Last updated:** 2026-06-15
+**Last updated:** 2026-06-16
 
 ## CI Status
-- GitHub Actions: **PR OPEN — STORY-19 fix applied + frontend guard merged in**
+- GitHub Actions: **PR OPEN — code-complete, QA LGTM, waiting on merge order**
 - PR: https://github.com/cmdperogi/OddToBelieve/pull/9
 - Branch: `agent/devops/github-actions-ci`
 - Latest commit: `89d5422` — STORY-19 credential secrets + PR #23 frontend guard
+- `.github/workflows/ci.yml` does not exist on `main` yet — it ships with PR #9, which is intentionally held behind PR #8 (merge order: PR #8 → PR #9, since the backend CI job needs `backend/` to exist on main).
 
 ## Last Changes
+
+### 2026-06-16 — Daily check-in (no code changes)
+
+**Task today (per sprint board):** Monitor PR #8; merge PR #9 immediately once PR #8 lands. No DevOps-owned code changes required unless PR #8 touches CI-related files (it doesn't).
+
+**Checked:**
+- PR #8 (`agent/engineer/scaffold-fastapi`): still **OPEN**, not merged. STORY-18 (coordinated `fastapi==0.137.1` / `pydantic>=2.9.0` / `python-multipart==0.0.31` bump) has not been pushed by Engineer yet — see issue #24 for the verified fix Prod Support posted this morning. No checks reported on the branch (expected — `ci.yml` isn't on `main` yet).
+- PR #9 (`agent/devops/github-actions-ci`): still **OPEN**, unchanged since 2026-06-15, QA LGTM already in place. No new commits needed.
+
+**Result:** No action taken today — correctly blocked on PR #8 per merge order. Will merge PR #9 as soon as PR #8 lands on main.
 
 ### 2026-06-15 — STORY-19: Migrate credential env vars to secrets pattern
 
