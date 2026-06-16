@@ -1,6 +1,6 @@
 # QA — Status
 
-**Last updated:** 2026-06-15
+**Last updated:** 2026-06-16
 
 ## PRs Reviewed
 
@@ -28,6 +28,16 @@
   - ✅ 27 tests pass including happy-path, 401, 404 for every endpoint
 - **Non-blocking:** starlette emits `PendingDeprecationWarning` for `python_multipart` import in its own `formparsers.py` — not fixable by us
 
+#### 2026-06-16 (STORY-18 coordinated bump re-review)
+- **Verdict:** LGTM ✅ — posted as PR comment (self-approve still blocked, same reason as 2026-06-13)
+- **Tests run:** 31/31 passed (`pytest tests/ -v --cov=app --cov-report=term-missing`) — up from 27; Engineer's new `tests/unit/test_dependency_versions.py` (4 tests) pins minimum secure versions for fastapi/starlette/python-multipart/pydantic
+- **Pydantic 2.7.4 → 2.9.0 bump:** No validation-error-shape breakage — `test_security_fixes.py` and `test_scaffold.py` assertions all pass unchanged, no action needed
+- **Installed versions confirmed:** `fastapi==0.137.1`, `pydantic==2.13.4`, `starlette==1.3.1`, `python-multipart==0.0.31` — matches the verified chain on issue #24
+- **`pip-audit -r backend/requirements.txt`:** No known vulnerabilities found (sanity-checked ahead of AppSec's formal scan)
+- **Coverage:** 67% overall, unchanged from 2026-06-15 baseline (new tests cover dependency metadata only, not app code paths)
+- **Environment note for future QA runs:** the `pytest` binary on PATH (`/root/.local/bin/pytest`) is a `uv tool`-installed isolated environment and does NOT see packages installed via `pip install -r requirements.txt`. Running `pytest tests/ -v ...` directly fails with `ModuleNotFoundError: No module named 'fastapi'` even right after a clean install. **Use `python3 -m pytest tests/ -v --cov=app --cov-report=term-missing` instead** — same flags, correct interpreter.
+- STORY-18 is resolved; PR #8 is otherwise unblocked from QA's side. AppSec's formal re-scan/sign-off is the only remaining step before merge.
+
 ### PR #9 — chore: add GitHub Actions CI [STORY-1] (`agent/devops/github-actions-ci`)
 
 #### 2026-06-13 (initial review)
@@ -39,6 +49,9 @@
 - **STORY-19 verified:** ✅ All credential-shaped vars now use `${{ secrets.VAR || 'fallback' }}` pattern: `SECRET_KEY`, `ADMIN_PASSWORD`, `BETFAIR_USERNAME`, `BETFAIR_PASSWORD`, `BETFAIR_APP_KEY`
 - **Frontend guard:** ✅ `if: hashFiles('frontend/package.json') != ''` prevents frontend job failure
 - **Merge dependency noted in PR comment:** PR #9 branch does not include `backend/`; CI backend job will fail until PR #8 lands on main. Documented merge order: PR #8 → PR #9.
+
+#### 2026-06-16 (status check)
+- No new commits since the 2026-06-15 LGTM (`89d5422` is still HEAD). No re-review needed; standing LGTM holds.
 
 ## Test Coverage Notes (2026-06-15 — 27 tests, security fixes included)
 
@@ -65,3 +78,7 @@
 - **Frontend CI jobs need existence guards**: Until `frontend/` is scaffolded, frontend CI steps must use `if: hashFiles('frontend/package.json') != ''` guard. DevOps applied this correctly via PR #23.
 - **DB session isolation in tests**: Always use the `db_session` fixture (wraps `_TestingSessionLocal`) when seeding integration test data.
 - **Merge order critical for CI**: The CI backend job references `backend/requirements.txt`. PR #8 must land on main before PR #9 merges, or CI will fail on the combined state.
+- **`pytest` on PATH is not the project's Python**: `/root/.local/bin/pytest` is a `uv tool` install in its own isolated venv — it never sees `pip install -r requirements.txt` into the system/site Python. Always run `python3 -m pytest ...` in this environment, not bare `pytest`, or you'll get false `ModuleNotFoundError` failures that look like a broken PR but aren't.
+
+## Next Up
+- STORY-4 integration tests on `agent/qa/integration-tests-odds` are drafted and ready, but per sprint board this starts only **after STORY-13 (PR #8) merges to main**. PR #8 has not merged yet (AppSec sign-off still pending) — standing by.
