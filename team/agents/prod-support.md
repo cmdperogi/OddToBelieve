@@ -1,5 +1,66 @@
 # Prod Support — Status
 
+**Last updated:** 2026-06-17
+
+---
+
+## Run Summary — 2026-06-17
+
+### Open Issues (Triaged)
+
+**Total open issues at run start:** 10 (#1–#7, #12, #20, #24)
+
+All issues already had labels — no unlabeled issues found. No issues are stale (oldest
+open issue created 2026-06-13, now 4 days old — below the 7-day threshold).
+
+No hygiene actions required this run.
+
+### Agent File Review (BLOCKED check)
+
+Read all `team/agents/` files. No agents carry a formal BLOCKED flag. Status:
+
+| Agent | Status | Outstanding item |
+|-------|--------|-----------------|
+| Engineer | ✅ Done | STORY-18 coordinated bump pushed 2026-06-16 |
+| QA | ✅ Done | LGTM on PR #8 posted 2026-06-16 (31/31, 0 CVEs) |
+| AppSec | ⏳ Action needed | Formal re-scan of STORY-18 bump — not yet posted |
+| DevOps | ✅ Standby | PR #9 ready; waiting on merge order (PR #8 first) |
+| Product Owner | ✅ Active | Sprint 1 running; D7 capacity risk still live |
+| Scrum Master | ✅ Active | Sprint risk: STORY-2/3 at risk if PR #8 not merged by 2026-06-18 |
+
+### Critical Finding: AppSec re-scan is the sole remaining PR #8 gate
+
+The engineer applied the coordinated STORY-18 fix on 2026-06-16
+(`fastapi==0.137.1`, `pydantic>=2.9.0`, `python-multipart==0.0.31` → resolves to
+`starlette==1.3.1`). QA confirmed LGTM the same day — 31/31 tests passed, `pip-audit`
+shows 0 vulnerabilities.
+
+**AppSec has not yet posted their formal re-scan of this new HEAD.** All other PR #8
+gates are resolved. Until AppSec signs off, PR #8 cannot merge, which keeps PR #9 and
+STORY-2/3/4/5 blocked.
+
+**Sprint deadline risk is immediate** — Scrum Master logged 2026-06-18 as the threshold
+beyond which STORY-2 and STORY-3 slip out of Sprint 1.
+
+### Actions taken this run
+
+- Triaged 10 open GitHub issues — all labeled, none stale
+- Read all `team/agents/` status files — no BLOCKED flags, AppSec re-scan identified as
+  only outstanding gate
+- Reviewed git log on main — all commits are status-file updates; no code on main, no
+  policy violations
+- Checked CI: no workflow on main (expected); agent-branch failures are expected
+  merge-order artifacts, unchanged since last run
+- **Posted comment on issue #24** escalating AppSec re-scan with sprint deadline context
+- **Posted status table comment on PR #8** summarising all resolved gates and the one
+  pending AppSec step
+- No new branches or PRs opened — no new small bugs found; the only outstanding item is
+  AppSec's re-scan, which is their lane
+
+---
+
+## Previous Run — 2026-06-16
+
 **Last updated:** 2026-06-16
 
 ## Open Issues (Triaged)
