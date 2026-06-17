@@ -1,6 +1,6 @@
 # QA — Status
 
-**Last updated:** 2026-06-16
+**Last updated:** 2026-06-17
 
 ## PRs Reviewed
 
@@ -53,7 +53,47 @@
 #### 2026-06-16 (status check)
 - No new commits since the 2026-06-15 LGTM (`89d5422` is still HEAD). No re-review needed; standing LGTM holds.
 
-## Test Coverage Notes (2026-06-15 — 27 tests, security fixes included)
+---
+
+### PR #26 — feat: BetfairClient unit tests [STORY-2] (`agent/engineer/unit-tests-betfair`)
+
+#### 2026-06-17 (review)
+- **Verdict:** LGTM ✅ — posted as PR comment (self-approve blocked for same-account PRs)
+- **Tests run:** 40/40 passed (`python3 -m pytest tests/ -v --cov=app --cov-report=term-missing`)
+  - 9 new BetfairClient unit tests + 31 existing
+- **Coverage:** `app/services/betfair.py` 0% → 100%; overall 67% → 82%
+- **STORY-2 AC verification:**
+  - ✅ AC1 — `test_login_success_stores_and_returns_session_token`: token stored in `_session_token` and returned
+  - ✅ AC2 — `test_post_403_reauthenticates_and_retries_exactly_once`: exactly 3 HTTP calls (initial→403, re-auth login, retry)
+  - ✅ AC3 — `test_login_fail_status_raises_runtime_error` + `test_login_error_field_included_in_runtime_error`
+  - ✅ AC4 — `test_list_events_returns_correct_keys_and_values` + empty + missing-fields variants; all 4 keys mapped
+  - ✅ AC5 — entire suite patches `app.services.betfair.httpx.AsyncClient`; zero real HTTP calls
+- **Quality checklist:**
+  - ✅ Type annotations throughout (`str | None`, `list[str]`, `list[dict[str, Any]]`)
+  - ✅ All BetfairClient methods are `async def`
+  - ✅ Credentials never in assertions, fixtures, or log output
+- **Non-blocking:** StarletteDeprecationWarning about httpx/httpx2 is a system-level package conflict, not introduced by this PR
+- **Merge dependency:** Needs rebase onto main after PR #8 merges. Merge order: PR #8 → PR #26
+
+---
+
+## STORY-4 Integration Tests — `agent/qa/integration-tests-odds` (2026-06-17)
+
+**Branch pushed:** `agent/qa/integration-tests-odds` (based on `agent/engineer/scaffold-fastapi`)
+**Tests:** 16/16 passing (up from 11 — added 5 schema-shape tests)
+**File:** `backend/tests/integration/test_odds_endpoints.py`
+
+New tests added 2026-06-17:
+- `test_list_events_event_schema_shape` — verifies `source_id`, `start_time`, `markets` in list response
+- `test_get_event_schema_shape` — verifies all EventSchema fields in detail response
+- `test_list_markets_market_schema_shape` — verifies `id`, `market_type`, `odds` in markets list
+- `test_list_markets_odds_schema_shape` — verifies all OddsSchema fields (`id`, `bookmaker`, `selection`, `value`, `fetched_at`)
+- `test_list_events_returns_multiple_events` — multi-sport/source fixture covers list-all behaviour
+
+All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
+**Awaiting PR #8 merge** before this branch can be merged to main.
+
+## Test Coverage Notes (2026-06-17 — 40 tests on PR #26 branch)
 
 | Module | Coverage | Notes |
 |--------|----------|-------|
@@ -66,10 +106,10 @@
 | `app/dependencies.py` | 73% | Lines 16-20 (get_db body), 35-37 (JWTError path) — acceptable |
 | `app/main.py` | 84% | Lines 14-16 (lifespan/scheduler start) — no process-level test |
 | `app/scheduler.py` | 28% | Intentional — scheduler calls real services; mock tests in STORY-2/3 |
-| `app/services/betfair.py` | 0% | Intentional — mocked unit tests in STORY-2 |
-| `app/services/odds_api.py` | 0% | Intentional — mocked unit tests in STORY-3 |
+| `app/services/betfair.py` | 100% | Covered by PR #26 (9 unit tests, all paths exercised) |
+| `app/services/odds_api.py` | 0% | Intentional — STORY-3 unit tests pending |
 
-**Overall: 67% — up from 65%, acceptable scaffold baseline**
+**Overall: 82% — up from 67% after PR #26 BetfairClient unit tests**
 
 ## Recurring Issues / Patterns Noticed
 
@@ -80,5 +120,12 @@
 - **Merge order critical for CI**: The CI backend job references `backend/requirements.txt`. PR #8 must land on main before PR #9 merges, or CI will fail on the combined state.
 - **`pytest` on PATH is not the project's Python**: `/root/.local/bin/pytest` is a `uv tool` install in its own isolated venv — it never sees `pip install -r requirements.txt` into the system/site Python. Always run `python3 -m pytest ...` in this environment, not bare `pytest`, or you'll get false `ModuleNotFoundError` failures that look like a broken PR but aren't.
 
+## Recurring Issues Added 2026-06-17
+
+- **Self-approve blocked on same-account PRs:** GitHub blocks `gh pr review --approve` when the PR author and reviewer share the same account. Post LGTM as a PR comment (`gh pr comment`) instead.
+- **asyncio_mode = "auto" in pyproject.toml:** All `async def test_*` functions run as coroutines automatically — no `@pytest.mark.asyncio` needed. This is correct for the project setup.
+
 ## Next Up
-- STORY-4 integration tests on `agent/qa/integration-tests-odds` are drafted and ready, but per sprint board this starts only **after STORY-13 (PR #8) merges to main**. PR #8 has not merged yet (AppSec sign-off still pending) — standing by.
+- **STORY-4** (`agent/qa/integration-tests-odds`): 16 integration tests complete and passing. Branch pushed. Merge blocked until PR #8 lands on main — open PR immediately when that happens.
+- **STORY-2/3 QA support**: Once PR #8 + PR #26 merge, review OddsApiService unit tests (STORY-3) using the same mock-httpx pattern established in STORY-2.
+- **PR #8 gate**: AppSec formal re-scan is the only remaining blocker. Standing LGTM holds from 2026-06-16.
