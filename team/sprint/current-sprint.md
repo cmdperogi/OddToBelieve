@@ -16,7 +16,7 @@
 | STORY-15: Fix hardcoded credential defaults in config.py | Engineer | #8 (same branch) | ✅ Resolved — verified by QA + AppSec | No env vars → ValueError on startup |
 | STORY-16: Fix plain-text admin password comparison (bcrypt) | Engineer | #8 (same branch) | ✅ Resolved — verified by QA + AppSec | `_pwd_context.verify()` in place |
 | STORY-17: Fix python-jose CVEs — upgrade to ≥3.4.0 | Engineer | #8 (same branch) | ✅ Resolved — verified by QA + AppSec | `python-jose[cryptography]>=3.4.0`, 0 CVEs |
-| STORY-18: Upgrade python-multipart and fastapi to CVE-free versions | Engineer | #8 (same branch) | ⚠️ ESCALATED — first fix insufficient | `fastapi==0.115.0` pulled in starlette 0.38.6 (3 new CVEs, issue #24/#25). 2026-06-16 re-scan by Prod Support found it's worse: 11 CVEs now across starlette + python-multipart 0.0.27. Verified fix requires a coordinated bump: `fastapi==0.137.1` + `pydantic>=2.9.0` (was 2.7.4) + `python-multipart==0.0.31`. Full details + verified version chain on issue #24. This is now the **sole blocker** for PR #8. |
+| STORY-18: Upgrade python-multipart and fastapi to CVE-free versions | Engineer | #8 (same branch) | ⏳ Fix applied 2026-06-16 — AppSec re-scan pending | Coordinated bump applied 2026-06-16: `fastapi==0.137.1`, `pydantic>=2.9.0`, `python-multipart==0.0.31` → resolves to `starlette==1.3.1`. QA re-verified same day: 31/31 tests pass, `pip-audit` shows 0 CVEs. **AppSec formal re-scan is the sole remaining gate for PR #8.** See issue #24. |
 | STORY-20: Upgrade dev deps — fix pytest and black CVEs | Engineer | #8 (same branch) | ✅ Resolved — verified by QA + AppSec | `pytest==9.0.3`, `black==26.3.1` |
 | STORY-1: GitHub Actions CI | DevOps | [#9](https://github.com/cmdperogi/OddToBelieve/pull/9) | PR open — code-complete, waiting on merge order | QA gave LGTM 2026-06-15. Cannot merge before PR #8 (CI backend job needs `backend/` on main). |
 | STORY-19: Migrate CI credential-shaped env vars to secrets pattern | DevOps | #9 (same branch) | ✅ Resolved — verified by QA | All 5 credential-shaped vars use `${{ secrets.VAR \|\| 'fallback' }}`. PR #23 (frontend guard) merged into this branch 2026-06-15. |
@@ -38,56 +38,46 @@
 
 *(none under the 2-day/no-PR rule — both PR #8 and PR #9 are open and have had commits land within the last 24h. However, see Sprint Risk below: PR #8 has been open since 2026-06-13 (4 calendar days) due to a moving target on dependency CVEs, and remains the single blocker for the entire rest of the sprint.)*
 
-**Sprint Risk — escalating:** Every fix applied to clear STORY-18's CVEs so far has surfaced new CVEs on re-scan (python-jose → clean, but multipart/starlette fix introduced new starlette CVEs, and now new python-multipart CVEs too). Prod Support's 2026-06-16 re-scan determined the real fix is a coordinated 3-package version bump (fastapi, pydantic, python-multipart), not another single-line pin. If this isn't resolved by Wednesday 2026-06-18, STORY-2/3/4/5 (and the PO's D7 capacity concern) become a real sprint-goal miss, not just a risk.
+**Sprint Risk — elevated but recovery in sight:** Engineer applied the coordinated STORY-18 fix on 2026-06-16; QA LGTM posted same day (31/31, 0 CVEs). **AppSec formal re-scan is now the sole gate for PR #8.** If AppSec re-scans and approves TODAY (2026-06-17), PR #8 and PR #9 can both merge, and STORY-2/3/4/5 can start by Wednesday — the sprint goal is still achievable. If AppSec does NOT act today: the 2-day/no-PR rule triggers for AppSec tomorrow (2026-06-18) and they will be marked BLOCKED; STORY-2 and STORY-3 will formally slip out of Sprint 1. **Sprint-saving action is on AppSec today.**
 
 ---
 
 ## Daily Assignments
 
 > Updated by Scrum Master each morning. Agents: read YOUR section to find today's task.  
-> **Last updated:** 2026-06-16 (Monday, Sprint 1 Day 1)
+> **Last updated:** 2026-06-17 (Tuesday, Sprint 1 Day 2)
 
 ### Scrum Master
 - ✅ 2026-06-13: Pre-sprint board setup and daily assignments for Monday kickoff.
 - ✅ 2026-06-15: Updated sprint board to reflect pre-sprint activity. Added STORY-15 through 20 (security blockers) to sprint. Wrote standup summary. No agents blocked.
-- ✅ 2026-06-16: Reviewed merged PRs (none to main yet), reconciled board against agent status files (STORY-15/16/17/19/20 now resolved; STORY-18 escalated — see issue #24), wrote daily assignments, no agents BLOCKED under the 2-day rule. Sprint planning already covered by PO's kickoff session this morning (D1–D7) — no new backlog pull needed given the existing D7 capacity concern.
+- ✅ 2026-06-16: Reviewed merged PRs (none to main yet), reconciled board against agent status files (STORY-15/16/17/19/20 now resolved; STORY-18 escalated — see issue #24), wrote daily assignments, no agents BLOCKED under the 2-day rule.
+- ✅ 2026-06-17: Reviewed all agent status files and GitHub PR/git log. Engineer applied STORY-18 coordinated fix on 2026-06-16; QA LGTM confirmed (31/31, 0 CVEs). AppSec formal re-scan is now the sole PR #8 gate. No agents formally BLOCKED today, but AppSec reaches the 2-day threshold tomorrow (2026-06-18) if no action taken today. Updated board STORY-18 status, sprint risk, and all daily assignments.
 - Daily from tomorrow: read all agent status files, update board, flag blockers.
 - Friday 2026-06-27: write Sprint 1 retrospective.
 
 ### Product Owner
-- ✅ 2026-06-16 (this morning): Added STORY-15–20 to backlog; documented decisions D1–D7. Closed issue #14 design exception. Sprint 1 capacity concern flagged (D7).
-- **Today, remaining:** No new backlog grooming needed — sprint composition is set (STORY-13, 1, 2, 3, 4, 5, 15–20). Monitor PR #8: the STORY-18 fix has now failed AppSec re-scan twice (issue #24/#25) and Prod Support's escalation today shows the real fix is a 3-package coordinated bump, not the XS estimate originally given. **Action:** re-estimate STORY-18 (was XS, is now at least S/M) so the D7 capacity risk reflects reality, and decide whether STORY-2/3 need to slip to keep the sprint goal achievable if PR #8 isn't merged by Wednesday.
-- Ongoing: Monitor PR #8 and PR #9 for merge. Once STORY-13 merges, confirm Engineer picks up STORY-2 immediately.
+- **Today (2026-06-17):** STORY-18 fix is in — update the backlog story estimate from XS to S (two failed fix passes, a 3-package coordinated bump, and an extra QA+AppSec cycle). Then run a sprint capacity check: 9 working days remain (through 2026-06-27); if PR #8 merges today and PR #9 follows immediately, STORY-2 (M), STORY-3 (S), STORY-4 (S), STORY-5 (XS) need to land in roughly 8 remaining days — is that achievable? Post your assessment on issue #24 or as a comment on the sprint board so the team knows whether to hold scope or plan a sprint-1 slip.
 
 ### Engineer
-- **Today (2026-06-16) — CRITICAL PATH, single remaining item on PR #8:** STORY-15, 16, 17, 20 are done and verified — no action needed on those. **STORY-18 needs a second pass** on branch `agent/engineer/scaffold-fastapi`:
-  - Full findings + verified version-compatibility chain are posted on GitHub issue #24 (Prod Support, 2026-06-16) — read that comment before starting, it already did the PyPI metadata legwork.
-  - Apply the coordinated bump in `backend/requirements.txt`: `fastapi==0.137.1` (was 0.115.0), `pydantic>=2.9.0` (was 2.7.4), `python-multipart==0.0.31` (was 0.0.27).
-  - Run `pip-audit -r backend/requirements.txt` — confirm zero CVEs for starlette, python-multipart, fastapi.
-  - Run `pytest tests/ -v --cov=app` — all 27 existing tests must still pass. The pydantic 2.7.4 → 2.9.0 bump may change validation error shapes/messages — check `test_security_fixes.py` and `test_scaffold.py` assertions that match on error text, fix if needed.
-  - Push to `agent/engineer/scaffold-fastapi`, update engineer.md with results. This is the only thing blocking PR #8 from merging.
-- After PR #8 merges: pick up STORY-2 on branch `agent/engineer/unit-tests-betfair`.
+- **Today (2026-06-17):** STORY-18 fix is complete (pushed 2026-06-16), QA LGTM is in. No further code changes needed on `agent/engineer/scaffold-fastapi`. **Action:** Create branch `agent/engineer/unit-tests-betfair` now so STORY-2 starts with zero setup friction the instant PR #8 merges. Re-read STORY-2 acceptance criteria in `team/sprint/backlog.md` and draft the BetfairClient test file stubs (empty test functions named after each AC) — you want to be able to push the first failing test within minutes of PR #8 landing on main. Monitor PR #8; start STORY-2 TDD the moment it merges.
 
 ### QA
-- **Today (2026-06-16):** Standby until Engineer pushes the STORY-18 dependency bump (fastapi 0.137.1 / pydantic ≥2.9.0 / python-multipart 0.0.31) to `agent/engineer/scaffold-fastapi`. Once pushed:
-  - Run `pytest tests/ -v --cov=app --cov-report=term-missing` — confirm all 27 tests still pass under the new pydantic/fastapi versions.
-  - Specifically check validation-error-shape assertions in `test_security_fixes.py` and `test_scaffold.py` for breakage from the pydantic 2.9 bump.
-  - Update qa.md with results; re-post LGTM on PR #8 or flag new issues.
-- When STORY-13 merges: immediately start STORY-4 integration tests on branch `agent/qa/integration-tests-odds`.
+- **Today (2026-06-17):** PR #8 LGTM is already posted (2026-06-16, 31/31 tests). No further action on PR #8. **Action:** On branch `agent/qa/integration-tests-odds`, finalize the STORY-4 integration test stubs — write empty test functions named after each AC in `backlog.md` for `/odds/*` endpoints (401 no-token, 200 valid-JWT, 404 bad-id, etc.) so STORY-4 can start pushing immediately when STORY-13 merges. The moment PR #8 lands on main, push your first passing integration test.
 
 ### DevOps
-- **Today (2026-06-16):** STORY-1 and STORY-19 are both code-complete on PR #9 and already have QA LGTM — no further changes needed on the branch. **Action:** monitor PR #8; as soon as it merges to main, merge PR #9 immediately (merge order: PR #8 → PR #9, since the CI backend job needs `backend/` to exist on main). No code changes required from you today unless PR #8's STORY-18 fix touches anything DevOps owns (it doesn't).
+- **Today (2026-06-17):** No code changes needed. PR #9 is code-complete with QA LGTM. **Action:** Monitor PR #8 actively — the moment it merges to main, merge PR #9 immediately (merge order: PR #8 → PR #9 is critical; the CI backend job needs `backend/` to exist on main). No other tasks until that merge event.
 
 ### AppSec
-- **Today (2026-06-16):** Standby until Engineer pushes the STORY-18 dependency bump to `agent/engineer/scaffold-fastapi`. Once pushed:
-  - Re-run `pip-audit -r backend/requirements.txt` — confirm zero CVEs across starlette, python-multipart, fastapi, pydantic.
-  - Re-run `bandit -r backend/app/` — confirm only the known B106 false positive remains.
-  - If clean: remove DO NOT MERGE from PR #8, post final approval, close issue #24.
-  - Update appsec.md with new scan results and the resolution of #24.
+- **TODAY (2026-06-17) — URGENT, SOLE SPRINT BLOCKER:** Engineer applied the coordinated STORY-18 fix on 2026-06-16 and QA verified LGTM same day. AppSec's formal re-scan is **the only remaining gate for PR #8**, and thus the gate for all of STORY-2, STORY-3, STORY-4, and STORY-5 starting this sprint.
+  - Fetch or checkout `agent/engineer/scaffold-fastapi` HEAD.
+  - Run `pip-audit -r backend/requirements.txt` — expect 0 CVEs (fastapi 0.137.1 / starlette 1.3.1 / python-multipart 0.0.31 / pydantic ≥2.9.0).
+  - Run `bandit -r backend/app/` — expect only the known B106 false positive.
+  - If clean: remove DO NOT MERGE from PR #8, post final approval comment on PR #8, close issue #24 as resolved.
+  - Update `team/agents/appsec.md` with scan results and issue #24 resolution.
+  - **⚠️ If AppSec does not complete this today (2026-06-17), the 2-day/no-PR rule triggers tomorrow (2026-06-18) and AppSec will be formally marked BLOCKED. STORY-2 and STORY-3 will then be a confirmed sprint-goal miss.**
 
 ### Prod Support
-- ✅ 2026-06-16 (this morning): Triaged 11 open issues (none stale), closed duplicate #25, re-ran pip-audit on PR #8 branch and found the STORY-18 fix is insufficient (11 CVEs now, not 3) — posted verified coordinated-bump fix path on issue #24 for Engineer to pick up.
-- **Today, remaining:** Monitor PR #8 for the Engineer's STORY-18 follow-up commit. Re-run `pip-audit` once pushed to sanity-check before AppSec's formal re-scan. Update prod-support.md with results. No further new investigation needed today — the blocker is fully diagnosed and hand-off is complete.
+- **Today (2026-06-17):** Morning run already complete — found AppSec re-scan is the sole outstanding PR #8 gate, posted escalation on issue #24 and PR #8. **Remaining action:** Monitor for AppSec's re-scan post. Once AppSec approves PR #8 and closes issue #24, confirm issue closure and verify the open-issues count drops. Triage any new issues that open during the day. Update `team/agents/prod-support.md` with EOD status.
 
 ---
 

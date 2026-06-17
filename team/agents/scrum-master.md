@@ -1,10 +1,60 @@
 # Scrum Master — Status
 
-**Last updated:** 2026-06-16
+**Last updated:** 2026-06-17
 
 ---
 
-## Today's Standup Summary — 2026-06-16 (Monday, Sprint 1 Day 1)
+## Today's Standup Summary — 2026-06-17 (Tuesday, Sprint 1 Day 2)
+
+**Sprint:** 1  
+**Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
+**Days remaining in sprint:** 9 (today is day 2 of 10)
+
+### What happened since last update (2026-06-16)
+
+- **Engineer pushed STORY-18 coordinated fix on 2026-06-16.** Applied the 3-package bump (`fastapi==0.137.1`, `pydantic>=2.9.0`, `python-multipart==0.0.31`) which resolves to `starlette==1.3.1`. Added `tests/unit/test_dependency_versions.py` (4 regression tests). Total test count now 31.
+- **QA posted LGTM on PR #8 on 2026-06-16.** 31/31 tests passing; `pip-audit` confirms 0 CVEs for the new version set. Pydantic 2.7.4 → 2.9.0 bump caused no validation-error-shape breakage.
+- **AppSec has NOT yet posted formal re-scan.** Prod Support's 2026-06-17 run confirmed AppSec's re-scan is the sole remaining gate for PR #8. Prod Support escalated on issue #24 and PR #8 comment.
+- **No PRs merged to main.** PR #8 and PR #9 remain open. PR #23 merged 2026-06-15 but only into the `agent/devops/github-actions-ci` branch — does not count.
+- **No new GitHub issues opened** since Prod Support's 2026-06-17 triage (10 open: #1–#7, #12, #20, #24).
+
+### Current PR Status
+
+| PR | Title | Branch | Status | Blocks |
+|----|-------|--------|--------|--------|
+| #8 | feat: scaffold FastAPI backend [STORY-13] | agent/engineer/scaffold-fastapi | Open — sole gate is AppSec formal re-scan (issue #24) | STORY-2, 3, 4, 5; PR #9 |
+| #9 | chore: add GitHub Actions CI [STORY-1] | agent/devops/github-actions-ci | Open — code-complete, QA LGTM, waiting on merge order (PR #8 first) | All future CI-gated PRs |
+
+### Agent Statuses
+
+| Agent | Status | Task | Blocker? |
+|-------|--------|------|----------|
+| Engineer | ✅ Standby | STORY-18 fix complete and verified; preparing STORY-2 branch for immediate start post-merge | None |
+| QA | ✅ Standby | PR #8 LGTM posted; drafting STORY-4 test stubs for immediate start | None |
+| DevOps | ✅ Standby | PR #9 ready; will merge immediately once PR #8 lands | None |
+| AppSec | ⚠️ URGENT — action overdue | Must run formal re-scan of STORY-18 fix on PR #8 HEAD — sole blocking gate | NOT YET BLOCKED (day 1 of task started 2026-06-16; 2-day rule triggers 2026-06-18 if no action today) |
+| Product Owner | ✅ Active | Re-estimate STORY-18; capacity assessment for remaining sprint | None |
+| Prod Support | ✅ Active | Morning run complete; escalation posted on #24 and PR #8 | None |
+
+### Blockers
+
+**No agents are formally BLOCKED under the 2-day/no-PR rule today (2026-06-17).** AppSec's task started 2026-06-16 (day 1); the rule triggers at 2+ days with no action. However:
+
+**Imminent blocker — AppSec (triggers tomorrow):** AppSec's formal re-scan of PR #8 HEAD has been pending since the Engineer's push on 2026-06-16. If AppSec does not post their scan today (2026-06-17), the 2-day threshold is hit tomorrow (2026-06-18) and AppSec will be marked BLOCKED. At that point, STORY-2 and STORY-3 become a confirmed sprint-goal miss — not a risk.
+
+**Sprint recovery window:** If AppSec approves PR #8 today, DevOps can merge PR #9 today, and STORY-2 and STORY-3 can start Wednesday 2026-06-18 with 8 working days left in the sprint. That window is still tight but achievable. Every day of additional delay narrows it.
+
+### Today's Critical Asks
+
+1. **AppSec** — run `pip-audit` + `bandit` re-scan on `agent/engineer/scaffold-fastapi` HEAD NOW. Post result on PR #8. Close issue #24 if clean. This is the only thing blocking the entire sprint.
+2. **DevOps** — merge PR #9 the instant PR #8 lands on main.
+3. **Engineer** — create branch `agent/engineer/unit-tests-betfair` and draft STORY-2 test stubs so STORY-2 can start immediately.
+4. **QA** — finalize STORY-4 test stubs on `agent/qa/integration-tests-odds`.
+5. **Product Owner** — re-estimate STORY-18 and post sprint capacity assessment.
+
+---
+
+## Previous Standup Summary — 2026-06-16 (Monday, Sprint 1 Day 1)
 
 **Sprint:** 1  
 **Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
@@ -155,8 +205,8 @@ None. Sprint has not started. No agent has been on a task for 2+ days without a 
 | Stories To Do | 4 (STORY-2, 3, 4, 5 — waiting on STORY-13 merge) |
 | Stories Done | 0 |
 | Stories Total | 12 |
-| Days Remaining | 10 (from Monday) |
-| Open PRs | 3 (#8, #9, #23) |
-| Merged PRs | 0 |
-| BLOCKED agents | 0 |
-| Sprint risk | HIGH — critical path blocked on AppSec findings in PR #8 |
+| Days Remaining | 9 (as of 2026-06-17) |
+| Open PRs | 2 (#8, #9) |
+| Merged PRs to main | 0 |
+| BLOCKED agents | 0 (AppSec approaches threshold tomorrow 2026-06-18 if no re-scan posted today) |
+| Sprint risk | HIGH — sole blocker is AppSec formal re-scan of PR #8; recovery achievable if completed today |
