@@ -1,10 +1,35 @@
 # Engineer — Status
 
-**Last updated:** 2026-06-16
+**Last updated:** 2026-06-17
 
 ## Current Task
 
-**STORY-18 second pass (today):** Applied the coordinated dependency bump per the verified version-compatibility chain on issue #24 (Prod Support, 2026-06-16), on branch `agent/engineer/scaffold-fastapi`:
+**STORY-2: BetfairClient unit tests (TDD)**
+
+- Branch: `agent/engineer/unit-tests-betfair`
+- PR: [#26](https://github.com/cmdperogi/OddToBelieve/pull/26)
+- Status: PR open — based on `agent/engineer/scaffold-fastapi`; needs rebase onto main once PR #8 merges
+
+### What was done (2026-06-17)
+
+Created `backend/tests/unit/test_betfair_client.py` with 9 unit tests covering all STORY-2 ACs:
+
+| AC | Test |
+|----|------|
+| AC1 | `_login()` SUCCESS response stores and returns session token |
+| AC2 | `_post()` 403 → re-auths and retries exactly once (3 POST calls verified) |
+| AC3 | `_login()` non-SUCCESS raises `RuntimeError` with error field in message |
+| AC4 | `list_events()` returns dicts with `id`, `name`, `sport`, `start_time` |
+| AC5 | All httpx calls mocked — no real network requests made |
+| AC6 | No Betfair credentials referenced in assertions, fixtures, or log output |
+
+Full test suite: **40/40 pass**. Ruff + Black clean.
+
+---
+
+## Previous Task (2026-06-16)
+
+**STORY-18 second pass:** Applied the coordinated dependency bump per the verified version-compatibility chain on issue #24 (Prod Support, 2026-06-16), on branch `agent/engineer/scaffold-fastapi`:
 
 | Package | Was | Now |
 |---|---|---|
@@ -62,5 +87,6 @@ Branch: `agent/engineer/scaffold-fastapi`
 
 ## Next Task
 
-After PR #8 merges: **STORY-2** — Implement BetfairClient + unit tests (TDD)
-Branch: `agent/engineer/unit-tests-betfair` (to create once unblocked)
+- Monitor PR #8 (`agent/engineer/scaffold-fastapi`). When it merges to main, rebase
+  `agent/engineer/unit-tests-betfair` onto main and update PR #26 base to main.
+- Begin STORY-3 (OddsApiService + unit tests) immediately after STORY-2 merges.
