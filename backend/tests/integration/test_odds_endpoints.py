@@ -149,3 +149,93 @@ def test_list_markets_empty_when_no_markets(
     resp = client.get(f"/odds/events/{event.id}/markets", headers=auth_headers)
     assert resp.status_code == 200
     assert resp.json() == []
+
+
+# ---------------------------------------------------------------------------
+# EventSchema shape — all required fields present in response
+# ---------------------------------------------------------------------------
+
+
+def test_list_events_event_schema_shape(
+    client: TestClient, auth_headers: dict, seeded_event: db_models.Event
+) -> None:
+    """GET /odds/events response conforms to EventSchema: all required fields present."""
+    resp = client.get("/odds/events", headers=auth_headers)
+    assert resp.status_code == 200
+    event = resp.json()[0]
+    assert set(event.keys()) >= {"id", "source_id", "source", "sport", "name", "start_time", "markets"}
+    assert event["source_id"] == "betfair-001"
+    assert event["start_time"] is not None
+    assert isinstance(event["markets"], list)
+
+
+def test_get_event_schema_shape(
+    client: TestClient, auth_headers: dict, seeded_event: db_models.Event
+) -> None:
+    """GET /odds/events/{id} response conforms to EventSchema: all required fields present."""
+    resp = client.get(f"/odds/events/{seeded_event.id}", headers=auth_headers)
+    assert resp.status_code == 200
+    event = resp.json()
+    assert set(event.keys()) >= {"id", "source_id", "source", "sport", "name", "start_time", "markets"}
+    assert event["source_id"] == "betfair-001"
+    assert event["source"] == "betfair"
+    assert event["sport"] == "soccer"
+    assert event["start_time"] is not None
+
+
+# ---------------------------------------------------------------------------
+# MarketSchema + OddsSchema shape — all required fields in /markets response
+# ---------------------------------------------------------------------------
+
+
+def test_list_markets_market_schema_shape(
+    client: TestClient, auth_headers: dict, seeded_event: db_models.Event
+) -> None:
+    """GET /odds/events/{id}/markets response conforms to MarketSchema: id + market_type + odds list."""
+    resp = client.get(f"/odds/events/{seeded_event.id}/markets", headers=auth_headers)
+    assert resp.status_code == 200
+    market = resp.json()[0]
+    assert set(market.keys()) >= {"id", "market_type", "odds"}
+    assert isinstance(market["id"], int)
+    assert isinstance(market["odds"], list)
+
+
+def test_list_markets_odds_schema_shape(
+    client: TestClient, auth_headers: dict, seeded_event: db_models.Event
+) -> None:
+    """Odds nested in MarketSchema conform to OddsSchema: id, bookmaker, selection, value, fetched_at."""
+    resp = client.get(f"/odds/events/{seeded_event.id}/markets", headers=auth_headers)
+    assert resp.status_code == 200
+    odds = resp.json()[0]["odds"][0]
+    assert set(odds.keys()) >= {"id", "bookmaker", "selection", "value", "fetched_at"}
+    assert isinstance(odds["id"], int)
+    assert odds["value"] == pytest.approx(2.5)
+    assert odds["fetched_at"] is not None
+
+
+# ---------------------------------------------------------------------------
+# Multi-sport / multi-source fixture — list returns all events
+# ---------------------------------------------------------------------------
+
+
+def test_list_events_returns_multiple_events(
+    client: TestClient, auth_headers: dict, db_session
+) -> None:
+    """GET /odds/events returns all events regardless of sport or source."""
+    for i, (sport, source) in enumerate(
+        [("soccer", "betfair"), ("horse_racing", "odds_api")]
+    ):
+        db_session.add(
+            db_models.Event(
+                source_id=f"src-{i}",
+                source=source,
+                sport=sport,
+                name=f"Event {i}",
+                start_time=datetime(2026, 7, i + 1, 12, 0, 0),
+            )
+        )
+    db_session.commit()
+
+    resp = client.get("/odds/events", headers=auth_headers)
+    assert resp.status_code == 200
+    assert len(resp.json()) == 2
