@@ -1,6 +1,6 @@
 # AppSec — Status
 
-**Last updated:** 2026-06-15 (Mon/Thu scheduled scan)
+**Last updated:** 2026-06-18 (Mon/Thu scheduled scan)
 
 ## Last Scan
 
@@ -11,25 +11,24 @@
 
 ### pip-audit (Dependency CVEs)
 - **Run against:** `backend/requirements.txt` (PR #8 branch: `agent/engineer/scaffold-fastapi`)
-- **Result:** 4 vulnerabilities in 1 package (significant improvement from 15 in 5 packages last scan)
+- **Result:** ✅ **CLEAN — No known vulnerabilities found**
 
-| Package | Version | CVEs | Fix Version | Notes |
-|---|---|---|---|---|
-| starlette | 0.38.6 | PYSEC-2026-161, CVE-2024-47874, CVE-2025-54121 | 0.47.2 / 1.0.1 | Transitive dep via fastapi==0.115.0 |
+**Resolved since last scan (2026-06-15):**
+- starlette 0.38.6 → 1.3.1 ✅ (via fastapi==0.137.1; PYSEC-2026-161, CVE-2024-47874, CVE-2025-54121 all resolved)
 
-**Resolved since last scan (2026-06-13):**
-- python-jose 3.3.0 → >=3.4.0 ✅ (zero CVEs)
-- python-multipart 0.0.9 → 0.0.27 ✅ (zero CVEs)
-- pytest 8.2.2 → 9.0.3 ✅ (zero CVEs)
-- black 24.4.2 → 26.3.1 ✅ (zero CVEs)
+### New PRs scanned this cycle
+
+| PR | Branch | New security findings |
+|---|---|---|
+| #26 | `agent/engineer/unit-tests-betfair` | None |
+| #28 | `agent/engineer/unit-tests-oddsapi` | None |
 
 ## Open Security Issues
 
 | # | Title | Severity | PR | Status |
 |---|---|---|---|---|
-| [#12](https://github.com/cmdperogi/OddToBelieve/issues/12) | python-multipart 0.0.9 and starlette 0.37.2 have multiple CVEs | HIGH | #8 | Open (multipart resolved; starlette 0.38.6 still vulnerable — see #25) |
-| [#20](https://github.com/cmdperogi/OddToBelieve/issues/20) | [STORY-18] Upgrade python-multipart and fastapi to CVE-free versions | HIGH | #8 | Open (starlette transitive dep still vulnerable) |
-| [#25](https://github.com/cmdperogi/OddToBelieve/issues/25) | starlette 0.38.6 has 3 CVEs — fastapi 0.115.0 transitive dep still vulnerable | HIGH | #8 | Open — NEW this scan |
+| [#12](https://github.com/cmdperogi/OddToBelieve/issues/12) | python-multipart 0.0.9 and starlette 0.37.2 have multiple CVEs | HIGH | #8 | Resolved in current requirements; awaiting formal close |
+| [#20](https://github.com/cmdperogi/OddToBelieve/issues/20) | [STORY-18] Upgrade python-multipart and fastapi to CVE-free versions | HIGH | #8 | Resolved in current requirements; awaiting formal close |
 
 ## Resolved Issues (closed this scan)
 
@@ -46,13 +45,15 @@
 | [#19](https://github.com/cmdperogi/OddToBelieve/issues/19) | [STORY-17] Fix python-jose CVEs | HIGH | ✅ Closed — same fix as #11 |
 | [#21](https://github.com/cmdperogi/OddToBelieve/issues/21) | [STORY-19] Migrate CI credentials to secrets pattern | MEDIUM | ✅ Closed — same fix as #16 |
 | [#22](https://github.com/cmdperogi/OddToBelieve/issues/22) | [STORY-20] Upgrade dev deps — fix pytest and black CVEs | LOW | ✅ Closed — same fix as #15 |
+| [#25](https://github.com/cmdperogi/OddToBelieve/issues/25) | starlette 0.38.6 has 3 CVEs — fastapi 0.115.0 transitive dep | HIGH | ✅ Resolved — fastapi==0.137.1 pulls starlette==1.3.1; pip-audit clean |
+| [#29](https://github.com/cmdperogi/OddToBelieve/issues/29) | /health endpoint lacks UserDep authentication | LOW | ✅ Closed — duplicate of #14; PO D5 exception still applies |
+| [#30](https://github.com/cmdperogi/OddToBelieve/issues/30) | CI workflow falls back to plaintext hardcoded credentials when secrets unset | LOW | ✅ Closed — duplicate of #16; team accepted fallback pattern for local-only app |
 
 ## PRs Reviewed
 
 ### PR #8 — feat: scaffold FastAPI backend [`agent/engineer/scaffold-fastapi`]
-- **Outcome:** DO NOT MERGE — starlette 0.38.6 CVEs still blocking (issue #25)
-- **Blocking findings:** #25 (HIGH) — starlette 0.38.6 transitive CVEs
-- **Resolved since last review:** #10 (CRITICAL), #11 (HIGH), #13 (HIGH), #15 (LOW)
+- **Outcome:** ✅ **SECURITY CLEAR** — starlette CVE resolved; no blocking findings
+- **Resolved since last review:** #25 (HIGH) — starlette now 1.3.1 via fastapi 0.137.1
 - **Non-blocking / accepted exceptions:** #14 (design exception — PO D5)
 - **Clean checks:**
   - No raw SQL strings or f-strings in queries (SQLAlchemy ORM throughout) ✅
@@ -64,11 +65,28 @@
   - Admin password bcrypt-hashed at startup; `verify()` used on login ✅
 
 ### PR #9 — chore: add GitHub Actions CI [`agent/devops/github-actions-ci`]
-- **Outcome:** Clean — ready to merge after PR #8 lands
-- **Resolved since last review:** #16, #21 (CI credential secrets pattern applied)
+- **Outcome:** ✅ Clean — ready to merge after PR #8 lands
 - **Clean checks:**
   - All credential-shaped vars use `${{ secrets.VAR || 'safe-fallback' }}` ✅
-  - Frontend job guard present: `if: hashFiles('frontend/package.json') != ''` ✅
+  - Frontend job guard present (step-level) ✅
+  - No new runtime dependencies introduced ✅
+
+### PR #26 — feat: BetfairClient unit tests [`agent/engineer/unit-tests-betfair`]
+- **Outcome:** ✅ Clean — no security issues
+- **Clean checks:**
+  - All Betfair HTTP calls fully mocked — no real network requests ✅
+  - No Betfair credentials referenced in test assertions or log output ✅
+  - Mock session tokens ("stale-token", "valid-token") are test fixtures only ✅
+  - `conftest.py` uses `os.environ.setdefault()` with test-only placeholder values ✅
+  - No new runtime dependencies introduced ✅
+
+### PR #28 — feat: OddsApiService unit tests [`agent/engineer/unit-tests-oddsapi`]
+- **Outcome:** ✅ Clean — no security issues
+- **Clean checks:**
+  - All Odds API HTTP calls fully mocked — no real network requests ✅
+  - API key never referenced in assertions or log output ✅
+  - Quota guard behavior tested correctly (no API calls when remaining < 50) ✅
+  - App code identical to PR #8 — no new security surface introduced ✅
   - No new runtime dependencies introduced ✅
 
 ## Security Baseline Compliance
@@ -76,8 +94,8 @@
 | Baseline Rule | Status |
 |---|---|
 | JWT HS256, SECRET_KEY from env only | ✅ No defaults; env required |
-| All routes except POST /auth/token use UserDep | ✅ Accepted exception: /health (PO decision D5 — intentional liveness probe, documented in sprint notes) |
+| All routes except POST /auth/token use UserDep | ✅ Accepted exception: /health (PO decision D5 — intentional liveness probe) |
 | SQLAlchemy ORM only — no raw SQL | ✅ |
 | Betfair credentials from env only, never in logs/responses | ✅ |
 | CORS: allow_origins=["http://localhost:5173"] only | ✅ |
-| Dependencies free of known CVEs | ❌ starlette 0.38.6 (3 CVEs) — issue #25 — blocks PR #8 merge |
+| Dependencies free of known CVEs | ✅ pip-audit clean — starlette 1.3.1 via fastapi 0.137.1 |
