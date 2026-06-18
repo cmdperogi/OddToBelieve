@@ -1,6 +1,6 @@
 # QA — Status
 
-**Last updated:** 2026-06-17
+**Last updated:** 2026-06-18
 
 ## PRs Reviewed
 
@@ -77,6 +77,27 @@
 
 ---
 
+### PR #28 — feat: OddsApiService unit tests [STORY-3] (`agent/engineer/unit-tests-oddsapi`)
+
+#### 2026-06-18 (review)
+- **Verdict:** LGTM ✅ — posted as PR comment (self-approve blocked — same account)
+- **Tests run:** 56/56 passed (`python3 -m pytest tests/ -v --cov=app --cov-report=term-missing`)
+  - 16 new OddsApiService unit tests + 40 previously passing tests
+- **Coverage:** `app/services/odds_api.py` 0% → 100%; overall 82% → 90%
+- **STORY-3 AC verification:**
+  - ✅ AC1 — `test_quota_guard_blocks_*` (4 tests): guard blocks HTTP call and logs WARNING when `_requests_remaining < 50`, tested at 49, 0, 1, and general below-threshold
+  - ✅ AC2 — `test_fetch_proceeds_*` (6 tests): fetch proceeds when `remaining >= 50` or `None`; `x-requests-remaining` header updates internal state; absent header leaves state unchanged
+  - ✅ AC3 — `test_fetch_returns_parsed_*` (4 tests): full bookmaker/market/outcome structure verified, multi-event case, empty list case
+  - ✅ AC4 — `test_no_real_http_calls_reach_odds_api` + `test_quota_guard_prevents_any_http_call_when_low`: `httpx.AsyncClient` patched at `app.services.odds_api.httpx.AsyncClient`; Odds API key never in assertions; 0 real HTTP calls
+- **Quality checklist:**
+  - ✅ Type annotations throughout (`str | None`, `tuple[MagicMock, MagicMock]`, `list`)
+  - ✅ All test functions are `async def`
+  - ✅ URL path and query params (`regions`, `markets`) verified via `call_args` introspection
+  - ✅ Patch target correct: `app.services.odds_api.httpx.AsyncClient`
+- **Merge dependency:** PR #8 → PR #26 → PR #28. Merge order must be respected.
+
+---
+
 ## STORY-4 Integration Tests — `agent/qa/integration-tests-odds` (2026-06-17)
 
 **Branch pushed:** `agent/qa/integration-tests-odds` (based on `agent/engineer/scaffold-fastapi`)
@@ -93,7 +114,17 @@ New tests added 2026-06-17:
 All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
 **Awaiting PR #8 merge** before this branch can be merged to main.
 
-## Test Coverage Notes (2026-06-17 — 40 tests on PR #26 branch)
+## STORY-4 PR Opened (2026-06-18)
+
+**PR #31 opened as draft:** `agent/qa/integration-tests-odds` → `main`
+- URL: https://github.com/cmdperogi/OddToBelieve/pull/31
+- Tests: 16/16 passing (verified 2026-06-18)
+- Opened as draft because PR #8 has not yet merged; merge dependency documented in PR body
+- Review can proceed in advance of the merge
+
+---
+
+## Test Coverage Notes (2026-06-18 — 56 tests on PR #28 branch)
 
 | Module | Coverage | Notes |
 |--------|----------|-------|
@@ -106,10 +137,12 @@ All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
 | `app/dependencies.py` | 73% | Lines 16-20 (get_db body), 35-37 (JWTError path) — acceptable |
 | `app/main.py` | 84% | Lines 14-16 (lifespan/scheduler start) — no process-level test |
 | `app/scheduler.py` | 28% | Intentional — scheduler calls real services; mock tests in STORY-2/3 |
-| `app/services/betfair.py` | 100% | Covered by PR #26 (9 unit tests, all paths exercised) |
-| `app/services/odds_api.py` | 0% | Intentional — STORY-3 unit tests pending |
+| `app/services/betfair.py` | 100% | All paths covered by PR #26 (9 unit tests) |
+| `app/services/odds_api.py` | 100% | All paths covered by PR #28 (16 unit tests) |
 
-**Overall: 82% — up from 67% after PR #26 BetfairClient unit tests**
+**Overall: 90% — up from 82% after PR #28 OddsApiService unit tests**
+
+---
 
 ## Recurring Issues / Patterns Noticed
 
@@ -117,15 +150,14 @@ All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
 - **Duplicate deps**: `httpx` appeared twice in initial `requirements.txt` — cleaned up.
 - **Frontend CI jobs need existence guards**: Until `frontend/` is scaffolded, frontend CI steps must use `if: hashFiles('frontend/package.json') != ''` guard. DevOps applied this correctly via PR #23.
 - **DB session isolation in tests**: Always use the `db_session` fixture (wraps `_TestingSessionLocal`) when seeding integration test data.
-- **Merge order critical for CI**: The CI backend job references `backend/requirements.txt`. PR #8 must land on main before PR #9 merges, or CI will fail on the combined state.
-- **`pytest` on PATH is not the project's Python**: `/root/.local/bin/pytest` is a `uv tool` install in its own isolated venv — it never sees `pip install -r requirements.txt` into the system/site Python. Always run `python3 -m pytest ...` in this environment, not bare `pytest`, or you'll get false `ModuleNotFoundError` failures that look like a broken PR but aren't.
-
-## Recurring Issues Added 2026-06-17
-
-- **Self-approve blocked on same-account PRs:** GitHub blocks `gh pr review --approve` when the PR author and reviewer share the same account. Post LGTM as a PR comment (`gh pr comment`) instead.
-- **asyncio_mode = "auto" in pyproject.toml:** All `async def test_*` functions run as coroutines automatically — no `@pytest.mark.asyncio` needed. This is correct for the project setup.
+- **Merge order critical for CI**: PR #8 must land before PR #9; PR #8 must land before PR #26; PR #26 must land before PR #28.
+- **`pytest` on PATH is not the project's Python**: `/root/.local/bin/pytest` is a `uv tool` install in its own isolated venv — it never sees `pip install -r requirements.txt`. Always run `python3 -m pytest ...`, not bare `pytest`.
+- **Self-approve blocked on same-account PRs**: GitHub blocks `gh pr review --approve` when the PR author and reviewer share the same account. Post LGTM as a PR comment instead.
+- **asyncio_mode = "auto"**: All `async def test_*` functions run as coroutines without `@pytest.mark.asyncio` — this is configured in `pyproject.toml`.
+- **Stacked PRs need explicit merge-order documentation**: PR #28 stacks on PR #26 which stacks on PR #8. Document the chain in each PR body and QA LGTM comment to prevent out-of-order merges that break CI.
 
 ## Next Up
-- **STORY-4** (`agent/qa/integration-tests-odds`): 16 integration tests complete and passing. Branch pushed. Merge blocked until PR #8 lands on main — open PR immediately when that happens.
-- **STORY-2/3 QA support**: Once PR #8 + PR #26 merge, review OddsApiService unit tests (STORY-3) using the same mock-httpx pattern established in STORY-2.
-- **PR #8 gate**: AppSec formal re-scan is the only remaining blocker. Standing LGTM holds from 2026-06-16.
+
+- **STORY-4** (`agent/qa/integration-tests-odds`): Draft PR #31 open. Merge blocked until PR #8 lands. Mark PR ready-for-review immediately when PR #8 merges.
+- **STORY-3 QA**: PR #28 LGTM posted. Needs rebase onto PR #26 and then main once PR #8 → PR #26 merge chain completes.
+- **AppSec gate**: PR #8 formal re-scan is the only sprint blocker. Sprint goal at risk if AppSec does not post results by 2026-06-19.
