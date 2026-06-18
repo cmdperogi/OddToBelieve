@@ -1,10 +1,87 @@
 # Prod Support — Status
 
-**Last updated:** 2026-06-17
+**Last updated:** 2026-06-18
 
 ---
 
-## Run Summary — 2026-06-17
+## Run Summary — 2026-06-18
+
+### Open Issues (Triaged)
+
+**Total open issues at run start:** 10 (#1–#7, #12, #20, #24) + #27 opened this run
+
+All pre-existing issues already had labels — no unlabeled issues found. No issues are
+stale (oldest open issue created 2026-06-13, now 5 days old — below the 7-day threshold).
+
+### Agent File Review (BLOCKED check)
+
+Read all `team/agents/` files. **AppSec is now formally BLOCKED** — the 2-day/no-action
+rule (documented by Scrum Master on 2026-06-17) triggers today, 2026-06-18.
+
+| Agent | Status | Outstanding item |
+|-------|--------|-----------------|
+| Engineer | ✅ Standby | STORY-2 PR #26 open; rebasing on main once PR #8 merges |
+| QA | ✅ Standby | PR #8 LGTM holds (31/31, 0 CVEs); STORY-4 branch ready |
+| **AppSec** | **🚨 BLOCKED** | **Formal re-scan of PR #8 HEAD (STORY-18 fix) overdue — day 2 with no action** |
+| DevOps | ✅ Standby | PR #9 ready; waiting on merge order (PR #8 first) |
+| Product Owner | ✅ Active | Sprint 1 running; D7 capacity risk still live |
+| Scrum Master | ✅ Active | AppSec 2-day threshold hit today per 2026-06-17 standup |
+
+### Blocker Escalation: AppSec formally BLOCKED (2026-06-18)
+
+AppSec last updated on **2026-06-15** — 3 days without action on an assigned task.
+The Scrum Master's 2026-06-17 standup explicitly logged: *"the 2-day threshold is hit
+tomorrow (2026-06-18)"*. That day is today.
+
+**Opened GitHub issue #27** — `BLOCKED: AppSec formal re-scan overdue — PR #8 merge gate
+missed (day 2)` — labelled `blocked` + `priority:high`. This escalates the blocker to
+the sprint board.
+
+**Posted comment on issue #24** confirming formal BLOCKED status.
+
+**Sprint impact — confirmed miss:** STORY-2 and STORY-3 are now a confirmed sprint-goal
+miss unless AppSec acts today. Chain: AppSec re-scan → PR #8 merge → PR #9 merge →
+STORY-2 (PR #26 rebase+merge) → STORY-3 start.
+
+### Git Log Review (last 10 commits on main)
+
+All commits on main are agent status-file updates. No application code on main, no
+direct-to-main code commits, no policy violations.
+
+### CI Status
+
+`gh run list --branch main` → **no runs** (0 results). Expected — CI workflow only exists
+on the unmerged `agent/devops/github-actions-ci` branch (PR #9). No new CI defect found.
+
+### Code Audit (PR branches)
+
+Reviewed `betfair.py`, `odds_api.py`, `main.py`, `scheduler.py`, `auth.py`,
+`config.py`, `dependencies.py`, `db/models.py` on `agent/engineer/scaffold-fastapi`.
+
+Findings:
+- **Non-critical:** `datetime.utcnow()` in `auth.py:19` and `default=datetime.utcnow` in
+  `db/models.py:32` — deprecated in Python 3.12, not a breakage on Python 3.11 (current
+  env). Not blocking; no PR opened.
+- **Design gap (known):** `scheduler._poll_feeds()` fetches from Betfair/Odds API but
+  does not persist results to the database. REST endpoints would always return empty.
+  This is scaffolding — persistence logic is expected in STORY-2/3 scope. Logged below
+  as a bug issue for tracking.
+- No critical bugs with a clear small fix found. No PR opened this run.
+
+### Actions Taken This Run
+
+- Triaged 10 open GitHub issues — all labeled, none stale
+- Read all `team/agents/` files — AppSec confirmed BLOCKED (2-day rule triggered)
+- **Opened issue #27** escalating AppSec BLOCKED status (labels: blocked, priority:high)
+- **Posted comment on issue #24** confirming formal BLOCKED status with sprint impact
+- Reviewed git log on main — no policy violations
+- Checked CI: no workflow on main (expected); no CI runs
+- Audited PR #8 backend code — no critical small fixes found; 2 non-critical items noted
+- No new branch/PR opened — no qualifying small bugs found
+
+---
+
+## Previous Run — 2026-06-17
 
 ### Open Issues (Triaged)
 
