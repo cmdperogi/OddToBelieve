@@ -24,11 +24,17 @@ jobs:
           BETFAIR_APP_KEY: ${{ secrets.BETFAIR_APP_KEY || 'test-app-key' }}
   frontend:
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('frontend/package.json') != '' }}
     steps:
       - uses: actions/checkout@v4
+      - name: Check if frontend is scaffolded
+        id: frontend-check
+        run: echo "exists=$(test -f frontend/package.json && echo true || echo false)" >> $GITHUB_OUTPUT
       - uses: actions/setup-node@v4
+        if: steps.frontend-check.outputs.exists == 'true'
         with: {node-version: '20'}
       - run: cd frontend && npm ci
+        if: steps.frontend-check.outputs.exists == 'true'
       - run: cd frontend && npm run lint
+        if: steps.frontend-check.outputs.exists == 'true'
       - run: cd frontend && npm run build
+        if: steps.frontend-check.outputs.exists == 'true'
