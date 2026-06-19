@@ -7,11 +7,31 @@ api.the-odds-api.com.
 """
 
 import logging
+from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
+from app.db.database import Base
+from app.db.models import Event, Market, Odds
 from app.services.odds_api import OddsApiService
+
+
+@pytest.fixture()
+def db_session():
+    engine = create_engine(
+        "sqlite:///:memory:", connect_args={"check_same_thread": False}
+    )
+    Base.metadata.create_all(bind=engine)
+    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session = Session()
+    try:
+        yield session
+    finally:
+        session.close()
+    Base.metadata.drop_all(bind=engine)
 
 
 def _mock_get_response(
@@ -343,3 +363,184 @@ async def test_quota_guard_prevents_any_http_call_when_low() -> None:
 
     mock_instance.get.assert_not_called()
     mock_cls.assert_not_called()
+
+
+# ── AC3 (persistence): Event, Market, and Odds records are written to DB ──────
+
+_FULL_ODDS_PAYLOAD = [
+    {
+        "id": "event-abc",
+        "sport_key": "soccer_epl",
+        "sport_title": "EPL",
+        "commence_time": "2026-06-20T15:00:00Z",
+        "home_team": "Arsenal",
+        "away_team": "Chelsea",
+        "bookmakers": [
+            {
+                "key": "bet365",
+                "title": "Bet365",
+                "markets": [
+                    {
+                        "key": "h2h",
+                        "outcomes": [
+                            {"name": "Arsenal", "price": 2.10},
+                            {"name": "Chelsea", "price": 3.50},
+                            {"name": "Draw", "price": 3.20},
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+]
+
+
+async def test_persist_creates_event_record(db_session) -> None:
+    """fetch() with db writes one Event record per API event."""
+    svc = OddsApiService()
+    mock_cls, _ = _mock_http_client(
+        lambda *a, **kw: _mock_get_response(_FULL_ODDS_PAYLOAD, remaining="150")
+    )
+
+    with patch("app.services.odds_api.httpx.AsyncClient", mock_cls):
+        await svc.fetch("soccer_epl", db=db_session)
+
+    events = db_session.query(Event).all()
+    assert len(events) == 1
+    ev = events[0]
+    assert ev.source_id == "event-abc"
+    assert ev.source == "odds_api"
+    assert ev.sport == "soccer_epl"
+    assert ev.name == "Arsenal vs Chelsea"
+    assert ev.start_time == datetime(2026, 6, 20, 15, 0, 0)
+
+
+async def test_persist_creates_market_record(db_session) -> None:
+    """fetch() with db writes one Market record per market type per event."""
+    svc = OddsApiService()
+    mock_cls, _ = _mock_http_client(
+        lambda *a, **kw: _mock_get_response(_FULL_ODDS_PAYLOAD, remaining="150")
+    )
+
+    with patch("app.services.odds_api.httpx.AsyncClient", mock_cls):
+        await svc.fetch("soccer_epl", db=db_session)
+
+    markets = db_session.query(Market).all()
+    assert len(markets) == 1
+    assert markets[0].market_type == "h2h"
+    assert markets[0].event_id == db_session.query(Event).first().id
+
+
+async def test_persist_creates_odds_records(db_session) -> None:
+    """fetch() with db writes one Odds record per bookmaker outcome."""
+    svc = OddsApiService()
+    mock_cls, _ = _mock_http_client(
+        lambda *a, **kw: _mock_get_response(_FULL_ODDS_PAYLOAD, remaining="150")
+    )
+
+    with patch("app.services.odds_api.httpx.AsyncClient", mock_cls):
+        await svc.fetch("soccer_epl", db=db_session)
+
+    odds_rows = db_session.query(Odds).all()
+    assert len(odds_rows) == 3
+    by_selection = {o.selection: o for o in odds_rows}
+    assert by_selection["Arsenal"].value == pytest.approx(2.10)
+    assert by_selection["Arsenal"].bookmaker == "bet365"
+    assert by_selection["Chelsea"].value == pytest.approx(3.50)
+    assert by_selection["Draw"].value == pytest.approx(3.20)
+
+
+async def test_persist_deduplicates_market_types_across_bookmakers(db_session) -> None:
+    """When two bookmakers share the same market key, only one Market row is written."""
+    payload = [
+        {
+            "id": "event-dup",
+            "sport_key": "soccer_epl",
+            "commence_time": "2026-06-21T12:00:00Z",
+            "home_team": "Man City",
+            "away_team": "Liverpool",
+            "bookmakers": [
+                {
+                    "key": "betfair",
+                    "markets": [
+                        {
+                            "key": "h2h",
+                            "outcomes": [
+                                {"name": "Man City", "price": 1.90},
+                                {"name": "Liverpool", "price": 4.00},
+                            ],
+                        }
+                    ],
+                },
+                {
+                    "key": "paddypower",
+                    "markets": [
+                        {
+                            "key": "h2h",
+                            "outcomes": [
+                                {"name": "Man City", "price": 1.95},
+                                {"name": "Liverpool", "price": 3.90},
+                            ],
+                        }
+                    ],
+                },
+            ],
+        }
+    ]
+    svc = OddsApiService()
+    mock_cls, _ = _mock_http_client(
+        lambda *a, **kw: _mock_get_response(payload, remaining="150")
+    )
+
+    with patch("app.services.odds_api.httpx.AsyncClient", mock_cls):
+        await svc.fetch("soccer_epl", db=db_session)
+
+    assert db_session.query(Market).count() == 1
+    assert db_session.query(Odds).count() == 4
+
+
+async def test_persist_multiple_events(db_session) -> None:
+    """fetch() persists all events in a multi-event payload."""
+    payload = [
+        {
+            "id": "evt-1",
+            "sport_key": "soccer_epl",
+            "commence_time": "2026-06-20T15:00:00Z",
+            "home_team": "Arsenal",
+            "away_team": "Chelsea",
+            "bookmakers": [],
+        },
+        {
+            "id": "evt-2",
+            "sport_key": "soccer_epl",
+            "commence_time": "2026-06-20T17:30:00Z",
+            "home_team": "Man City",
+            "away_team": "Tottenham",
+            "bookmakers": [],
+        },
+    ]
+    svc = OddsApiService()
+    mock_cls, _ = _mock_http_client(
+        lambda *a, **kw: _mock_get_response(payload, remaining="148")
+    )
+
+    with patch("app.services.odds_api.httpx.AsyncClient", mock_cls):
+        await svc.fetch("soccer_epl", db=db_session)
+
+    events = db_session.query(Event).all()
+    assert len(events) == 2
+    source_ids = {e.source_id for e in events}
+    assert source_ids == {"evt-1", "evt-2"}
+
+
+async def test_persist_skipped_when_no_db(db_session) -> None:
+    """fetch() without a db argument does not write any records."""
+    svc = OddsApiService()
+    mock_cls, _ = _mock_http_client(
+        lambda *a, **kw: _mock_get_response(_FULL_ODDS_PAYLOAD, remaining="150")
+    )
+
+    with patch("app.services.odds_api.httpx.AsyncClient", mock_cls):
+        await svc.fetch("soccer_epl")
+
+    assert db_session.query(Event).count() == 0
