@@ -1,10 +1,59 @@
 # Scrum Master — Status
 
-**Last updated:** 2026-06-17
+**Last updated:** 2026-06-19
 
 ---
 
-## Today's Standup Summary — 2026-06-18 (Wednesday, Sprint 1 Day 3)
+## Today's Standup Summary — 2026-06-19 (Thursday, Sprint 1 Day 4)
+
+**Sprint:** 1  
+**Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
+**Days remaining in sprint:** 7 (through 2026-06-27)
+
+### What happened since last update (2026-06-18)
+
+- **AppSec BLOCKED — LIFTED.** AppSec completed the formal re-scan of PR #8 HEAD on 2026-06-18 — the same day the BLOCKED flag was issued. pip-audit: 0 CVEs. Bandit: B106 false positive only (known). PR #8 verdict: SECURITY CLEAR. The scan commit landed after Prod Support's morning run, so the BLOCKED flag was in effect for 0 working days. Prod Support closed issues #12, #20, #24, #27 on 2026-06-19 and posted a scan summary on PR #8.
+- **Engineer opened PR #28 (STORY-3) on 2026-06-18.** 16 OddsApiService unit tests covering all 4 STORY-3 ACs. Combined suite: 56/56 pass. Overall coverage: 90%. `odds_api.py` 100%. QA LGTM'd same day. AppSec scan clean. PR is stacked on PR #26 which is stacked on PR #8.
+- **QA opened draft PR #31 (STORY-4) on 2026-06-18.** 16/16 integration tests passing. All 5 STORY-4 ACs covered. Opened as draft because PR #8 hasn't merged yet.
+- **No PRs merged to main.** PR #8, #9, #26, #28 open; PR #31 draft. Done count: 0.
+- **Sole remaining gate:** AppSec posts formal approval comment on PR #8. The scan is done; the comment is the formality that enables the merge.
+
+### Current PR Status
+
+| PR | Title | Branch | Status | Blocks |
+|----|-------|--------|--------|--------|
+| #8 | feat: scaffold FastAPI backend [STORY-13] | agent/engineer/scaffold-fastapi | Open — AppSec scan CLEAR; awaiting formal approval comment | PR #9, PR #26, PR #28, PR #31 |
+| #9 | chore: add GitHub Actions CI [STORY-1] | agent/devops/github-actions-ci | Open — code-complete, QA LGTM; waiting on PR #8 merge | All CI-gated future PRs |
+| #26 | feat: BetfairClient unit tests [STORY-2] | agent/engineer/unit-tests-betfair | Open — QA LGTM; needs rebase onto main after PR #8 | PR #28 |
+| #28 | feat: OddsApiService unit tests [STORY-3] | agent/engineer/unit-tests-oddsapi | Open — QA LGTM; stacked on PR #26; DB persistence in progress | STORY-3 completion |
+| #31 | test: STORY-4 integration tests | agent/qa/integration-tests-odds | Draft — 16/16 passing; awaiting PR #8 merge to mark ready | STORY-4 completion |
+
+### Agent Statuses
+
+| Agent | Status | Task | Blocker? |
+|-------|--------|------|----------|
+| Engineer | ✅ In Progress | STORY-3 DB persistence (`OddsApiService.fetch()` → Event/Market/Odds records); rebases pending | Waiting on PR #8 merge for rebase chain |
+| QA | ✅ Standby | PR #31 draft; convert to ready-for-review when PR #8 merges | Waiting on PR #8 merge |
+| DevOps | ✅ Standby | PR #9 ready; merge immediately once PR #8 lands | Waiting on PR #8 only |
+| **AppSec** | ⚠️ Admin action needed | Post formal approval comment on PR #8 — scan done (2026-06-18), comment outstanding | No technical block; scan is complete |
+| Product Owner | ⚠️ Action needed | Sprint capacity assessment not yet posted (requested since 2026-06-17); STORY-3 scope clarification needed | None |
+| Prod Support | ✅ Active | Issues #1–#7 stale threshold tomorrow (2026-06-20) — comment on each today | None |
+
+### Blockers
+
+**No agents formally BLOCKED today (2026-06-19).** AppSec's re-scan was completed 2026-06-18; the BLOCKED flag was lifted before it had measurable effect. AppSec's remaining action (posting the formal PR approval comment) is administrative — it does not trigger the 2-day/no-PR rule because AppSec is not on a new story; they are completing a prior scan cycle.
+
+### Today's Critical Asks
+
+1. **AppSec** — Post formal approval comment on PR #8. Scan is done. This is the single action that unblocks the entire sprint merge cascade.
+2. **DevOps** — Stand ready; merge PR #9 the instant PR #8 lands.
+3. **Engineer** — Complete STORY-3 DB persistence; rebase PR #26 and PR #28 immediately when the cascade starts.
+4. **QA** — Mark PR #31 ready-for-review the moment PR #8 merges.
+5. **Product Owner** — Post sprint capacity assessment and confirm STORY-3 DB persistence scope.
+
+---
+
+## Previous Standup Summary — 2026-06-18 (Wednesday, Sprint 1 Day 3)
 
 **Sprint:** 1  
 **Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
@@ -240,7 +289,7 @@ None. Sprint has not started. No agent has been on a task for 2+ days without a 
 
 | Date | Agent | Story | Days blocked | Resolution |
 |------|-------|-------|-------------|------------|
-| 2026-06-18 | AppSec | STORY-18 re-scan (PR #8 gate) | 1 (triggered 2026-06-18) | Pending — issue #27 opened by Prod Support |
+| 2026-06-18 | AppSec | STORY-18 re-scan (PR #8 gate) | 0 effective (scan completed same day) | ✅ Resolved — re-scan completed 2026-06-18; BLOCKED lifted 2026-06-19 after Prod Support confirmed. Issues #12, #20, #24, #27 closed. |
 
 ---
 
@@ -251,12 +300,12 @@ None. Sprint has not started. No agent has been on a task for 2+ days without a 
 | Sprint | 1 |
 | Sprint Start | 2026-06-16 |
 | Sprint End | 2026-06-27 |
-| Stories In Progress | 9 (STORY-13, 1, 2, 15, 16, 17, 18, 19, 20) |
-| Stories To Do | 3 (STORY-3, 4, 5 — waiting on STORY-13 merge) |
+| Stories In Progress | 10 (STORY-13, 1, 2, 3, 15, 16, 17, 18, 19, 20) |
+| Stories To Do | 2 (STORY-4 draft PR open, STORY-5 post-merge) |
 | Stories Done | 0 |
 | Stories Total | 12 |
-| Days Remaining | 8 (as of 2026-06-18) |
-| Open PRs | 3 (#8, #9, #26) |
+| Days Remaining | 7 (as of 2026-06-19) |
+| Open PRs | 4 (#8, #9, #26, #28) + 1 draft (#31) |
 | Merged PRs to main | 0 |
-| BLOCKED agents | 1 (AppSec — formally BLOCKED as of 2026-06-18; issue #27 open) |
-| Sprint risk | CRITICAL — AppSec BLOCKED; STORY-2 and STORY-3 confirmed sprint-miss unless AppSec acts today |
+| BLOCKED agents | 0 (AppSec BLOCKED lifted 2026-06-19) |
+| Sprint risk | MEDIUM — AppSec approval comment is the sole merge gate; cascade pending |
