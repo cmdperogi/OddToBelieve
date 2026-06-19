@@ -1,6 +1,6 @@
 # QA — Status
 
-**Last updated:** 2026-06-18
+**Last updated:** 2026-06-19
 
 ## PRs Reviewed
 
@@ -79,6 +79,26 @@
 
 ### PR #28 — feat: OddsApiService unit tests [STORY-3] (`agent/engineer/unit-tests-oddsapi`)
 
+#### 2026-06-19 (re-verification — DB persistence commit `fb3719f`)
+- **Verdict:** LGTM ✅ — comment posted on PR #28
+- **Tests run:** 62/62 passed (`python3 -m pytest tests/ -v --cov=app --cov-report=term-missing`)
+  - 6 new DB persistence tests + 56 previously passing tests
+- **Coverage:** `app/services/odds_api.py` remains 100%; overall 90% → 91%
+- **New persistence layer review:**
+  - ✅ `fetch()` backward-compatible — `db=None` default preserves existing callers and scheduler
+  - ✅ `_persist()` flushes before reading auto-generated PKs (`event.id`, `market.id`)
+  - ✅ Market deduplication via `market_by_type` dict — one Market row per key per event regardless of bookmaker count
+  - ✅ ISO datetime `Z` suffix handled: `.replace('Z', '+00:00')` then strip tzinfo for naive DB column
+  - ✅ Single `db.commit()` at end of `_persist()` — no partial writes within a payload
+  - ✅ No real HTTP calls — `httpx.AsyncClient` still patched correctly in all 6 new tests
+- **New tests (6):**
+  - `test_persist_creates_event_record` — source_id, source, sport, name, start_time verified
+  - `test_persist_creates_market_record` — market_type and event_id FK verified
+  - `test_persist_creates_odds_records` — 3 outcomes with correct bookmaker/selection/price
+  - `test_persist_deduplicates_market_types_across_bookmakers` — 2 bookmakers → 1 Market + 4 Odds rows
+  - `test_persist_multiple_events` — 2-event payload → 2 Event rows
+  - `test_persist_skipped_when_no_db` — no DB arg → 0 rows written
+
 #### 2026-06-18 (review)
 - **Verdict:** LGTM ✅ — posted as PR comment (self-approve blocked — same account)
 - **Tests run:** 56/56 passed (`python3 -m pytest tests/ -v --cov=app --cov-report=term-missing`)
@@ -124,7 +144,7 @@ All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
 
 ---
 
-## Test Coverage Notes (2026-06-18 — 56 tests on PR #28 branch)
+## Test Coverage Notes (2026-06-19 — 62 tests on PR #28 branch after DB persistence commit)
 
 | Module | Coverage | Notes |
 |--------|----------|-------|
@@ -140,7 +160,7 @@ All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
 | `app/services/betfair.py` | 100% | All paths covered by PR #26 (9 unit tests) |
 | `app/services/odds_api.py` | 100% | All paths covered by PR #28 (16 unit tests) |
 
-**Overall: 90% — up from 82% after PR #28 OddsApiService unit tests**
+**Overall: 91% — up from 90% after PR #28 DB persistence tests (commit `fb3719f`)**
 
 ---
 
@@ -156,8 +176,22 @@ All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
 - **asyncio_mode = "auto"**: All `async def test_*` functions run as coroutines without `@pytest.mark.asyncio` — this is configured in `pyproject.toml`.
 - **Stacked PRs need explicit merge-order documentation**: PR #28 stacks on PR #26 which stacks on PR #8. Document the chain in each PR body and QA LGTM comment to prevent out-of-order merges that break CI.
 
+## Daily Summary — 2026-06-19
+
+**PRs reviewed today:**
+- PR #28 re-verified after new DB persistence commit (`fb3719f`): 62/62 pass, 91% coverage — LGTM comment posted.
+- PR #31 (draft): 16/16 integration tests confirmed still passing on branch `agent/qa/integration-tests-odds`.
+- PR #26 (`agent/engineer/unit-tests-betfair`): no new commits since 2026-06-17 LGTM — standing LGTM holds.
+- PR #8 (`agent/engineer/scaffold-fastapi`): AppSec formal comment still pending — PR remains open.
+
+**Status of draft PR #31:** Still draft. PR #8 has not yet merged to main. PR #31 will be converted to ready-for-review immediately upon PR #8 merge.
+
+**Patterns noticed today:**
+- `db.flush()` before reading auto-generated PKs is the correct pattern for SQLite-backed tests using in-memory DBs — avoids relying on DB-level auto-assign before the object ID is needed by a FK reference.
+
 ## Next Up
 
-- **STORY-4** (`agent/qa/integration-tests-odds`): Draft PR #31 open. Merge blocked until PR #8 lands. Mark PR ready-for-review immediately when PR #8 merges.
-- **STORY-3 QA**: PR #28 LGTM posted. Needs rebase onto PR #26 and then main once PR #8 → PR #26 merge chain completes.
-- **AppSec gate**: PR #8 formal re-scan is the only sprint blocker. Sprint goal at risk if AppSec does not post results by 2026-06-19.
+- **STORY-4** (`agent/qa/integration-tests-odds`): Draft PR #31 open. Convert to ready-for-review **immediately** when PR #8 merges. All 16 integration tests verified passing (2026-06-19).
+- **STORY-3 QA (post-rebase)**: PR #28 LGTM posted for DB persistence (2026-06-19). After PR #8 → PR #26 → PR #28 rebase cascade: re-run `python3 -m pytest tests/ -v --cov=app --cov-report=term-missing` and post final LGTM.
+- **STORY-2 QA (post-rebase)**: PR #26 LGTM posted (2026-06-17). After rebase onto main: re-run tests and confirm clean merge — no new review needed unless conflicts arise.
+- **AppSec gate**: AppSec scan complete (2026-06-18). Formal comment on PR #8 is the sole remaining sprint merge gate.
