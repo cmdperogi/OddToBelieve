@@ -1,16 +1,42 @@
 # DevOps — Status
 
-**Last updated:** 2026-06-18
+**Last updated:** 2026-06-19
 
 ## CI Status
 
-- GitHub Actions: **PR #9 open on `agent/devops/github-actions-ci` — workflow parse error fixed (again), awaiting merge after PR #8**
+- GitHub Actions: **PR #9 open on `agent/devops/github-actions-ci` — code-complete, QA LGTM, awaiting merge after PR #8**
 - PR: https://github.com/cmdperogi/OddToBelieve/pull/9
 - Branch: `agent/devops/github-actions-ci`
 - Latest commit: `789c6f7` — fix: move frontend guard to step level (hashFiles() unavailable at job if)
 - `.github/workflows/ci.yml` does not exist on `main` yet — it ships with PR #9, held behind PR #8 (merge order: PR #8 → PR #9, backend job needs `backend/` on main)
+- **Recent CI runs (all on PR #9 branch):** All 7 runs failing — current failure at `pip install -r backend/requirements.txt` (exit code 1). This is **expected and not a workflow bug**: `backend/` does not exist on the CI branch (it lives on PR #8). Frontend job passes (guarded by step-level `frontend/package.json` check). CI will pass on main once PR #8 → PR #9 merge cascade completes.
+
+## PR #8 Merge Readiness (2026-06-19 check)
+
+| Check | Status |
+|-------|--------|
+| `mergeable` | MERGEABLE |
+| `mergeStateStatus` | CLEAN |
+| AppSec re-scan | ✅ SECURITY CLEAR (2026-06-18, 0 CVEs) |
+| QA sign-off | ✅ LGTM — 31/31 tests passing |
+| STORY-15/16/17/18/20 | ✅ All resolved |
+| AppSec formal approval comment | **PENDING** — sole remaining gate |
+
+**PR #8 is ready to merge.** Waiting only on AppSec posting formal approval comment.
 
 ## Last Changes
+
+### 2026-06-19 — Monitoring run (no code changes)
+
+**Task:** Monitor PR #8; merge PR #9 immediately once PR #8 lands.
+
+**Checked:**
+- PR #8 (`agent/engineer/scaffold-fastapi`): OPEN, MERGEABLE, mergeStateStatus CLEAN — all security findings resolved, AppSec re-scan 2026-06-18 returned SECURITY CLEAR. **Not merged yet — sole gate is AppSec's formal approval comment.**
+- PR #9 (`agent/devops/github-actions-ci`): OPEN, code-complete — ready to merge the instant PR #8 lands.
+- `gh run list --limit 10`: all 7 CI runs failing at backend `pip install` (expected — `backend/` is on PR #8, not PR #9 branch). No workflow changes needed.
+- AppSec BLOCKED flag lifted (Prod Support confirmed 2026-06-19; issues #12, #20, #24, #27 closed).
+
+**Result:** No DevOps code changes needed today. Waiting for AppSec to post formal comment on PR #8 → merge PR #9 immediately after.
 
 ### 2026-06-18 — Fix workflow file parse error (root cause, second attempt)
 
@@ -90,11 +116,11 @@ Committed and pushed to `agent/devops/github-actions-ci`.
 
 ## Current Action
 
-Monitoring PR #8 (`agent/engineer/scaffold-fastapi`). **The moment PR #8 merges to main, merge PR #9 immediately.** Merge order is critical: PR #8 → PR #9 so that `backend/` exists when the CI backend job runs.
+Monitoring PR #8 (`agent/engineer/scaffold-fastapi`). **The moment PR #8 merges to main, merge PR #9 immediately.** Merge order is critical: PR #8 → PR #9 so that `backend/` exists when the CI backend job runs. After merge, verify CI run on main passes and update this file.
 
 ## Open Issues
 
-- PR #9 is waiting on PR #8 (sole dependency)
-- PR #8 is waiting on AppSec formal re-scan (STORY-18 fix applied 2026-06-16; QA LGTM confirmed 31/31 tests, 0 CVEs)
-- **AppSec re-scan is the sole sprint blocker** — AppSec is formally BLOCKED as of 2026-06-18 (3 days since last update), Prod Support opened issue #27
-- CI workflow parse error on PR #9 branch fixed (commit `789c6f7`, 2026-06-18) — awaiting next run to confirm no more "workflow file issue"
+- **PR #9 waiting on PR #8** — sole dependency; PR #9 is fully ready
+- **AppSec formal comment on PR #8** is the sole sprint merge gate (scan is done, result is CLEAR — comment is an administrative formality)
+- AppSec BLOCKED flag lifted 2026-06-19 (issues #12, #20, #24, #27 closed by Prod Support)
+- CI workflow parse error fixed 2026-06-18 (commit `789c6f7`) — confirmed working (frontend job passes; backend job fails only due to missing `backend/` on CI branch, not a workflow bug)
