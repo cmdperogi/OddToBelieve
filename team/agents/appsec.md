@@ -1,6 +1,6 @@
 # AppSec — Status
 
-**Last updated:** 2026-06-18 (Mon/Thu scheduled scan)
+**Last updated:** 2026-06-20 (Mon/Thu scheduled scan)
 
 ## Last Scan
 
@@ -8,20 +8,18 @@
 - **Run against:** `backend/app/` (PR #8 branch: `agent/engineer/scaffold-fastapi`)
 - **Result:** 1 issue — Low/Medium confidence
   - B106 false positive: `token_type="bearer"` in `routers/auth.py:40` flagged as hardcoded password. This is the standard OAuth2 token type string, not a credential. Known false positive — no action required.
+- **No change from prior cycle.**
 
 ### pip-audit (Dependency CVEs)
 - **Run against:** `backend/requirements.txt` (PR #8 branch: `agent/engineer/scaffold-fastapi`)
 - **Result:** ✅ **CLEAN — No known vulnerabilities found**
-
-**Resolved since last scan (2026-06-15):**
-- starlette 0.38.6 → 1.3.1 ✅ (via fastapi==0.137.1; PYSEC-2026-161, CVE-2024-47874, CVE-2025-54121 all resolved)
+- **No change from prior cycle.**
 
 ### New PRs scanned this cycle
 
 | PR | Branch | New security findings |
 |---|---|---|
-| #26 | `agent/engineer/unit-tests-betfair` | None |
-| #28 | `agent/engineer/unit-tests-oddsapi` | None |
+| #31 | `agent/qa/integration-tests-odds` | None ✅ |
 
 ## Open Security Issues
 
@@ -88,6 +86,18 @@
   - Quota guard behavior tested correctly (no API calls when remaining < 50) ✅
   - App code identical to PR #8 — no new security surface introduced ✅
   - No new runtime dependencies introduced ✅
+
+### PR #31 — test: STORY-4 integration tests for /odds/* endpoints [`agent/qa/integration-tests-odds`]
+- **Outcome:** ✅ **SECURITY CLEAR** — no findings
+- **Scope:** QA integration tests only; app code is identical to PR #8 (already cleared)
+- **Clean checks:**
+  - No hardcoded credentials or API keys — `conftest.py` uses `os.environ.setdefault()` with test-only placeholder values (`SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`) consistent with PRs #26/#28 ✅
+  - No raw SQL — tests use ORM models exclusively for fixture seeding ✅
+  - All `/odds/*` routes still require `UserDep`; integration tests verify 401 on every endpoint without auth ✅
+  - No JWT or Betfair credentials in assertions or log output; `auth_token` fixture uses placeholder "changeme" password only ✅
+  - CORS unchanged at `allow_origins=["http://localhost:5173"]` ✅
+  - No new runtime dependencies introduced; pip-audit clean ✅
+  - No real HTTP calls to Betfair or Odds API — DB-seeded fixtures only ✅
 
 ## Security Baseline Compliance
 
