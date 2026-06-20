@@ -1,0 +1,40 @@
+name: CI
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -r backend/requirements.txt
+      - run: cd backend && ruff check .
+      - run: cd backend && black --check .
+      - run: cd backend && pytest tests/ -v --cov=app --cov-report=term-missing
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY || 'test-secret-key-32-characters-long' }}
+          ADMIN_USERNAME: admin
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'test-password' }}
+          BETFAIR_USERNAME: ${{ secrets.BETFAIR_USERNAME || 'test@example.com' }}
+          BETFAIR_PASSWORD: ${{ secrets.BETFAIR_PASSWORD || 'test-password' }}
+          BETFAIR_APP_KEY: ${{ secrets.BETFAIR_APP_KEY || 'test-app-key' }}
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check if frontend is scaffolded
+        id: frontend-check
+        run: echo "exists=$(test -f frontend/package.json && echo true || echo false)" >> $GITHUB_OUTPUT
+      - uses: actions/setup-node@v4
+        if: steps.frontend-check.outputs.exists == 'true'
+        with: {node-version: '20'}
+      - run: cd frontend && npm ci
+        if: steps.frontend-check.outputs.exists == 'true'
+      - run: cd frontend && npm run lint
+        if: steps.frontend-check.outputs.exists == 'true'
+      - run: cd frontend && npm run build
+        if: steps.frontend-check.outputs.exists == 'true'
