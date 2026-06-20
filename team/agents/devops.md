@@ -4,14 +4,32 @@
 
 ## CI Status
 
-- GitHub Actions: **PR #9 open on `agent/devops/github-actions-ci` — code-complete, QA LGTM, awaiting merge after PR #8**
-- PR: https://github.com/cmdperogi/OddToBelieve/pull/9
-- Branch: `agent/devops/github-actions-ci`
-- Latest commit: `789c6f7` — fix: move frontend guard to step level (hashFiles() unavailable at job if)
-- `.github/workflows/ci.yml` does not exist on `main` yet — it ships with PR #9, held behind PR #8 (merge order: PR #8 → PR #9, backend job needs `backend/` on main)
-- **Recent CI runs (all on PR #9 branch):** All 7 runs failing — current failure at `pip install -r backend/requirements.txt` (exit code 1). This is **expected and not a workflow bug**: `backend/` does not exist on the CI branch (it lives on PR #8). Frontend job passes (guarded by step-level `frontend/package.json` check). CI will pass on main once PR #8 → PR #9 merge cascade completes.
+- GitHub Actions: **`.github/workflows/ci.yml` is on `main`** — PR #9 merged 2026-06-20T21:25:46Z
+- First CI run on main (run 27884339327): **backend ✗ / frontend ✓**
+  - Backend failure: pytest 2 failures + 11 errors, all 401 Unauthorized
+  - Root cause: `ADMIN_PASSWORD || 'test-password'` in CI overrides `conftest.py` `setdefault("ADMIN_PASSWORD", "changeme")` — tests authenticate with hardcoded `"changeme"` → mismatch
+  - **Fix PR open: [#32](https://github.com/cmdperogi/OddToBelieve/pull/32)** — branch `agent/devops/fix-ci-admin-password` — changes fallback from `'test-password'` to `'changeme'`
+  - Local verification with `ADMIN_PASSWORD=changeme`: **31/31 tests pass**
+- Frontend job: ✅ skipped (no `frontend/package.json` on main yet — guard working correctly)
 
-## PR #8 Merge Readiness (2026-06-20 check)
+## PR #8 Merge Status
+
+**MERGED** — 2026-06-20T21:22:55Z ✅
+
+## PR #9 Merge Status
+
+**MERGED** — 2026-06-20T21:25:46Z ✅ (immediately after PR #8 per sprint merge order)
+
+## PR #32 — fix: align CI ADMIN_PASSWORD fallback
+
+**OPEN** — https://github.com/cmdperogi/OddToBelieve/pull/32
+Branch: `agent/devops/fix-ci-admin-password`
+One-line change: `ADMIN_PASSWORD || 'test-password'` → `ADMIN_PASSWORD || 'changeme'`
+Local test result: 31/31 pass. Awaiting CI run and merge.
+
+---
+
+## PR #8 Merge Readiness (2026-06-20 check — superseded: PR #8 now MERGED)
 
 | Check | Status |
 |-------|--------|
@@ -26,7 +44,20 @@
 
 ## Last Changes
 
-### 2026-06-20 — Monitoring run (no code changes)
+### 2026-06-20 — PR #9 merged; CI failure diagnosed; PR #32 opened
+
+**Actions taken:**
+1. Confirmed PR #8 merged at 2026-06-20T21:22:55Z
+2. Merged PR #9 (`agent/devops/github-actions-ci`) immediately — 2026-06-20T21:25:46Z — per sprint merge order
+3. `.github/workflows/ci.yml` is now on `main`
+4. Monitored CI run 27884339327 (triggered by PR #9 merge push to main):
+   - Backend job: ✗ — pytest 2 failed + 11 errors, all 401 Unauthorized
+   - Frontend job: ✓ (skipped — no frontend scaffolded yet)
+5. Reproduced failure locally — root cause: `ADMIN_PASSWORD=test-password` in CI workflow overrides `conftest.py` `setdefault("ADMIN_PASSWORD", "changeme")`; tests authenticate with `"changeme"`, app is configured with `"test-password"` → all auth-dependent tests get 401
+6. Fix: branch `agent/devops/fix-ci-admin-password`, change fallback to `'changeme'`; local 31/31 pass confirmed
+7. Opened PR #32: https://github.com/cmdperogi/OddToBelieve/pull/32
+
+### 2026-06-20 — Monitoring run (no code changes; superseded by above)
 
 **Task:** Monitor PR #8; merge PR #9 immediately once PR #8 lands.
 
@@ -128,11 +159,10 @@ Committed and pushed to `agent/devops/github-actions-ci`.
 
 ## Current Action
 
-Monitoring PR #8 (`agent/engineer/scaffold-fastapi`). **The moment PR #8 merges to main, merge PR #9 immediately.** Merge order is critical: PR #8 → PR #9 so that `backend/` exists when the CI backend job runs. After merge, verify CI run on main passes and update this file.
+**Awaiting PR #32 merge** — one-line fix to align `ADMIN_PASSWORD` CI fallback with test fixtures. Once merged, CI backend job should go green on main (31 tests, 67% coverage). Frontend CI will activate once frontend is scaffolded.
 
 ## Open Issues
 
-- **PR #9 waiting on PR #8** — sole dependency; PR #9 is fully ready
-- **AppSec formal comment on PR #8** is the sole sprint merge gate (scan is done, result is CLEAR — comment is an administrative formality)
-- AppSec BLOCKED flag lifted 2026-06-19 (issues #12, #20, #24, #27 closed by Prod Support)
-- CI workflow parse error fixed 2026-06-18 (commit `789c6f7`) — confirmed working (frontend job passes; backend job fails only due to missing `backend/` on CI branch, not a workflow bug)
+- **PR #32** (`agent/devops/fix-ci-admin-password`) — CI `ADMIN_PASSWORD` mismatch fix; ready to merge
+- Frontend CI steps skipped (by design) — activate automatically once `frontend/package.json` exists on main
+- `app/services/betfair.py` and `app/services/odds_api.py` at 0% coverage — covered by PRs #26/#28 (pending rebase onto updated main)
