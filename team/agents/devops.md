@@ -1,6 +1,6 @@
 # DevOps — Status
 
-**Last updated:** 2026-06-19
+**Last updated:** 2026-06-20
 
 ## CI Status
 
@@ -11,7 +11,7 @@
 - `.github/workflows/ci.yml` does not exist on `main` yet — it ships with PR #9, held behind PR #8 (merge order: PR #8 → PR #9, backend job needs `backend/` on main)
 - **Recent CI runs (all on PR #9 branch):** All 7 runs failing — current failure at `pip install -r backend/requirements.txt` (exit code 1). This is **expected and not a workflow bug**: `backend/` does not exist on the CI branch (it lives on PR #8). Frontend job passes (guarded by step-level `frontend/package.json` check). CI will pass on main once PR #8 → PR #9 merge cascade completes.
 
-## PR #8 Merge Readiness (2026-06-19 check)
+## PR #8 Merge Readiness (2026-06-20 check)
 
 | Check | Status |
 |-------|--------|
@@ -20,11 +20,23 @@
 | AppSec re-scan | ✅ SECURITY CLEAR (2026-06-18, 0 CVEs) |
 | QA sign-off | ✅ LGTM — 31/31 tests passing |
 | STORY-15/16/17/18/20 | ✅ All resolved |
-| AppSec formal approval comment | **PENDING** — sole remaining gate |
+| AppSec formal approval comment | **PENDING** — sole remaining gate (2 days, threshold reached 2026-06-20) |
 
-**PR #8 is ready to merge.** Waiting only on AppSec posting formal approval comment.
+**PR #8 is ready to merge.** Waiting only on AppSec posting formal approval comment. AppSec has not acted since 2026-06-18; today (2026-06-20) is the 2-day mark — Scrum Master should re-evaluate BLOCKED flag.
 
 ## Last Changes
+
+### 2026-06-20 — Monitoring run (no code changes)
+
+**Task:** Monitor PR #8; merge PR #9 immediately once PR #8 lands.
+
+**Checked:**
+- PR #8 (`agent/engineer/scaffold-fastapi`): **Still OPEN** — MERGEABLE, mergeStateStatus CLEAN. AppSec formal approval comment **not yet posted** as of 2026-06-20. Last PR activity: Prod Support comment 2026-06-19 (scan summary + merge reminder). AppSec has been awaiting action since 2026-06-18 — hitting 2-day threshold today (2026-06-20). Scrum Master should evaluate BLOCKED flag.
+- PR #9 (`agent/devops/github-actions-ci`): OPEN, unchanged — still ready to merge the instant PR #8 lands.
+- `gh run list --limit 10`: 7 CI runs, all failing. Most recent run 27748889387 (2026-06-18): frontend job ✅ (skipped per guard), backend job ✗ at `pip install -r backend/requirements.txt` (exit code 1). Same expected failure — `backend/` not present on CI branch. No new runs since 2026-06-18.
+- No workflow changes needed. CI failure is a pre-condition artifact, not a bug.
+
+**Result:** No DevOps code changes today. Sole blocker: AppSec approval comment on PR #8 → then merge PR #9 immediately.
 
 ### 2026-06-19 — Monitoring run (no code changes)
 
