@@ -1,10 +1,69 @@
 # Product Owner — Status
 
-**Last updated:** 2026-06-16
+**Last updated:** 2026-06-22
 
 ---
 
 ## Last Refinement
+
+**Date:** 2026-06-22 (Monday, Sprint 1 Day 7 of 10)  
+**Sprint start:** 2026-06-16  
+**Sprint end:** 2026-06-27
+
+---
+
+## Backlog Changes (2026-06-22)
+
+### Stories Added
+
+| Story | Priority | Rationale |
+|-------|----------|-----------|
+| STORY-21: Add APScheduler background polling job | P2 (Sprint-Ready) | Core functionality gap: `scheduler.py` is specified in CLAUDE.md but no story existed. Depends on STORY-2 + STORY-3. ⚠️ Introduces `ODDS_API_POLL_INTERVAL_MINUTES` (default: 360 min) — separate from `BETFAIR_POLL_INTERVAL_MINUTES` (60 min) to stay within 500 req/month Odds API cap. |
+| STORY-22: Frontend login page + JWT token management | P3 | Frontend auth flow is a prerequisite for any usable dashboard. Depends on STORY-14. JWT stored in React context (in-memory only — not localStorage, XSS risk). |
+| STORY-23: Frontend main dashboard — events and odds table | P3 | Core user-facing view. No story existed for the OddsTable component or the `GET /odds/events` display. Depends on STORY-14 + STORY-22. |
+
+### Stories Restructured
+
+| Story | Change |
+|-------|--------|
+| STORY-12 | Formally split into STORY-12a (backend matching) and STORY-12b (frontend display). Original story removed. See decision D8. |
+| STORY-10, STORY-11, STORY-7 | Promoted from P3 to P2 — these are sprint-ready once the current PR merge cascade completes. |
+| STORY-15 through STORY-20 | Moved from P1 to Done — all six security stories are resolved and verified. P1 now has no active blockers. |
+| STORY-14 | AC improved: added explicit `.env.local` / `VITE_API_BASE_URL` acceptance criterion (no hardcoded API URLs in source files). |
+
+### Decisions Made (2026-06-22)
+
+**D8: STORY-12 formally split into STORY-12a and STORY-12b.**
+
+The PO flagged this split as pending at Sprint 2 planning (decision recorded 2026-06-13). We are now 5 days from Sprint 1 end — the right time to formalise. STORY-12a (backend cross-source matching, `GET /odds/comparison`) is S-estimate and is the dependency. STORY-12b (frontend comparison view) is also S-estimate and depends on STORY-12a and STORY-14. Both are P3 / Sprint 2+ scope. GitHub issues to be created.
+
+**D9: STORY-21 added — APScheduler polling job. ⚠️ `ODDS_API_POLL_INTERVAL_MINUTES` must default to 360 min (6h), not 60 min.**
+
+The default `ODDS_POLL_INTERVAL_MINUTES=60` in CLAUDE.md is unsafe for The Odds API: 60 min × 24 h × 30 days = 720 requests/month against a 500 req/month hard cap. STORY-21 introduces a separate `ODDS_API_POLL_INTERVAL_MINUTES` environment variable (default: 360 min = 4 calls/day × 30 days = 120 req/month) independent from `BETFAIR_POLL_INTERVAL_MINUTES` (60 min, no cap). The existing rate guard (STORY-7) is the safety net but must not be the primary monthly budget control. CLAUDE.md should be updated when STORY-21 is implemented to document both variables.
+
+**D10: STORY-22 (Frontend login) and STORY-23 (Frontend main dashboard) added.**
+
+No stories existed for the core frontend user flow. STORY-22 specifies JWT stored in React context (in-memory), not `localStorage` or `sessionStorage`, to avoid XSS credential exposure. This is a non-negotiable security constraint. STORY-23 specifies the `OddsTable` component with loading, empty, and error states — intentional overlap with STORY-9 (loading/error) is resolved by making STORY-23 implement the states for the main table, and STORY-9 address the global error boundary.
+
+**D11: Sprint 1 capacity assessment — RECOVERABLE.**
+
+As of 2026-06-22 (Sprint 1 Day 7), all security stories are resolved. Four PRs are open in the merge cascade (#8, #9, #26, #28) plus one draft (#31). The sole gate is AppSec's formal approval comment on PR #8. With 4 working days remaining (through 2026-06-27), the sprint goal (CI + test coverage + security baseline) is achievable if the cascade starts by 2026-06-23. If AppSec comment is not posted by end of 2026-06-22 (today), Scrum Master should escalate immediately — each day of delay risks pushing STORY-4 and STORY-5 out of Sprint 1.
+
+**D12: STORY-3 DB persistence is in scope for STORY-3 — no new story needed.**
+
+The engineer noted DB persistence (`Event`/`Market`/`Odds` records) is in progress on the PR #28 branch. AC 3 of STORY-3 already covers this ("When odds are parsed, Then `Event`, `Market`, and `Odds` records are created with correct field values"). No story split required — this is implementation of an existing AC, not scope expansion.
+
+**D13: STORY-10 (/health) and STORY-11 (logging) promoted to P2.**
+
+Both depend only on STORY-13 (PR #8) which is about to merge. Both are XS/S estimate and are natural Sprint 2 first-day tasks for the engineer. Promoted from P3 to P2 to signal they are next in the backend queue.
+
+**D14: STORY-7 (rate limit guard) promoted to P2.**
+
+Depends on STORY-3, which is in PR. Rate guard is mandatory before STORY-21 (scheduler) can be considered complete. Moved to P2 to keep it visible as a Sprint 2 early pick-up.
+
+---
+
+## Previous Refinement
 
 **Date:** 2026-06-16 (Monday, Sprint 1 kickoff day)  
 **Sprint start:** 2026-06-16  
