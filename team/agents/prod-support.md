@@ -1,6 +1,74 @@
 # Prod Support — Status
 
-**Last updated:** 2026-06-19
+**Last updated:** 2026-06-22
+
+---
+
+## Run Summary — 2026-06-22
+
+### Open Issues (Triaged)
+
+**Total open issues at run start:** 7 (#1–#7)
+
+**Issues closed this run:** #1 (STORY-13), #2 (STORY-1), #6 (STORY-5) — all confirmed completed based on merged PRs and agent status files.
+
+- **#1 (STORY-13 Scaffold FastAPI backend):** Closed — PR #8 merged 2026-06-20. ✅
+- **#2 (STORY-1 Set up GitHub Actions CI):** Closed — PR #9 merged 2026-06-20. ✅
+- **#6 (STORY-5 AppSec baseline scan):** Closed — scan completed 2026-06-20 per appsec.md; 0 CVEs, B106 false positive only. ✅
+
+**Stale comments posted (issues 9+ days old, threshold 7 days):**
+- **#3 (STORY-2):** Commented — PR #26 open with QA LGTM; needs rebase onto main after PR #8 merge.
+- **#4 (STORY-3):** Commented — PR #28 open with QA LGTM (62/62, 91% coverage); needs rebase cascade.
+- **#5 (STORY-4):** Commented — PR #31 draft open (16/16 integration tests); needs convert to ready-for-review.
+- **#7 (STORY-14):** Commented — P3 backlog targeting Sprint 2; no action needed if sprint plan unchanged.
+
+**Remaining open issues after this run:** 4 (#3–#5, #7)
+
+No unlabeled issues found. All remaining open issues carry the `story` label.
+
+### Agent File Review (BLOCKED check)
+
+Read all `team/agents/` files. **No BLOCKED flags active.**
+
+| Agent | Status | Outstanding item |
+|-------|--------|-----------------|
+| Engineer | ✅ Standby | PRs #26/#28 open; need rebase cascade onto main (PR #8 merged 2026-06-20) |
+| QA | ✅ Standby | PR #31 draft needs converting to ready-for-review; still awaiting rebase cascade |
+| AppSec | ✅ Done | Scan complete 2026-06-20; no new security findings since |
+| DevOps | ✅ Fix PR open | PR #32 (`agent/devops/fix-ci-admin-password`) open and CI-verified ✅ — awaiting merge |
+| Product Owner | ✅ Active | Sprint 1 running (ends 2026-06-27) |
+| Scrum Master | ✅ Active | Last updated 2026-06-19; 5 days until sprint end |
+
+### CI Status
+
+**main branch: FAILING**
+
+| Run | Trigger | Result | Root cause |
+|-----|---------|--------|------------|
+| 27884452855 | push (PR #9 merge) | ❌ backend ✗ / frontend ✓ | pytest: 2 failures + 11 errors — all 401 Unauthorized |
+| 27884339327 | push (PR #8 merge) | ❌ backend ✗ / frontend ✓ | Same ADMIN_PASSWORD mismatch |
+
+**Root cause (identified by DevOps 2026-06-20):** CI workflow sets `ADMIN_PASSWORD=test-password` via `secrets.ADMIN_PASSWORD || 'test-password'`; `conftest.py` uses `os.environ.setdefault("ADMIN_PASSWORD", "changeme")` which is a no-op when the variable is pre-set. App starts with `test-password`; all auth-dependent tests authenticate with `"changeme"` → 401 everywhere.
+
+**Fix:** PR #32 (`agent/devops/fix-ci-admin-password`) — one-line change: `'test-password'` → `'changeme'`. **CI verified: 2/2 runs green on PR #32 branch.** PR is MERGEABLE + CLEAN. Awaiting merge.
+
+Noted in this file per protocol. PR #32 is the action item.
+
+### Git Log Review (last 10 commits on main)
+
+All commits are agent status-file updates or merge commits for approved PRs. No direct application-code commits to main. No policy violations.
+
+Most recent: `chore: devops status update` (67fd5f6) — this is the devops.md status update following the PR #9 merge and PR #32 open. Expected and correct.
+
+### Actions Taken This Run
+
+- Read all `team/agents/` files — no BLOCKED flags
+- Triaged 7 open issues:
+  - Closed #1 (STORY-13), #2 (STORY-1), #6 (STORY-5) — work merged/completed
+  - Commented stale notice on #3, #4, #5, #7 (9 days, threshold 7 days)
+- Reviewed git log on main — no policy violations
+- Checked CI: 2 failed runs on main (same ADMIN_PASSWORD mismatch root cause); PR #32 fixes this with 2/2 CI passes on its branch
+- No new branch/PR opened — the CI fix is already in PR #32 (DevOps agent, 2026-06-20)
 
 ---
 
