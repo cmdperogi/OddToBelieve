@@ -1,32 +1,37 @@
 # AppSec — Status
 
-**Last updated:** 2026-06-20 (Mon/Thu scheduled scan)
+**Last updated:** 2026-06-22 (Mon/Thu scheduled scan)
 
 ## Last Scan
 
 ### Bandit (SAST)
-- **Run against:** `backend/app/` (PR #8 branch: `agent/engineer/scaffold-fastapi`)
+- **Run against:** `backend/app/` (main)
 - **Result:** 1 issue — Low/Medium confidence
   - B106 false positive: `token_type="bearer"` in `routers/auth.py:40` flagged as hardcoded password. This is the standard OAuth2 token type string, not a credential. Known false positive — no action required.
 - **No change from prior cycle.**
 
 ### pip-audit (Dependency CVEs)
-- **Run against:** `backend/requirements.txt` (PR #8 branch: `agent/engineer/scaffold-fastapi`)
+- **Run against:** `backend/requirements.txt` (main)
 - **Result:** ✅ **CLEAN — No known vulnerabilities found**
 - **No change from prior cycle.**
 
-### New PRs scanned this cycle
+### PRs scanned this cycle
 
-| PR | Branch | New security findings |
-|---|---|---|
-| #31 | `agent/qa/integration-tests-odds` | None ✅ |
+| PR | Branch | Status | New security findings |
+|---|---|---|---|
+| #26 | `agent/engineer/unit-tests-betfair` | OPEN | None ✅ — AppSec sign-off posted |
+| #28 | `agent/engineer/unit-tests-oddsapi` | OPEN | None ✅ — AppSec sign-off posted |
+| #31 | `agent/qa/integration-tests-odds` | DRAFT | None ✅ — AppSec sign-off posted |
+
+### Issues opened this cycle
+None.
+
+### Issues closed this cycle
+None — confirmed via `gh issue list --label security --state open` → empty. Issues #12 and #20 (previously listed as "awaiting formal close") are confirmed CLOSED.
 
 ## Open Security Issues
 
-| # | Title | Severity | PR | Status |
-|---|---|---|---|---|
-| [#12](https://github.com/cmdperogi/OddToBelieve/issues/12) | python-multipart 0.0.9 and starlette 0.37.2 have multiple CVEs | HIGH | #8 | Resolved in current requirements; awaiting formal close |
-| [#20](https://github.com/cmdperogi/OddToBelieve/issues/20) | [STORY-18] Upgrade python-multipart and fastapi to CVE-free versions | HIGH | #8 | Resolved in current requirements; awaiting formal close |
+None. All security issues are closed.
 
 ## Resolved Issues (closed this scan)
 
@@ -43,6 +48,8 @@
 | [#19](https://github.com/cmdperogi/OddToBelieve/issues/19) | [STORY-17] Fix python-jose CVEs | HIGH | ✅ Closed — same fix as #11 |
 | [#21](https://github.com/cmdperogi/OddToBelieve/issues/21) | [STORY-19] Migrate CI credentials to secrets pattern | MEDIUM | ✅ Closed — same fix as #16 |
 | [#22](https://github.com/cmdperogi/OddToBelieve/issues/22) | [STORY-20] Upgrade dev deps — fix pytest and black CVEs | LOW | ✅ Closed — same fix as #15 |
+| [#12](https://github.com/cmdperogi/OddToBelieve/issues/12) | python-multipart 0.0.9 and starlette 0.37.2 have multiple CVEs | HIGH | ✅ Confirmed closed — requirements upgraded; pip-audit clean |
+| [#20](https://github.com/cmdperogi/OddToBelieve/issues/20) | [STORY-18] Upgrade python-multipart and fastapi to CVE-free versions | HIGH | ✅ Confirmed closed — fastapi==0.137.1, python-multipart==0.0.31 |
 | [#25](https://github.com/cmdperogi/OddToBelieve/issues/25) | starlette 0.38.6 has 3 CVEs — fastapi 0.115.0 transitive dep | HIGH | ✅ Resolved — fastapi==0.137.1 pulls starlette==1.3.1; pip-audit clean |
 | [#29](https://github.com/cmdperogi/OddToBelieve/issues/29) | /health endpoint lacks UserDep authentication | LOW | ✅ Closed — duplicate of #14; PO D5 exception still applies |
 | [#30](https://github.com/cmdperogi/OddToBelieve/issues/30) | CI workflow falls back to plaintext hardcoded credentials when secrets unset | LOW | ✅ Closed — duplicate of #16; team accepted fallback pattern for local-only app |
@@ -70,31 +77,35 @@
   - No new runtime dependencies introduced ✅
 
 ### PR #26 — feat: BetfairClient unit tests [`agent/engineer/unit-tests-betfair`]
-- **Outcome:** ✅ Clean — no security issues
+- **Reviewed:** 2026-06-22
+- **Outcome:** ✅ **SECURITY CLEAR** — AppSec sign-off comment posted
 - **Clean checks:**
   - All Betfair HTTP calls fully mocked — no real network requests ✅
   - No Betfair credentials referenced in test assertions or log output ✅
   - Mock session tokens ("stale-token", "valid-token") are test fixtures only ✅
+  - `betfair.py` reads credentials exclusively from settings.betfair_username/password/app_key ✅
+  - 403 re-auth path logs only status ("Betfair 403 — re-authenticating"), never token values ✅
   - `conftest.py` uses `os.environ.setdefault()` with test-only placeholder values ✅
   - No new runtime dependencies introduced ✅
 
 ### PR #28 — feat: OddsApiService unit tests [`agent/engineer/unit-tests-oddsapi`]
-- **Outcome:** ✅ Clean — no security issues
+- **Reviewed:** 2026-06-22
+- **Outcome:** ✅ **SECURITY CLEAR** — AppSec sign-off comment posted
 - **Clean checks:**
   - All Odds API HTTP calls fully mocked — no real network requests ✅
   - API key never referenced in assertions or log output ✅
-  - Quota guard behavior tested correctly (no API calls when remaining < 50) ✅
-  - App code identical to PR #8 — no new security surface introduced ✅
+  - `_persist()` method in odds_api.py uses SQLAlchemy ORM exclusively (Event/Market/Odds via db.add/flush/commit) — no raw SQL ✅
+  - Quota guard behavior tested correctly (no API calls when remaining < 10) ✅
   - No new runtime dependencies introduced ✅
 
-### PR #31 — test: STORY-4 integration tests for /odds/* endpoints [`agent/qa/integration-tests-odds`]
-- **Outcome:** ✅ **SECURITY CLEAR** — no findings
-- **Scope:** QA integration tests only; app code is identical to PR #8 (already cleared)
+### PR #31 — test: STORY-4 integration tests for /odds/* endpoints [`agent/qa/integration-tests-odds`] *(DRAFT)*
+- **Reviewed:** 2026-06-22
+- **Outcome:** ✅ **SECURITY CLEAR** — AppSec sign-off comment posted (noted DRAFT status)
 - **Clean checks:**
-  - No hardcoded credentials or API keys — `conftest.py` uses `os.environ.setdefault()` with test-only placeholder values (`SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`) consistent with PRs #26/#28 ✅
+  - No hardcoded credentials or API keys — `conftest.py` uses `os.environ.setdefault()` with test-only placeholder values (`SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`) ✅
   - No raw SQL — tests use ORM models exclusively for fixture seeding ✅
   - All `/odds/*` routes still require `UserDep`; integration tests verify 401 on every endpoint without auth ✅
-  - No JWT or Betfair credentials in assertions or log output; `auth_token` fixture uses placeholder "changeme" password only ✅
+  - No JWT or Betfair credentials in assertions or log output ✅
   - CORS unchanged at `allow_origins=["http://localhost:5173"]` ✅
   - No new runtime dependencies introduced; pip-audit clean ✅
   - No real HTTP calls to Betfair or Odds API — DB-seeded fixtures only ✅
