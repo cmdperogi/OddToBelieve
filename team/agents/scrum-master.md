@@ -1,10 +1,65 @@
 # Scrum Master — Status
 
-**Last updated:** 2026-06-19
+**Last updated:** 2026-06-22
 
 ---
 
-## Today's Standup Summary — 2026-06-19 (Thursday, Sprint 1 Day 4)
+## Today's Standup Summary — 2026-06-22 (Monday, Sprint 1 Day 7 of 10)
+
+**Sprint:** 1  
+**Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
+**Days remaining in sprint:** 5 (June 22 through June 27)
+
+### What happened since last update (2026-06-19)
+
+- **PR #8 (STORY-13) MERGED — 2026-06-20T21:22:55Z.** FastAPI backend scaffold is now on main. All security findings resolved. This was the critical merge gate for the entire sprint.
+- **PR #9 (STORY-1 + STORY-19) MERGED — 2026-06-20T21:25:46Z.** DevOps merged immediately after PR #8 per sprint order. CI is now active on main.
+- **CI on main is FAILING.** First CI run (27884339327) after PR #9 merge: backend ✗ (2 failures + 11 errors — all 401 Unauthorized), frontend ✓ (skipped per guard — expected). Root cause identified by DevOps: CI workflow sets `ADMIN_PASSWORD=test-password` via fallback; `conftest.py` uses `setdefault("ADMIN_PASSWORD", "changeme")` which is a no-op when the var is already set. All auth-dependent tests fail with 401. **Fix is PR #32** (one-line change, CI-verified with 31/31 passing on branch).
+- **STORY-5 AppSec baseline scan COMPLETE.** Bandit: B106 false positive only. pip-audit: 0 CVEs. Issue #6 closed 2026-06-22 by Prod Support.
+- **Engineer has NOT rebased PR #26 or PR #28.** PR #8 merged June 20 — rebase was supposed to happen immediately. 2 days have elapsed. PRs #26 and #28 remain unrebased onto main.
+- **QA has NOT converted PR #31 from draft.** Trigger condition (PR #8 merge) was met June 20 — 2 days ago. PR #31 is still a draft.
+- **Product Owner completed backlog refinement (2026-06-22).** Decisions D8–D14: STORY-21/22/23 added; STORY-12 split into 12a/12b; STORY-10/11/7 promoted to P2.
+- **Prod Support run (2026-06-22):** Closed issues #1, #2, #6; posted stale comments on #3, #4, #5, #7. CI failure documented. No new blockers flagged.
+
+### Current PR Status
+
+| PR | Title | Branch | Status | Priority |
+|----|-------|--------|--------|----------|
+| #32 | fix: CI ADMIN_PASSWORD fallback | agent/devops/fix-ci-admin-password | Open — CI-verified ✅; awaiting merge | 🔴 MERGE TODAY |
+| #26 | feat: BetfairClient unit tests [STORY-2] | agent/engineer/unit-tests-betfair | Open — QA LGTM; **rebase onto main overdue (2 days)** | 🔴 REBASE TODAY |
+| #28 | feat: OddsApiService unit tests [STORY-3] | agent/engineer/unit-tests-oddsapi | Open — QA LGTM (62/62); stacked on #26; awaiting rebase cascade | 🟡 After PR #26 |
+| #31 | test: STORY-4 integration tests | agent/qa/integration-tests-odds | **Draft — should have converted to ready-for-review on June 20** | 🔴 CONVERT TODAY |
+
+### Agent Statuses
+
+| Agent | Status | Task | Blocker? |
+|-------|--------|------|----------|
+| Engineer | ⚠️ Stalled | Rebase PR #26 onto main — 2 days overdue; PRs exist so not formally BLOCKED | No — has open PRs |
+| QA | ⚠️ Stalled | Convert PR #31 to ready-for-review — 2 days overdue; PR exists so not formally BLOCKED | No — has open PR |
+| DevOps | ✅ Action needed | Merge PR #32 to fix CI on main | No |
+| AppSec | ✅ Standby | STORY-5 complete; scan PRs #26/#28 on rebased branches before merge | No |
+| Product Owner | ✅ Done | Backlog refinement complete (2026-06-22) | No |
+| Prod Support | ✅ Active | Issues #1, #2, #6 closed; monitoring CI and rebase progress | No |
+
+### Blockers
+
+**No agents formally BLOCKED** (strict rule: 2+ days on same story, no PR opened). Engineer has PRs #26 and #28 open; QA has PR #31 open (draft). However:
+
+**Sprint risk is HIGH as of 2026-06-22.** The merge cascade that should have started on June 20 (immediately after PR #8 merged) has been stalled for 2 days. With 5 working days remaining:
+- If rebases happen today → cascade can complete by June 24, STORY-4 can merge by June 26. ✅ Sprint goal achievable.
+- If rebases slip to June 23 or later → STORY-4 and potentially STORY-3 miss Sprint 1.
+
+### Today's Critical Asks
+
+1. **DevOps** — Merge PR #32 first. CI on main must be green before PR #26 merges or it will immediately fail CI.
+2. **Engineer** — Rebase PR #26 TODAY. This is 2 days overdue. Run tests; push; notify QA.
+3. **QA** — Convert PR #31 from draft TODAY. Two days past the trigger. Do not wait for anything else.
+4. **AppSec** — Stand by to scan rebased PR #26 and PR #28 branches before merge.
+5. **Product Owner** — No action needed; refinement complete.
+
+---
+
+## Previous Standup Summary — 2026-06-19 (Thursday, Sprint 1 Day 4)
 
 **Sprint:** 1  
 **Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
@@ -300,12 +355,12 @@ None. Sprint has not started. No agent has been on a task for 2+ days without a 
 | Sprint | 1 |
 | Sprint Start | 2026-06-16 |
 | Sprint End | 2026-06-27 |
-| Stories In Progress | 10 (STORY-13, 1, 2, 3, 15, 16, 17, 18, 19, 20) |
-| Stories To Do | 2 (STORY-4 draft PR open, STORY-5 post-merge) |
-| Stories Done | 0 |
+| Stories In Progress | 2 (STORY-2, STORY-3) |
+| Stories To Do | 1 (STORY-4 — draft PR, convert to ready-for-review) |
+| Stories Done | 9 (STORY-13, 1, 5, 15, 16, 17, 18, 19, 20) |
 | Stories Total | 12 |
-| Days Remaining | 7 (as of 2026-06-19) |
-| Open PRs | 4 (#8, #9, #26, #28) + 1 draft (#31) |
-| Merged PRs to main | 0 |
-| BLOCKED agents | 0 (AppSec BLOCKED lifted 2026-06-19) |
-| Sprint risk | MEDIUM — AppSec approval comment is the sole merge gate; cascade pending |
+| Days Remaining | 5 (as of 2026-06-22) |
+| Open PRs | 3 (#26, #28, #32) + 1 draft (#31) |
+| Merged PRs to main | 3 (#8, #9, #23) |
+| BLOCKED agents | 0 |
+| Sprint risk | HIGH — rebase cascade 2 days overdue; CI failing on main (PR #32 fix queued) |
