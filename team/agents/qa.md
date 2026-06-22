@@ -1,6 +1,6 @@
 # QA — Status
 
-**Last updated:** 2026-06-19
+**Last updated:** 2026-06-22
 
 ## PRs Reviewed
 
@@ -189,9 +189,28 @@ All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
 **Patterns noticed today:**
 - `db.flush()` before reading auto-generated PKs is the correct pattern for SQLite-backed tests using in-memory DBs — avoids relying on DB-level auto-assign before the object ID is needed by a FK reference.
 
+## Daily Summary — 2026-06-22
+
+**PRs reviewed today:**
+- **PR #31 converted to ready-for-review** ✅ — was draft since 2026-06-18; trigger condition (PR #8 merged 2026-06-20) was 2 days overdue. `gh pr ready 31` executed at start of session.
+- **PR #26 re-verified post-rebase** ✅ — Engineer rebased onto main commit `17e352b` (confirmed via PR comment at 09:03). Ran full suite: **40/40 passed** (`python3 -m pytest tests/ -v --cov=app --cov-report=term-missing`). `app/services/betfair.py` 100% coverage. LGTM comment posted. AppSec signed off at 10:04.
+- **PR #28 verified** ✅ — 62/62 passed on `agent/engineer/unit-tests-oddsapi` branch. `app/services/odds_api.py` 100% coverage, 91% overall. AppSec signed off at 10:04. Still stacked on PR #26; awaiting PR #26 merge before PR #28 can merge.
+- **PR #32** — already merged/closed before this session. CI ADMIN_PASSWORD fix is on main.
+
+**Actions taken:**
+1. `gh pr ready 31` — PR #31 marked ready-for-review (overdue STORY-4 trigger)
+2. Checked out `agent/engineer/unit-tests-betfair`, ran 40-test suite — all pass
+3. Posted LGTM re-verification comment on PR #26 (comment ID 4767172595)
+4. Checked out `agent/engineer/unit-tests-oddsapi`, ran 62-test suite — all pass
+5. Checked out `agent/qa/integration-tests-odds`, ran 16 integration tests — all pass
+
+**Patterns noticed today:**
+- Rebase to `17e352b` (not absolute HEAD) leaves branch 4 commits behind current main. Non-blocking for tests (conftest.py sets env vars directly) but a final `git rebase origin/main` is needed before merge to include the CI ADMIN_PASSWORD fix in the PR diff.
+- `app/scheduler.py` remains at 28% coverage — intentional; scheduler calls real services and is not tested in this sprint. Flag for Sprint 2.
+
 ## Next Up
 
-- **STORY-4** (`agent/qa/integration-tests-odds`): Draft PR #31 open. Convert to ready-for-review **immediately** when PR #8 merges. All 16 integration tests verified passing (2026-06-19).
-- **STORY-3 QA (post-rebase)**: PR #28 LGTM posted for DB persistence (2026-06-19). After PR #8 → PR #26 → PR #28 rebase cascade: re-run `python3 -m pytest tests/ -v --cov=app --cov-report=term-missing` and post final LGTM.
-- **STORY-2 QA (post-rebase)**: PR #26 LGTM posted (2026-06-17). After rebase onto main: re-run tests and confirm clean merge — no new review needed unless conflicts arise.
-- **AppSec gate**: AppSec scan complete (2026-06-18). Formal comment on PR #8 is the sole remaining sprint merge gate.
+- **Await PR #26 merge** (DevOps action): Branch is clean, AppSec clear, QA LGTM confirmed. Final rebase onto HEAD of main by Engineer before DevOps merges.
+- **PR #28 post-merge re-run**: After PR #26 merges → Engineer rebases PR #28 onto main → QA re-runs 62-test suite and posts final LGTM.
+- **PR #31 review**: Now ready-for-review. Reviewer should confirm 16/16 integration tests pass and all 5 STORY-4 ACs covered. Merge after PR #28 lands.
+- **Sprint goal track**: PR #32 merged ✅ (CI green on main); PR #26 LGTM ✅ (awaiting merge); PR #28 LGTM ✅ (stacked); PR #31 ready-for-review ✅. All three remaining stories (STORY-2, STORY-3, STORY-4) are mergeable within sprint if rebase cascade starts today.
