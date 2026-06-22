@@ -1,16 +1,15 @@
 # DevOps — Status
 
-**Last updated:** 2026-06-20
+**Last updated:** 2026-06-22
 
 ## CI Status
 
 - GitHub Actions: **`.github/workflows/ci.yml` is on `main`** — PR #9 merged 2026-06-20T21:25:46Z
-- First CI run on main (run 27884339327): **backend ✗ / frontend ✓**
-  - Backend failure: pytest 2 failures + 11 errors, all 401 Unauthorized
-  - Root cause: `ADMIN_PASSWORD || 'test-password'` in CI overrides `conftest.py` `setdefault("ADMIN_PASSWORD", "changeme")` — tests authenticate with hardcoded `"changeme"` → mismatch
-  - **Fix PR open: [#32](https://github.com/cmdperogi/OddToBelieve/pull/32)** — branch `agent/devops/fix-ci-admin-password` — changes fallback from `'test-password'` to `'changeme'`
-  - Local verification with `ADMIN_PASSWORD=changeme`: **31/31 tests pass**
-- Frontend job: ✅ skipped (no `frontend/package.json` on main yet — guard working correctly)
+- CI on main: **GREEN** ✅ — run 27941596842 (2026-06-22T09:04:11Z)
+  - Backend: ✅ (31/31 tests passing)
+  - Frontend: ✅ (skipped — no `frontend/package.json` on main yet, guard working correctly)
+  - Fix: PR #32 merged 2026-06-22T09:04:07Z — `ADMIN_PASSWORD || 'test-password'` → `ADMIN_PASSWORD || 'changeme'`
+- Previous CI failures on main (runs 27884339327, 27884452855, 27935638641, 27935758926, 27938572081): all 401 Unauthorized — resolved by PR #32 merge
 
 ## PR #8 Merge Status
 
@@ -22,10 +21,10 @@
 
 ## PR #32 — fix: align CI ADMIN_PASSWORD fallback
 
-**OPEN** — https://github.com/cmdperogi/OddToBelieve/pull/32
+**MERGED** — 2026-06-22T09:04:07Z ✅
 Branch: `agent/devops/fix-ci-admin-password`
 One-line change: `ADMIN_PASSWORD || 'test-password'` → `ADMIN_PASSWORD || 'changeme'`
-Local test result: 31/31 pass. Awaiting CI run and merge.
+Post-merge CI run 27941596842 on main: **backend ✅ / frontend ✅ — CI GREEN**
 
 ---
 
@@ -43,6 +42,16 @@ Local test result: 31/31 pass. Awaiting CI run and merge.
 **PR #8 is ready to merge.** Waiting only on AppSec posting formal approval comment. AppSec has not acted since 2026-06-18; today (2026-06-20) is the 2-day mark — Scrum Master should re-evaluate BLOCKED flag.
 
 ## Last Changes
+
+### 2026-06-22 — Merged PR #32; CI green on main
+
+**Actions taken:**
+1. Confirmed `ci.yml` exists on main (merged 2026-06-20 via PR #9).
+2. Identified 5 consecutive failing CI runs on main (all 401 Unauthorized — `ADMIN_PASSWORD` mismatch).
+3. PR #32 (`agent/devops/fix-ci-admin-password`) was CI-verified (31/31 on branch, all checks SUCCESS) and MERGEABLE.
+4. Merged PR #32 at 2026-06-22T09:04:07Z.
+5. Confirmed post-merge CI run 27941596842 on main: **backend ✅ / frontend ✅** — CI is now GREEN.
+6. Monitoring for Engineer rebase of PR #26 to proceed with next merge in sprint order.
 
 ### 2026-06-20 — PR #9 merged; CI failure diagnosed; PR #32 opened
 
@@ -159,10 +168,10 @@ Committed and pushed to `agent/devops/github-actions-ci`.
 
 ## Current Action
 
-**Awaiting PR #32 merge** — one-line fix to align `ADMIN_PASSWORD` CI fallback with test fixtures. Once merged, CI backend job should go green on main (31 tests, 67% coverage). Frontend CI will activate once frontend is scaffolded.
+**CI is GREEN on main.** Standing by to merge PR #26 once Engineer completes the rebase of `agent/engineer/unit-tests-betfair` onto current main.
 
 ## Open Issues
 
-- **PR #32** (`agent/devops/fix-ci-admin-password`) — CI `ADMIN_PASSWORD` mismatch fix; ready to merge
 - Frontend CI steps skipped (by design) — activate automatically once `frontend/package.json` exists on main
-- `app/services/betfair.py` and `app/services/odds_api.py` at 0% coverage — covered by PRs #26/#28 (pending rebase onto updated main)
+- `app/services/betfair.py` and `app/services/odds_api.py` at 0% coverage — covered by PRs #26/#28 (pending rebase onto main)
+- Engineer rebase of PR #26 is 2 days overdue — merge order: PR #26 → PR #28 → PR #31
