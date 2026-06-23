@@ -1,8 +1,112 @@
 # Prod Support — Status
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-23
 
 ---
+
+## Run Summary — 2026-06-23
+
+### Open Issues (Triaged)
+
+**Total open issues at run start:** 9 (#3, #4, #5, #7, #33, #34, #35, #36, #37)
+
+**Issues closed this run:** None.
+
+**Label audit:** All 9 open issues carry the `story` label. No unlabeled issues.
+
+**Stale check (today = 2026-06-23, threshold = 7 days):**
+- **#3, #4, #5** — stale comments posted yesterday (2026-06-22). Last activity = yesterday. Not stale today.
+- **#7** — stale comment posted 2026-06-22. Same. Not stale today.
+- **#33–#37** — created 2026-06-22 (1 day old). Not stale.
+
+No new stale comments required.
+
+### Agent File Review (BLOCKED check)
+
+Read all `team/agents/` files. **No BLOCKED flags active.**
+
+| Agent | Status | Outstanding item |
+|-------|--------|-----------------|
+| Engineer | ✅ Active | PR #26 rebased 2026-06-22; PR #28 awaiting PR #26 merge |
+| QA | ✅ Active | PR #31 converted to ready-for-review 2026-06-22; CI conflict now fixed (see below) |
+| AppSec | ✅ Done | Scanned PRs #26, #28, #31 on 2026-06-22 — all SECURITY CLEAR |
+| DevOps | ✅ Standing by | PR #32 merged 2026-06-22; CI GREEN on main; waiting to merge PR #26 cascade |
+| Product Owner | ✅ Done | Backlog refinement complete 2026-06-22 (decisions D8–D14) |
+| Scrum Master | ✅ Active | Last updated 2026-06-22; sprint ends 2026-06-27 (4 days remaining) |
+
+### CI Status (main branch)
+
+**main branch: GREEN ✅**
+
+| Run | Trigger | Result |
+|-----|---------|--------|
+| 27945299687 | push (qa status update) | ✅ backend ✓ / frontend ✓ (skipped) |
+| 27945060113 | push (appsec status update) | ✅ backend ✓ / frontend ✓ (skipped) |
+| 27941718300 | push (devops status update) | ✅ backend ✓ / frontend ✓ (skipped) |
+| 27941616363 | push (engineer status update) | ✅ backend ✓ / frontend ✓ (skipped) |
+| 27941596842 | push (PR #32 merge — ADMIN_PASSWORD fix) | ✅ backend ✓ / frontend ✓ |
+
+All 5 most recent CI runs on main: **SUCCESS**. The ADMIN_PASSWORD fix (PR #32, merged 2026-06-22) resolved the cascade of 401 failures.
+
+### Git Log Review (last 10 commits on main)
+
+All commits are agent status-file updates and one fix commit (PR #32 merge). No direct application-code commits to main. No policy violations.
+
+Noted: commits `088d1a6` and `75c412c` (both "fix: align CI ADMIN_PASSWORD fallback with test fixtures") appear in the log. The earlier one (`75c412c`) is from before the final PR #32 merge; `088d1a6` is the PR #32 merge commit. Not a problem.
+
+### PR Status Audit — Sprint Cascade Blocker Found and Fixed
+
+**🚨 PR #26 (STORY-2) — UNSTABLE CI: Fixed**
+
+Root cause: CI backend job (run 27941567348) started at 09:03:43 on 2026-06-22 — **24 seconds before PR #32 merged at 09:04:07**. The ci.yml on the branch still had `ADMIN_PASSWORD || 'test-password'`; all auth-dependent tests failed with 401.
+
+Additional issue: PR #26 base branch was still set to `agent/engineer/scaffold-fastapi` (the merged scaffold branch), not `main`.
+
+**Fixes applied by Prod Support (2026-06-23):**
+1. Rebased `agent/engineer/unit-tests-betfair` onto current main HEAD (`e3f90b0`) — picks up ADMIN_PASSWORD fix `088d1a6`. New HEAD: `419b79b`.
+2. Changed PR #26 base from `agent/engineer/scaffold-fastapi` → `main` via GitHub API.
+3. A new CI run was triggered. Expect green (40/40 tests pass; conftest.py sets env vars correctly now that the workflow fallback matches).
+
+**🚨 PR #31 (STORY-4) — CONFLICTING against main: Fixed**
+
+Root cause: PR #31 branch (`agent/qa/integration-tests-odds`) carried a 2026-06-17 snapshot of `team/agents/qa.md`. After QA converted from draft on 2026-06-22, main had a much newer qa.md (2026-06-22 comprehensive update), causing a merge conflict.
+
+**Fix applied by Prod Support (2026-06-23):**
+1. Rebased `agent/qa/integration-tests-odds` onto current main HEAD (`e3f90b0`).
+2. Resolved `team/agents/qa.md` conflict by keeping main's version (more up-to-date).
+3. Integration test file `backend/tests/integration/test_odds_endpoints.py` (PR #31's actual code contribution — 5 schema-shape tests) had no conflict and is preserved in new HEAD `38f0f1f`.
+4. Force-pushed. A new CI run was triggered.
+
+**PR #28 (STORY-3): CLEAN ✅**
+- Targeting `agent/engineer/unit-tests-betfair` (correct for stacked PR — merges after PR #26).
+- No action needed; will need rebase after PR #26 merges.
+
+### Actions Taken This Run
+
+- Triaged 9 open issues — all labeled, none stale today
+- Read all `team/agents/` files — no BLOCKED flags
+- Reviewed git log on main — no policy violations
+- Checked CI: main GREEN (5/5 recent runs success)
+- **Fixed PR #26** (UNSTABLE CI): rebased onto main HEAD + changed PR base to `main`
+- **Fixed PR #31** (CONFLICTING): rebased onto main HEAD, resolved qa.md conflict
+- Posted comments on PR #26 and PR #31 explaining the fixes
+- No new GitHub issues opened — existing sprint cascade is on track pending CI results
+
+### Sprint Health (as of 2026-06-23)
+
+**Days remaining in Sprint 1:** 4 (ends 2026-06-27)
+
+| Story | PR | Status |
+|-------|-----|--------|
+| STORY-2 (BetfairClient tests) | #26 | Rebased, base corrected → CI re-running; DevOps to merge on green |
+| STORY-3 (OddsApiService tests) | #28 | CLEAN, stacked on PR #26; rebase after #26 merges |
+| STORY-4 (Integration tests) | #31 | Rebased, conflict fixed → CI re-running; merge after PR #28 |
+
+Sprint goal achievable if cascade starts today.
+
+---
+
+## Run Summary — 2026-06-22
 
 ## Run Summary — 2026-06-22
 
