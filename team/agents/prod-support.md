@@ -98,13 +98,13 @@ Root cause: PR #31 branch (`agent/qa/integration-tests-odds`) carried a 2026-06-
 
 **Days remaining in Sprint 1:** 4 (ends 2026-06-27)
 
-| Story | PR | Status |
-|-------|-----|--------|
-| STORY-2 (BetfairClient tests) | #26 | Rebased, base corrected → CI re-running; DevOps to merge on green |
-| STORY-3 (OddsApiService tests) | #28 | CLEAN, stacked on PR #26; rebase after #26 merges |
-| STORY-4 (Integration tests) | #31 | Rebased, conflict fixed → CI re-running; merge after PR #28 |
+| Story | PR | Status | CI |
+|-------|-----|--------|----|
+| STORY-2 (BetfairClient tests) | #26 | Rebased onto main HEAD, base → `main` | ✅ GREEN (run 28008765198) |
+| STORY-3 (OddsApiService tests) | #28 | CLEAN, stacked on PR #26; rebase after #26 merges | ✅ CLEAN |
+| STORY-4 (Integration tests) | #31 | Rebased + black-fixed, conflict resolved | ✅ GREEN (run 28009005581) |
 
-Sprint goal achievable if cascade starts today.
+**Sprint cascade is fully unblocked.** DevOps can merge PR #26 immediately. Merge order: PR #26 → Engineer rebases PR #28 → PR #28 → PR #31.
 
 ---
 
