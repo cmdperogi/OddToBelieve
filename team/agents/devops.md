@@ -1,12 +1,12 @@
 # DevOps — Status
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-23
 
 ## CI Status
 
 - GitHub Actions: **`.github/workflows/ci.yml` is on `main`** — PR #9 merged 2026-06-20T21:25:46Z
-- CI on main: **GREEN** ✅ — run 27941596842 (2026-06-22T09:04:11Z)
-  - Backend: ✅ (31/31 tests passing)
+- CI on main: **GREEN** ✅ — run 28014975605 (2026-06-23T09:04:24Z, post PR #26 merge)
+  - Backend: ✅ (40 tests passing — 31 scaffold + 9 Betfair unit tests)
   - Frontend: ✅ (skipped — no `frontend/package.json` on main yet, guard working correctly)
   - Fix: PR #32 merged 2026-06-22T09:04:07Z — `ADMIN_PASSWORD || 'test-password'` → `ADMIN_PASSWORD || 'changeme'`
 - Previous CI failures on main (runs 27884339327, 27884452855, 27935638641, 27935758926, 27938572081): all 401 Unauthorized — resolved by PR #32 merge
@@ -42,6 +42,17 @@ Post-merge CI run 27941596842 on main: **backend ✅ / frontend ✅ — CI GREEN
 **PR #8 is ready to merge.** Waiting only on AppSec posting formal approval comment. AppSec has not acted since 2026-06-18; today (2026-06-20) is the 2-day mark — Scrum Master should re-evaluate BLOCKED flag.
 
 ## Last Changes
+
+### 2026-06-23 — Merged PR #26; CI green on main (40 tests)
+
+**Actions taken:**
+1. Confirmed `ci.yml` exists on `main` (PR #9 merged 2026-06-20).
+2. Checked recent CI runs — all green on main since PR #32 fix.
+3. Verified PR #26 gates: CI GREEN (run 28008765198) ✅, QA LGTM ✅, AppSec CLEAR ✅, base = `main` ✅.
+4. Merged PR #26 (`agent/engineer/unit-tests-betfair`) into main at 2026-06-23T09:04:19Z.
+5. Confirmed post-merge CI run 28014975605: **backend ✅ (40 tests — 31 scaffold + 9 Betfair) / frontend ✅** — CI GREEN.
+6. Posted comment on PR #28 triggering Engineer rebase onto new main HEAD.
+7. Awaiting: Engineer rebase → QA LGTM → merge PR #28 → merge PR #31.
 
 ### 2026-06-22 — Merged PR #32; CI green on main
 
@@ -166,12 +177,22 @@ Committed and pushed to `agent/devops/github-actions-ci`.
 - Pushed branch and opened PR #9: https://github.com/cmdperogi/OddToBelieve/pull/9
 - QA LGTM posted 2026-06-15
 
+## PR #26 — feat: BetfairClient unit tests [STORY-2]
+
+**MERGED** — 2026-06-23T09:04:19Z ✅
+Branch: `agent/engineer/unit-tests-betfair` → `main`
+Post-merge CI run 28014975605: **backend ✅ (40 tests) / frontend ✅** — CI GREEN
+
 ## Current Action
 
-**CI is GREEN on main.** Standing by to merge PR #26 once Engineer completes the rebase of `agent/engineer/unit-tests-betfair` onto current main.
+**Waiting for Engineer rebase of PR #28.** PR #26 merged 2026-06-23T09:04:19Z. Posted comment on PR #28 triggering Engineer rebase. Next steps:
+1. Engineer rebases `agent/engineer/unit-tests-oddsapi` onto main + updates PR base
+2. QA confirms 62/62 tests and posts LGTM
+3. DevOps merges PR #28
+4. DevOps merges PR #31
 
 ## Open Issues
 
 - Frontend CI steps skipped (by design) — activate automatically once `frontend/package.json` exists on main
-- `app/services/betfair.py` and `app/services/odds_api.py` at 0% coverage — covered by PRs #26/#28 (pending rebase onto main)
-- Engineer rebase of PR #26 is 2 days overdue — merge order: PR #26 → PR #28 → PR #31
+- `app/services/odds_api.py` at 0% coverage — covered by PR #28 (pending Engineer rebase to main)
+- PR #28 base still points to `agent/engineer/unit-tests-betfair` (merged) — Engineer must rebase and update base to `main`
