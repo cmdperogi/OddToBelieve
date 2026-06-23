@@ -163,7 +163,15 @@ def test_list_events_event_schema_shape(
     resp = client.get("/odds/events", headers=auth_headers)
     assert resp.status_code == 200
     event = resp.json()[0]
-    assert set(event.keys()) >= {"id", "source_id", "source", "sport", "name", "start_time", "markets"}
+    assert set(event.keys()) >= {
+        "id",
+        "source_id",
+        "source",
+        "sport",
+        "name",
+        "start_time",
+        "markets",
+    }
     assert event["source_id"] == "betfair-001"
     assert event["start_time"] is not None
     assert isinstance(event["markets"], list)
@@ -176,7 +184,15 @@ def test_get_event_schema_shape(
     resp = client.get(f"/odds/events/{seeded_event.id}", headers=auth_headers)
     assert resp.status_code == 200
     event = resp.json()
-    assert set(event.keys()) >= {"id", "source_id", "source", "sport", "name", "start_time", "markets"}
+    assert set(event.keys()) >= {
+        "id",
+        "source_id",
+        "source",
+        "sport",
+        "name",
+        "start_time",
+        "markets",
+    }
     assert event["source_id"] == "betfair-001"
     assert event["source"] == "betfair"
     assert event["sport"] == "soccer"
