@@ -74,8 +74,9 @@ Root cause: PR #31 branch (`agent/qa/integration-tests-odds`) carried a 2026-06-
 **Fix applied by Prod Support (2026-06-23):**
 1. Rebased `agent/qa/integration-tests-odds` onto current main HEAD (`e3f90b0`).
 2. Resolved `team/agents/qa.md` conflict by keeping main's version (more up-to-date).
-3. Integration test file `backend/tests/integration/test_odds_endpoints.py` (PR #31's actual code contribution — 5 schema-shape tests) had no conflict and is preserved in new HEAD `38f0f1f`.
-4. Force-pushed. A new CI run was triggered.
+3. Integration test file `backend/tests/integration/test_odds_endpoints.py` (PR #31's actual code contribution — 5 schema-shape tests) had no conflict and is preserved.
+4. Force-pushed (HEAD: `38f0f1f`). CI ran but failed: `black --check` caught two assertions over 88-char limit.
+5. Applied `black 26.3.1` formatting fix (no logic change). New HEAD: `6d09ba7`. Third CI run triggered.
 
 **PR #28 (STORY-3): CLEAN ✅**
 - Targeting `agent/engineer/unit-tests-betfair` (correct for stacked PR — merges after PR #26).
@@ -90,6 +91,7 @@ Root cause: PR #31 branch (`agent/qa/integration-tests-odds`) carried a 2026-06-
 - **Fixed PR #26** (UNSTABLE CI): rebased onto main HEAD + changed PR base to `main`
 - **Fixed PR #31** (CONFLICTING): rebased onto main HEAD, resolved qa.md conflict
 - Posted comments on PR #26 and PR #31 explaining the fixes
+- **Fixed PR #31 CI (black formatting):** `test_odds_endpoints.py` had two assertions exceeding 88-char line limit. Applied `black 26.3.1`; no logic change. New HEAD: `6d09ba7`. Third CI run triggered on PR #31.
 - No new GitHub issues opened — existing sprint cascade is on track pending CI results
 
 ### Sprint Health (as of 2026-06-23)
