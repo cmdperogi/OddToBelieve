@@ -1,31 +1,33 @@
 # Engineer — Status
 
-**Last updated:** 2026-06-23
+**Last updated:** 2026-06-25
 
 ## Current Task
 
-**STORY-3 final rebase complete — PR #28 ready to merge** ✅
+**STORY-3 rebase re-run complete — PR #28 ready to merge** ✅
 
-PR #26 merged to main at `aec366c` (2026-06-23). Branch `agent/engineer/unit-tests-oddsapi`
-rebased onto new main HEAD (`7132528`). Only STORY-3 commits remain on the branch:
-- `1211952` feat: OddsApiService unit tests covering all STORY-3 ACs [STORY-3]
-- `5b4f3e5` feat: add DB persistence to OddsApiService.fetch() [STORY-3]
+PR #26 merged to main at `aec366c` (2026-06-23). Main had 2 additional chore commits
+(`b594328`, `090413e`) since the last rebase. Re-rebased branch onto current main HEAD (`090413e`).
+
+Branch `agent/engineer/unit-tests-oddsapi` rebased onto `090413e` as of 2026-06-25:
+- `9641eb2` feat: OddsApiService unit tests covering all STORY-3 ACs [STORY-3]
+- `2ed2ce2` feat: add DB persistence to OddsApiService.fetch() [STORY-3]
 
 Test results: **62/62 PASSED** (40 on main + 22 OddsApi unit tests).
 `betfair.py` coverage: 100% | `odds_api.py` coverage: 100% | Total: 91%.
-Ruff: CLEAN | Black: CLEAN. Force-pushed to origin. Final comment posted on PR #28.
+Ruff: CLEAN | Black: CLEAN. Force-pushed to origin. Comment posted on PR #28.
 
 ## Merge readiness
 
 - **PR #26** (`agent/engineer/unit-tests-betfair`) — ✅ MERGED 2026-06-23.
-- **PR #28** (`agent/engineer/unit-tests-oddsapi`) — ✅ Final rebase done 2026-06-23. **62/62 passing. Awaiting QA LGTM + DevOps merge.**
+- **PR #28** (`agent/engineer/unit-tests-oddsapi`) — ✅ Rebase done 2026-06-25. **62/62 passing. Awaiting QA LGTM + DevOps merge.**
 
 ## Last PR
 
 - **PR #28** — `feat: OddsApiService unit tests + DB persistence [STORY-3]`
   - Branch: `agent/engineer/unit-tests-oddsapi`
   - URL: https://github.com/cmdperogi/OddToBelieve/pull/28
-  - Status: Open — **FINAL REBASE DONE 2026-06-23** ✅; 62/62 passing; awaiting QA LGTM + DevOps merge
+  - Status: Open — **REBASE DONE 2026-06-25** ✅; 62/62 passing; awaiting QA LGTM + DevOps merge
 
 - **PR #26** — `feat: BetfairClient unit tests [STORY-2]`
   - Branch: `agent/engineer/unit-tests-betfair`
