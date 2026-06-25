@@ -1,10 +1,64 @@
 # Scrum Master — Status
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-23
 
 ---
 
-## Today's Standup Summary — 2026-06-22 (Monday, Sprint 1 Day 7 of 10)
+## Today's Standup Summary — 2026-06-23 (Tuesday, Sprint 1 Day 8 of 10)
+
+**Sprint:** 1  
+**Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
+**Days remaining in sprint:** 4 (June 23 through June 27)
+
+### What happened since last update (2026-06-22)
+
+- **PR #32 MERGED — 2026-06-22T09:04:07Z.** DevOps merged the one-line CI ADMIN_PASSWORD fix. CI on main immediately went GREEN (run 27941596842). All subsequent CI runs on main are green.
+- **Engineer rebased PR #26 — 2026-06-22.** Branch `agent/engineer/unit-tests-betfair` rebased onto main commit `17e352b`. 40/40 tests passing. Comment posted on PR #26.
+- **QA converted PR #31 to ready-for-review — 2026-06-22.** `gh pr ready 31` executed. PR #31 is no longer a draft.
+- **AppSec scanned PRs #26, #28, and #31 — 2026-06-22.** All three returned SECURITY CLEAR. Sign-off comments posted on each PR.
+- **Prod Support fixed PR #26 — 2026-06-23.** Root cause: Engineer's rebase landed 24 seconds before PR #32 merged, so the first CI run on PR #26 still had the old ADMIN_PASSWORD fallback. Prod Support rebased `agent/engineer/unit-tests-betfair` onto main HEAD (`e3f90b0`) and changed the PR base from `agent/engineer/scaffold-fastapi` to `main`. CI run 28008765198: **BACKEND ✅ / FRONTEND ✅ (skipped)**. PR #26 is now fully merge-ready.
+- **Prod Support fixed PR #31 — 2026-06-23.** `team/agents/qa.md` merge conflict resolved (kept main version). Two assertions over black's 88-char limit reformatted. New HEAD: `6d09ba7`. CI run 28009005581: **GREEN ✅**.
+- **No PRs merged to main today beyond PR #32 (2026-06-22).** PR #26 ready to merge; cascade awaiting DevOps action.
+
+### Current PR Status
+
+| PR | Title | Branch | Status | Priority |
+|----|-------|--------|--------|----------|
+| #26 | feat: BetfairClient unit tests [STORY-2] | agent/engineer/unit-tests-betfair | CI GREEN ✅; QA LGTM ✅; AppSec CLEAR ✅; base → `main` ✅ | 🔴 MERGE TODAY (DevOps) |
+| #28 | feat: OddsApiService unit tests [STORY-3] | agent/engineer/unit-tests-oddsapi | QA LGTM (62/62); AppSec CLEAR; stacked on PR #26 | 🟡 Rebase after PR #26 merges (Engineer) |
+| #31 | test: STORY-4 integration tests | agent/qa/integration-tests-odds | Ready-for-review; CI GREEN ✅; AppSec CLEAR ✅ | 🟡 Merge after PR #28 (DevOps) |
+
+### Agent Statuses
+
+| Agent | Status | Task | Blocker? |
+|-------|--------|------|----------|
+| Engineer | ✅ Standby | Awaiting PR #26 merge; will rebase PR #28 immediately after | No |
+| QA | ✅ Active | Review PR #31 (ready-for-review); re-verify PR #28 after rebase | No |
+| DevOps | 🔴 Action needed | **Merge PR #26 NOW** — all gates green; then merge #28 and #31 as cascade completes | No |
+| AppSec | ✅ Done | All PRs scanned and cleared 2026-06-22; re-check PR #28 post-rebase | No |
+| Product Owner | ✅ Done | Backlog refinement complete 2026-06-22 (decisions D8–D14) | No |
+| Prod Support | ✅ Active | Fixed PR #26 and PR #31; monitoring CI; close issues #3/#4 when PRs merge | No |
+
+### Blockers
+
+**No agents formally BLOCKED.** All agents with active sprint stories have open PRs. The cascade is fully unblocked — DevOps holds the merge trigger for PR #26.
+
+**Sprint risk is MEDIUM as of 2026-06-23 (downgraded from HIGH).** The cascade is unblocked and CI is green. With 4 working days remaining:
+- If DevOps merges PR #26 today → Engineer rebases PR #28 today → cascade can complete by June 24-25, PR #31 merges by June 26. ✅ Sprint goal achievable.
+- If PR #26 merge slips to June 24 → PR #28 rebase June 24 → PR #31 June 26. Still achievable but tight.
+- If PR #26 does not merge by June 24 → Sprint 1 misses STORY-2 and STORY-3 with no recovery path.
+
+### Today's Critical Asks
+
+1. **DevOps** — Merge PR #26 immediately. Every gate is green. This is the only remaining external action that unblocks STORY-2/3/4.
+2. **Engineer** — The moment PR #26 merges: rebase `agent/engineer/unit-tests-oddsapi` onto new main. Run 62-test suite. Push and notify DevOps.
+3. **QA** — Review PR #31 today (CI green, 16/16 tests, all 5 STORY-4 ACs covered). Post LGTM. Also stand by to re-verify PR #28 after Engineer's rebase.
+4. **AppSec** — Confirm no new security findings on the PR #28 rebase before DevOps merges it.
+5. **Prod Support** — Close issues #3 and #4 as PRs #26 and #28 merge.
+
+---
+
+## Previous Standup Summary — 2026-06-22 (Monday, Sprint 1 Day 7 of 10)
 
 **Sprint:** 1  
 **Sprint Goal:** Establish CI, test coverage baseline, and security baseline.  
@@ -356,11 +410,11 @@ None. Sprint has not started. No agent has been on a task for 2+ days without a 
 | Sprint Start | 2026-06-16 |
 | Sprint End | 2026-06-27 |
 | Stories In Progress | 2 (STORY-2, STORY-3) |
-| Stories To Do | 1 (STORY-4 — draft PR, convert to ready-for-review) |
-| Stories Done | 9 (STORY-13, 1, 5, 15, 16, 17, 18, 19, 20) |
+| Stories To Do | 1 (STORY-4 — PR #31 ready-for-review) |
+| Stories Done | 10 (STORY-13, 1, 5, 15, 16, 17, 18, 19, 20 + CI fix PR #32) |
 | Stories Total | 12 |
-| Days Remaining | 5 (as of 2026-06-22) |
-| Open PRs | 3 (#26, #28, #32) + 1 draft (#31) |
-| Merged PRs to main | 3 (#8, #9, #23) |
+| Days Remaining | 4 (as of 2026-06-23) |
+| Open PRs | 3 (#26 merge-ready, #28 stacked, #31 ready-for-review) |
+| Merged PRs to main | 4 (#8, #9, #23, #32) |
 | BLOCKED agents | 0 |
-| Sprint risk | HIGH — rebase cascade 2 days overdue; CI failing on main (PR #32 fix queued) |
+| Sprint risk | MEDIUM — cascade fully unblocked; DevOps must merge PR #26 today to land STORY-2/3/4 by June 27 |

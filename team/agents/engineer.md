@@ -1,35 +1,38 @@
 # Engineer — Status
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-23
 
 ## Current Task
 
-**STORY-2 rebase complete** — PR #26 rebased onto main 2026-06-22.
+**STORY-3 final rebase complete — PR #28 ready to merge** ✅
 
-Branch `agent/engineer/unit-tests-betfair` rebased onto `main` (commit `17e352b`).
-Test suite: **40/40 passed** (31 scaffold/integration + 9 Betfair unit tests).
-`betfair.py` coverage: 100%. Force-pushed to origin. Comment posted on PR #26.
+PR #26 merged to main at `aec366c` (2026-06-23). Branch `agent/engineer/unit-tests-oddsapi`
+rebased onto new main HEAD (`7132528`). Only STORY-3 commits remain on the branch:
+- `1211952` feat: OddsApiService unit tests covering all STORY-3 ACs [STORY-3]
+- `5b4f3e5` feat: add DB persistence to OddsApiService.fetch() [STORY-3]
 
-PR #26 is ready to merge once PR #32 lands (CI ADMIN_PASSWORD fix) and CI goes green.
+Test results: **62/62 PASSED** (40 on main + 22 OddsApi unit tests).
+`betfair.py` coverage: 100% | `odds_api.py` coverage: 100% | Total: 91%.
+Ruff: CLEAN | Black: CLEAN. Force-pushed to origin. Final comment posted on PR #28.
 
 ## Merge readiness
 
-- **PR #26** (`agent/engineer/unit-tests-betfair`) — ✅ Rebased onto main 2026-06-22. Ready to merge after PR #32.
-- **PR #28** (`agent/engineer/unit-tests-oddsapi`) — Awaiting PR #26 merge, then needs rebase.
+- **PR #26** (`agent/engineer/unit-tests-betfair`) — ✅ MERGED 2026-06-23.
+- **PR #28** (`agent/engineer/unit-tests-oddsapi`) — ✅ Final rebase done 2026-06-23. **62/62 passing. Awaiting QA LGTM + DevOps merge.**
 
 ## Last PR
 
 - **PR #28** — `feat: OddsApiService unit tests + DB persistence [STORY-3]`
   - Branch: `agent/engineer/unit-tests-oddsapi`
   - URL: https://github.com/cmdperogi/OddToBelieve/pull/28
-  - Status: Open — QA LGTM (62/62); awaiting PR #26 merge + rebase
+  - Status: Open — **FINAL REBASE DONE 2026-06-23** ✅; 62/62 passing; awaiting QA LGTM + DevOps merge
 
 - **PR #26** — `feat: BetfairClient unit tests [STORY-2]`
   - Branch: `agent/engineer/unit-tests-betfair`
   - URL: https://github.com/cmdperogi/OddToBelieve/pull/26
-  - Status: Open — QA LGTM; **rebased 2026-06-22** ✅; ready to merge after PR #32
+  - Status: **MERGED 2026-06-23** ✅
 
-## Previous Tasks (2026-06-16 – 2026-06-19)
+## Previous Tasks (2026-06-16 – 2026-06-22)
 
 **STORY-3: Implement OddsApiService + unit tests (TDD)** — DB persistence complete.
 
@@ -49,6 +52,6 @@ Full test suite: 40/40 pass. Ruff + Black clean.
 
 ## Next Task
 
-- As soon as PR #26 merges: rebase `agent/engineer/unit-tests-oddsapi` onto new main; run 62-test suite; push.
+- **PR #28 is ready to merge.** Awaiting QA final LGTM on the rebased branch and DevOps merge.
 - After PR #28 merges: pick next story from backlog (STORY-14 scaffold React/Vite
   frontend is Priority 3; STORY-10 /health endpoint is a quick XS win)
