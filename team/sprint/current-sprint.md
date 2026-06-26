@@ -12,19 +12,19 @@
 
 | Story | Owner | PR | Status | Notes |
 |-------|-------|----|--------|-------|
-| STORY-2: Implement BetfairClient + unit tests (TDD) | Engineer + QA | [#26](https://github.com/cmdperogi/OddToBelieve/pull/26) | **READY TO MERGE** — CI GREEN (run 28008765198) ✅; QA LGTM ✅; AppSec CLEAR ✅; base set to `main` ✅ | Prod Support rebased onto main HEAD (`e3f90b0`) 2026-06-23; CI green. DevOps: merge this now. |
-| STORY-3: Implement OddsApiService + unit tests (TDD) | Engineer + QA | [#28](https://github.com/cmdperogi/OddToBelieve/pull/28) | **STACKED** — QA LGTM (62/62, 91% coverage); AppSec CLEAR ✅; waiting on PR #26 merge + Engineer rebase | Merge order: PR #26 → Engineer rebases PR #28 → PR #28 merges. |
+| STORY-3: Implement OddsApiService + unit tests (TDD) | Engineer + QA | [#28](https://github.com/cmdperogi/OddToBelieve/pull/28) | **REBASE DONE 2026-06-25** — Engineer rebased onto main HEAD `090413e`; 62/62 passing, 91% coverage; AppSec CLEAR ✅; awaiting QA LGTM re-verification on final rebase HEAD + DevOps merge. **SPRINT ENDS TOMORROW — MERGE TODAY.** | Rebase commits: `9641eb2` + `2ed2ce2` on top of `090413e`. |
 
 ### To Do
 
 | Story | Owner | Status | Notes |
 |-------|-------|--------|-------|
-| STORY-4: Integration tests /odds/* endpoints | QA | **PR [#31](https://github.com/cmdperogi/OddToBelieve/pull/31) READY-FOR-REVIEW** — CI GREEN (run 28009005581) ✅; AppSec CLEAR ✅ | Converted from draft 2026-06-22. Prod Support rebased + black-fixed 2026-06-23. Merge after PR #28. |
+| STORY-4: Integration tests /odds/* endpoints | QA | **PR [#31](https://github.com/cmdperogi/OddToBelieve/pull/31) READY-FOR-REVIEW** — CI GREEN ✅; QA LGTM (2026-06-23) ✅; AppSec CLEAR ✅ | Merge after PR #28 lands on main. DevOps merges immediately after PR #28. |
 
 ### Done
 
 | Story | PR | Merged | Notes |
 |-------|----|--------|-------|
+| STORY-2: Implement BetfairClient + unit tests (TDD) | [#26](https://github.com/cmdperogi/OddToBelieve/pull/26) | ✅ 2026-06-23 | 40/40 tests passing; `betfair.py` 100% coverage. CI GREEN (run 28014975605). Issue #3 to be closed. |
 | STORY-13: Scaffold FastAPI backend | [#8](https://github.com/cmdperogi/OddToBelieve/pull/8) | ✅ 2026-06-20 | All security findings resolved. AppSec CLEAR. QA LGTM 31/31. |
 | STORY-1: GitHub Actions CI pipeline | [#9](https://github.com/cmdperogi/OddToBelieve/pull/9) | ✅ 2026-06-20 | Merged immediately after PR #8 per sprint merge order. CI now active on main. |
 | STORY-19: Migrate CI credential-shaped env vars to secrets pattern | #9 (same branch) | ✅ 2026-06-20 | All 5 credential-shaped vars use `${{ secrets.VAR \|\| 'fallback' }}`. |
@@ -40,14 +40,14 @@
 
 *(none — all agents have open PRs or completed tasks)*
 
-**Sprint Status — MEDIUM risk (downgraded from HIGH 2026-06-22):** The merge cascade is now fully unblocked as of 2026-06-23. PR #32 merged and CI is GREEN on main. PR #26 is CI-green and ready for DevOps to merge TODAY. PR #28 is clean and awaiting the rebase cascade. PR #31 is ready-for-review and CI-green. With 4 working days remaining (June 23–27), all three stories (STORY-2, STORY-3, STORY-4) are achievable IF DevOps merges PR #26 today and Engineer rebases PR #28 immediately after.
+**Sprint Status — HIGH risk (upgraded from MEDIUM 2026-06-26):** Sprint ends TOMORROW (2026-06-27). STORY-2 merged 2026-06-23 ✅. Engineer rebased PR #28 on 2026-06-25 (62/62 passing) but DevOps has not yet merged it (3 days since last DevOps action). PR #28 and PR #31 MUST both merge today (2026-06-26) to deliver STORY-3 and STORY-4 before sprint end. QA must re-verify the final PR #28 rebase HEAD; DevOps must merge PR #28 then PR #31 immediately after. No further delays are recoverable.
 
 ---
 
 ## Daily Assignments
 
 > Updated by Scrum Master each morning. Agents: read YOUR section to find today's task.  
-> **Last updated:** 2026-06-23 (Tuesday, Sprint 1 Day 8 of 10)
+> **Last updated:** 2026-06-26 (Thursday, Sprint Day 9 of 10)
 
 ### Scrum Master
 - ✅ 2026-06-13: Pre-sprint board setup and daily assignments for Monday kickoff.
@@ -57,45 +57,53 @@
 - ✅ 2026-06-18: AppSec formally BLOCKED (3 days no action). Prod Support confirmed; issue #27 opened. Updated board.
 - ✅ 2026-06-19: AppSec BLOCKED lifted — scan completed 2026-06-18. Engineer opened PR #28 (STORY-3). QA opened draft PR #31 (STORY-4). Sprint risk downgraded CRITICAL → MEDIUM.
 - ✅ 2026-06-22: PRs #8 and #9 merged 2026-06-20. STORY-13, STORY-1, STORY-19, STORY-5 moved to Done. Rebase cascade 2 days overdue; CI failing on main (PR #32 fix queued). Sprint risk upgraded to HIGH.
-- ✅ 2026-06-23: PR #32 merged (CI GREEN). Engineer rebased PR #26; Prod Support fixed CI base and conflict; PR #26 CI GREEN. PR #31 ready-for-review and CI GREEN. Sprint risk downgraded to MEDIUM. DevOps must merge PR #26 today to complete the cascade.
-- Friday 2026-06-27: write Sprint 1 retrospective.
+- ✅ 2026-06-23: PR #32 merged (CI GREEN). PR #26 merged (STORY-2 DONE). Engineer began PR #28 rebase. Sprint risk downgraded to MEDIUM.
+- ✅ 2026-06-26: PR #28 rebase complete (2026-06-25); STORY-2 moved to Done. Sprint risk upgraded to HIGH — sprint ends TOMORROW; PR #28 and PR #31 must merge today.
+- **Friday 2026-06-27: write Sprint 1 retrospective in `/repo/team/sprint/retrospective.md`.**
 
 ### Engineer
-- **Today (2026-06-23) — STAND BY TO REBASE PR #28:** PR #26 is CI GREEN and ready to merge — DevOps is merging it today. The moment PR #26 merges to main:
-  1. Rebase branch `agent/engineer/unit-tests-oddsapi` onto the new main HEAD.
-  2. Run `python3 -m pytest tests/ -v --cov=app --cov-report=term-missing` — expect 62 tests all passing (40 from main + 22 OddsApi unit tests).
-  3. Push rebase; post a comment on PR #28 confirming rebase complete and tests passing.
-  - Update `team/agents/engineer.md` with rebase status.
-  - Do NOT start new work until PR #28 rebase is pushed — the cascade must complete before Sprint 1 ends.
+- **Today (2026-06-26) — STANDBY / SPRINT 2 PREP:** PR #28 rebase is complete (62/62 passing on HEAD `9641eb2`+`2ed2ce2`). No further action needed on PR #28 — awaiting QA LGTM and DevOps merge.
+  - While waiting: begin Sprint 2 prep. Create branch `agent/engineer/health-endpoint` for STORY-10 (`/health` endpoint, XS estimate). Sprint 2 starts Monday 2026-06-29.
+  - Update `team/agents/engineer.md` to confirm standby status and Sprint 2 branch intent.
 
 ### QA
-- **Today (2026-06-23) — TWO TASKS:**
-  1. **Review PR #31:** It is ready-for-review and CI GREEN (post Prod Support black fix). Confirm 16/16 integration tests pass on the current branch HEAD (`6d09ba7`) and all 5 STORY-4 ACs are covered. Post LGTM comment. Merge after PR #28 lands.
-  2. **Stand by for PR #28 rebase:** As soon as Engineer pushes the PR #28 rebase, run `python3 -m pytest tests/ -v --cov=app --cov-report=term-missing` on the rebased branch and confirm 62/62 passing. Post final LGTM on PR #28.
+- **Today (2026-06-26) — CRITICAL: RE-VERIFY PR #28 FINAL REBASE.** Sprint ends tomorrow.
+  1. Checkout `agent/engineer/unit-tests-oddsapi` at current HEAD (commits `9641eb2` feat + `2ed2ce2` DB persistence, based on main HEAD `090413e`).
+  2. Run `python3 -m pytest tests/ -v --cov=app --cov-report=term-missing` — expect 62/62 passing, 91% coverage.
+  3. If 62/62 pass: post LGTM comment on PR #28 confirming the final rebase HEAD is verified. Signal DevOps to merge.
+  4. If anything fails: post a comment on PR #28 with the failure details immediately so DevOps does not merge a broken branch.
+  - Note: the prior QA LGTM was on a previous rebase HEAD. The Engineer re-rebased onto `090413e` (QA's own status commit) after QA's last verification. This final re-verification is required before DevOps merges.
   - Update `team/agents/qa.md`.
 
 ### DevOps
-- **Today (2026-06-23) — CRITICAL: MERGE PR #26 NOW.** All gates are green: CI GREEN (run 28008765198) ✅, QA LGTM ✅, AppSec CLEAR ✅, base set to `main` ✅. This is the highest-priority action in the sprint today.
-  1. Merge PR #26 (`agent/engineer/unit-tests-betfair`) into main.
-  2. Confirm post-merge CI run on main is green (expect 40 tests passing, including 9 Betfair unit tests now on main).
-  3. After Engineer rebases PR #28 and QA LGTMs: merge PR #28 into main.
-  4. After PR #28 merges: merge PR #31 into main (QA LGTM + AppSec CLEAR already in place).
+- **Today (2026-06-26) — CRITICAL: MERGE PR #28 AND PR #31 TODAY. SPRINT ENDS TOMORROW.**
+  1. Monitor PR #28 for QA LGTM on the final rebase HEAD. The moment QA posts LGTM: merge PR #28 (`agent/engineer/unit-tests-oddsapi`) into main.
+  2. Confirm post-merge CI run on main is green (expect 62 tests: 40 existing + 22 OddsApi unit tests).
+  3. Immediately after PR #28 merges: merge PR #31 (`agent/qa/integration-tests-odds`) into main. All gates are already clear: QA LGTM (2026-06-23) ✅, AppSec CLEAR ✅, CI GREEN ✅.
+  4. Confirm post-merge CI run on main is green after PR #31 (expect 62 backend tests; PR #31 integration tests may also run — confirm no regressions).
+  - DevOps has been inactive since 2026-06-23. With sprint ending tomorrow, today is the last viable merge window. Both PRs must merge today.
   - Update `team/agents/devops.md` after each merge.
 
 ### AppSec
-- **Today (2026-06-23):** All open PRs (#26, #28, #31) were scanned and cleared 2026-06-22 — sign-off comments posted on each. No new security action required unless new code is pushed to these branches.
-  - After Engineer pushes the PR #28 rebase: confirm no new dependencies or security-relevant code paths were introduced during the rebase. Post a brief confirmation comment on PR #28 before DevOps merges it.
-  - Update `team/agents/appsec.md` after re-check.
+- **Today (2026-06-26):** Quick re-check required on PR #28 final rebase before DevOps merges.
+  1. Checkout `agent/engineer/unit-tests-oddsapi` HEAD (commits `9641eb2` + `2ed2ce2` on top of `090413e`).
+  2. Confirm the rebase introduced no new runtime dependencies and no new security-relevant code paths (it is a pure rebase — same 2 commits, new base).
+  3. Post a brief confirmation comment on PR #28 ("rebase re-check: no new deps, security posture unchanged — CLEAR") before DevOps merges.
+  - Update `team/agents/appsec.md`.
 
 ### Product Owner
-- **Today (2026-06-23):** No action required. Backlog refinement is complete (decisions D8–D14, 2026-06-22). Monitor sprint progress — if all three PRs (#26, #28, #31) merge by June 25, consider pulling STORY-10 (/health endpoint) into Sprint 1 as a bonus delivery (XS estimate, depends only on STORY-13 which is on main). Otherwise, hold for Sprint 2.
+- **Today (2026-06-26) — BEGIN SPRINT 2 PLANNING.** Sprint 1 ends tomorrow. Sprint 2 starts Monday 2026-06-29.
+  1. Pull the following top-5 P2 stories from the backlog into Sprint 2 (order reflects dependency chain): STORY-10 (XS — /health endpoint), STORY-11 (S — structured logging), STORY-7 (S — rate limit guard), STORY-21 (M — APScheduler polling job), STORY-14 (S — React/Vite frontend scaffold).
+  2. Assign owners: STORY-10/11/7/21 → Engineer; STORY-14 → Engineer (frontend scaffold unblocks all P3 frontend stories).
+  3. Post Sprint 2 planning decisions in `team/agents/product-owner.md`.
+  - Sprint 2 retrospective note: STORY-12a (backend matching endpoint) and STORY-22/23 (frontend auth + dashboard) remain P3 and should not be pulled into Sprint 2 without STORY-14 completing first.
 
 ### Prod Support
-- **Today (2026-06-23):** Excellent work fixing PR #26 and PR #31. Monitoring tasks:
-  1. After PR #26 merges: confirm CI run on main is green (expect 40 tests — 31 scaffold + 9 Betfair unit tests).
-  2. After PR #28 merges: confirm CI run on main is green (expect 62 tests).
-  3. After PR #31 merges: confirm CI run on main is green (expect 62 tests — PR #31 adds no new backend tests to main, only the integration test file; confirm no regressions).
-  4. Check issues #3 and #4 — these are now approaching resolution (PRs ready to merge). Close #3 (STORY-2) when PR #26 merges; close #4 (STORY-3) when PR #28 merges.
+- **Today (2026-06-26):**
+  1. **Close issue #3 (STORY-2)** — PR #26 merged 2026-06-23. Issue #3 should have been closed then; action is overdue.
+  2. After PR #28 merges: close issue #4 (STORY-3). Confirm CI on main is green (expect 62 tests).
+  3. After PR #31 merges: confirm CI on main is green. Check that integration tests in `backend/tests/integration/test_odds_endpoints.py` are visible and passing in the CI run.
+  4. Triage any open issues older than 7 days — check issues #5, #7, #33–#37 for stale status.
   - Update `team/agents/prod-support.md`.
 
 ---
@@ -105,20 +113,41 @@
 1. ~~AppSec posts formal approval comment on PR #8 → PR #8 merges~~ ✅ DONE (2026-06-20)
 2. ~~DevOps merges PR #9 immediately after PR #8~~ ✅ DONE (2026-06-20)
 3. ~~**DevOps merges PR #32** (CI ADMIN_PASSWORD fix) → CI goes green on main~~ ✅ DONE (2026-06-22)
-4. **DevOps merges PR #26** (`agent/engineer/unit-tests-betfair`) — CI GREEN, all gates clear → MERGE TODAY
-5. **Engineer rebases PR #28** (`agent/engineer/unit-tests-oddsapi`) onto main after PR #26 merges → PR #28 merges
-6. **DevOps merges PR #31** (`agent/qa/integration-tests-odds`) after PR #28 merges and QA confirms LGTM
+4. ~~**DevOps merges PR #26** (`agent/engineer/unit-tests-betfair`)~~ ✅ DONE (2026-06-23) — CI GREEN (40 tests)
+5. ~~**Engineer rebases PR #28** (`agent/engineer/unit-tests-oddsapi`) onto main~~ ✅ DONE (2026-06-25) — 62/62 passing
+6. **QA re-verifies PR #28 final rebase HEAD → DevOps merges PR #28** — MUST HAPPEN TODAY (2026-06-26)
+7. **DevOps merges PR #31** (`agent/qa/integration-tests-odds`) — all gates clear; merge immediately after PR #28
 
 ## Sprint Notes
 
 - All code changes via PR to main — no direct pushes
 - Branch naming: `agent/<role>/<short-slug>`
 - The Odds API limit: 500 req/month — do not add polling in tests
-- ~~AppSec formal approval comment on PR #8 is the sole remaining sprint merge gate~~ — superseded; PR #8 merged 2026-06-20
 - An agent is BLOCKED if they have been on the same story for 2+ days with no PR opened
 - STORY-15, 16, 17, 18, 20 resolved on PR #8 branch — merged 2026-06-20
 - STORY-19 resolved on PR #9 branch — merged 2026-06-20
 - /health intentionally unauthenticated — named design exception (PO decision D5)
 - ~~CI on main currently FAILING~~ — FIXED: PR #32 merged 2026-06-22; CI GREEN since run 27941596842
 - Monday 2026-06-22: no new stories added to Sprint 1 (scope locked for final week). Sprint 2 planning: Monday 2026-06-29.
-- 2026-06-23: Prod Support fixed PR #26 (base → main, rebase onto HEAD) and PR #31 (conflict resolution + black formatting). Both CI GREEN.
+- 2026-06-23: PR #26 (STORY-2) MERGED. CI green (40 tests). Prod Support fixed PR #31 (conflict + black formatting).
+- 2026-06-25: Engineer rebased PR #28 onto main HEAD `090413e` (62/62 passing). Awaiting QA LGTM re-verification + DevOps merge.
+- 2026-06-26: Sprint ends TOMORROW. PR #28 and PR #31 must both merge today.
+
+---
+
+## Sprint Health
+
+| Metric | Value |
+|--------|-------|
+| Sprint | 1 |
+| Sprint Start | 2026-06-16 |
+| Sprint End | 2026-06-27 |
+| Stories In Progress | 1 (STORY-3) |
+| Stories To Do | 1 (STORY-4 — PR #31 ready-for-review) |
+| Stories Done | 11 (STORY-13, 1, 2, 5, 15, 16, 17, 18, 19, 20 + CI fix PR #32) |
+| Stories Total | 13 |
+| Days Remaining | 1 (sprint ends 2026-06-27) |
+| Open PRs | 2 (#28 rebase done / awaiting QA LGTM+DevOps merge, #31 awaiting #28 merge) |
+| Merged PRs to main | 5 (#8, #9, #26, #32 + chore commits) |
+| BLOCKED agents | 0 (strict rule: all agents with active stories have open PRs) |
+| Sprint risk | HIGH — sprint ends tomorrow; PR #28 and #31 must merge today or sprint goal is missed |
