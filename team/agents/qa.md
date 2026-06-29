@@ -1,6 +1,6 @@
 # QA — Status
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-29
 
 ## PRs Reviewed
 
@@ -239,9 +239,34 @@ All 5 STORY-4 ACs now fully covered with explicit schema-field assertions.
 - Sprint merge cascade is fully unblocked. PR #26 merged; PR #28 rebased and LGTM'd; PR #31 LGTM'd. DevOps action needed to complete Sprint 1.
 - GitHub `gh pr review --approve` blocked on own PRs regardless of role/account — always use `gh pr comment` for self-owned PRs.
 
+## Daily Summary — 2026-06-29 (Post-Sprint / Sprint 2 Day 1)
+
+**Context:** Sprint 1 ended 2026-06-27. PR #28 and PR #31 were not merged before sprint close (DevOps did not act on 2026-06-26). Both PRs carry over into Sprint 2 as highest-priority merge items. QA task today: re-verify PR #28 on the final rebase HEAD before DevOps merges.
+
+**PRs reviewed today:**
+- **PR #28 FINAL RE-VERIFICATION** ✅ — Checked out `agent/engineer/unit-tests-oddsapi` at current HEAD (commits `9641eb2` feat + `2ed2ce2` DB persistence, on top of main `090413e`). This is the head that Engineer rebased on 2026-06-25.
+  - **62/62 passed**, 0 failed — `python3 -m pytest tests/ -v --cov=app --cov-report=term-missing`
+  - Coverage: 91% overall; `app/services/odds_api.py` 100%, `app/services/betfair.py` 100%
+  - No real HTTP calls to Betfair or Odds API — all mocked at `app.services.*.httpx.AsyncClient`
+  - LGTM comment posted on PR #28 (comment ID 4831290194, 2026-06-29)
+  - **All 5 STORY-3 ACs verified on this rebase HEAD — cleared to merge**
+- **PR #31**: No re-verification needed. No new commits since 2026-06-23 LGTM (HEAD `6d09ba7`). QA LGTM (comment 4778063324) remains valid. Ready to merge immediately after PR #28.
+
+**Actions taken:**
+1. Fetched `origin` — confirmed `agent/engineer/unit-tests-oddsapi` HEAD is `2ed2ce2` (no new pushes since 2026-06-25 rebase)
+2. Checked out `agent/engineer/unit-tests-oddsapi` (detached HEAD at `2ed2ce2`)
+3. Installed `backend/requirements.txt` via `pip install -r requirements.txt -q`
+4. Ran full test suite: 62/62 passed, 91% coverage, 8.42s
+5. Posted final re-verification LGTM comment on PR #28 (comment 4831290194)
+6. Confirmed PR #31 unchanged since 2026-06-23 — standing LGTM holds
+
+**Patterns noticed today:**
+- Sprint 1 ended with 2 PRs unmerged (PR #28 and PR #31) — DevOps inaction over 3 days (2026-06-24 to 2026-06-26) caused sprint goal miss. Risk: carry-over PRs still unmerged as Sprint 2 begins.
+- GitHub REST API blocked via `HTTPS_PROXY` (502 from proxy) — must unset proxy env vars before API calls. Direct HTTPS works.
+
 ## Next Up
 
-- **PR #28**: Awaiting DevOps merge. All gates clear: QA LGTM ✅, AppSec CLEAR ✅, 62/62 tests ✅.
+- **PR #28**: Awaiting DevOps merge (CRITICAL — carried over from Sprint 1). All gates clear: QA LGTM (2026-06-29 re-verified) ✅, AppSec CLEAR ✅, 62/62 tests ✅.
 - **PR #31**: Awaiting PR #28 merge, then DevOps merge. All gates clear: QA LGTM ✅, AppSec CLEAR ✅, 36/36 tests ✅.
-- **Sprint close**: With PR #28 and PR #31 merging, the Sprint 1 main branch will have 62 unit tests + 16 integration tests = 78 total. Scheduler coverage (28%) flagged for Sprint 2 as a known gap.
-- **Sprint 2 prep**: Consider `app/scheduler.py` coverage (28%) as a STORY candidate. Also `app/dependencies.py` lines 16-20 and 35-37 (JWTError path) are untested — worth an explicit test in Sprint 2.
+- **Post-merge**: Main branch will have 62 backend tests + 16 integration tests = 78 total. Scheduler coverage (28%) flagged for Sprint 2 as a known gap.
+- **Sprint 2 QA targets**: `app/scheduler.py` coverage (28%), `app/dependencies.py` lines 16-20 and 35-37 (JWTError path) — worth explicit tests. Also: health endpoint tests (STORY-10), structured logging tests (STORY-11).
