@@ -2,69 +2,21 @@
 
 **Project:** OddToBelieve — FastAPI + React/Vite odds aggregation dashboard (Betfair Exchange + The Odds API)  
 **PO:** Product Owner Agent  
-**Last refined:** 2026-06-22
+**Last refined:** 2026-06-29
 
 ---
 
 ## Priority 1 — Bugs / Blockers
 
-*No active blockers as of 2026-06-22. STORY-15 through STORY-20 (all Sprint 1 security fixes) are resolved, verified, and moved to Done. PR #8 is security-clear; sole remaining gate is AppSec formal approval comment.*
+### Sprint 1 Carry-Overs — MUST MERGE BEFORE ANY SPRINT 2 FEATURE WORK
+
+*Sprint 1 ended 2026-06-27. STORY-3 (PR #28) and STORY-4 (PR #31) did NOT merge by sprint end. They carry into Sprint 2 as the highest-priority items. QA must re-verify PR #28 today; DevOps must merge PR #28 then PR #31 immediately after. STORY-7 and STORY-21a both depend on STORY-3 — no new backend feature work starts until both carry-over PRs land on main.*
 
 ---
 
-## Priority 2 — Sprint-Ready Stories
-
-*Sprint 1 stories in progress, plus stories that become sprint-ready on completion of the current merge cascade.*
-
-### [STORY-13] Scaffold FastAPI backend project ⚠️ SPRINT-1 PREREQUISITE
-**As a** developer, **I want** the backend project scaffolded with the correct directory structure and dependencies **so that** the team can implement and test services without environment friction.  
-**Status:** PR #8 open — security-clear; awaiting AppSec formal approval comment before merge.  
-**Acceptance criteria:**
-- Given the repo has no backend/ directory, When the scaffold is complete, Then `backend/` exists with the layout defined in CLAUDE.md (`app/`, `tests/unit/`, `tests/integration/`, `requirements.txt`)
-- Given the scaffold is in place, When `cd backend && uvicorn app.main:app --reload` is run, Then the server starts on port 8000 with no import errors
-- Given the scaffold is in place, When GET /docs is accessed, Then the OpenAPI schema page loads
-- Given the scaffold is in place, When `ruff check . --fix && black .` is run from `backend/`, Then zero lint errors are reported
-- Given the scaffold is in place, When `pytest tests/ -v` is run, Then the test runner initialises without import errors (even if no test files exist yet)  
-**Owner:** Engineer  
-**Estimate:** S  
-**GitHub Issue:** #1  
-**Blocks:** STORY-2, STORY-3, STORY-4, STORY-5, STORY-10, STORY-11
-
----
-
-### [STORY-1] Set up GitHub Actions CI pipeline
-**As a** developer, **I want** CI to run on every PR **so that** broken code is caught before merge.  
-**Status:** PR #9 open — code-complete; merge blocked on PR #8 (CI backend job needs `backend/` on main).  
-**Acceptance criteria:**
-- Given a PR is opened, When CI runs, Then backend lint (`ruff`) + `pytest` pass
-- Given a PR is opened, When CI runs, Then frontend lint (`npm run lint`) + build (`npm run build`) pass
-- Given any test fails, When CI finishes, Then the PR is blocked from merge  
-**Owner:** DevOps  
-**Estimate:** S  
-**GitHub Issue:** #2
-
----
-
-### [STORY-2] Implement BetfairClient + unit tests (TDD)
-**As a** developer, **I want** `BetfairClient` implemented with unit tests **so that** auth, session management, and retry logic are verified without hitting the real API.  
-**Status:** PR #26 open — QA LGTM (9 unit tests, 40/40 pass, 100% coverage); needs rebase onto main once PR #8 merges.  
-**Acceptance criteria:**
-- Given a successful login response, When `_login()` is called, Then the session token is stored in memory and returned
-- Given a 403 response on the first request, When `_post()` is called, Then it re-authenticates and retries exactly once
-- Given a non-SUCCESS login status, When `_login()` is called, Then a `RuntimeError` is raised
-- Given `BetfairClient.list_events(sport_ids=["1", "7"])` is called, When the response is mocked, Then a list of event dicts is returned with `id`, `name`, `sport`, `start_time`
-- Given any test in this suite runs, Then no real HTTP requests are made (all Betfair endpoints must be mocked)
-- ⚠️ Betfair credentials must never appear in test output, log output, or fixtures  
-**Owner:** Engineer + QA  
-**Estimate:** M  
-**GitHub Issue:** #3  
-**Depends on:** STORY-13
-
----
-
-### [STORY-3] Implement OddsApiService + unit tests (TDD)
+### [STORY-3] Implement OddsApiService + unit tests (TDD) ⬅ SPRINT 1 CARRY-OVER
 **As a** developer, **I want** `OddsApiService` implemented with unit tests **so that** the rate-limit guard and response parsing are verified.  
-**Status:** PR #28 open — QA LGTM (16 unit tests, 56/56 pass, 90% coverage); stacked on PR #26; DB persistence (`Event`/`Market`/`Odds` records) in progress on branch. This is in STORY-3 scope per AC 3 — no new story needed.  
+**Status:** PR #28 open — rebased 2026-06-25 (62/62 passing, 91% coverage); AppSec CLEAR. QA must re-verify final rebase HEAD (`9641eb2`+`2ed2ce2` on `090413e`); DevOps merges immediately on QA LGTM.  
 **Note:** ⚠️ The Odds API has a hard limit of **500 req/month** — tests must never make real HTTP calls.  
 **Acceptance criteria:**
 - Given `x-requests-remaining < 50` in a mocked response header, When `OddsApiService.fetch()` is called, Then the HTTP request is NOT made and a `WARNING` is logged with the remaining count
@@ -74,13 +26,13 @@
 **Owner:** Engineer + QA  
 **Estimate:** S  
 **GitHub Issue:** #4  
-**Depends on:** STORY-13
+**Depends on:** STORY-13 ✅
 
 ---
 
-### [STORY-4] Write integration tests for /odds/* endpoints
+### [STORY-4] Write integration tests for /odds/* endpoints ⬅ SPRINT 1 CARRY-OVER
 **As a** developer, **I want** integration tests for the odds endpoints **so that** auth enforcement and response shapes are verified.  
-**Status:** Draft PR #31 open (16/16 tests passing, all 5 ACs covered). QA converts from draft immediately when PR #8 merges.  
+**Status:** PR #31 open — all gates CLEAR (CI GREEN ✅, QA LGTM 2026-06-23 ✅, AppSec CLEAR ✅). Merge immediately after PR #28.  
 **Acceptance criteria:**
 - Given no auth token, When `GET /odds/events` is called, Then HTTP 401 is returned
 - Given a valid JWT token, When `GET /odds/events` is called, Then a list conforming to `EventSchema` is returned
@@ -90,106 +42,120 @@
 **Owner:** QA  
 **Estimate:** S  
 **GitHub Issue:** #5  
-**Depends on:** STORY-13
+**Depends on:** STORY-13 ✅
 
 ---
 
-### [STORY-5] AppSec baseline scan
-**As a** security engineer, **I want** a Bandit + pip-audit baseline run **so that** existing vulnerabilities are documented before feature work begins.  
-**Status:** Pre-scan complete on PR #8 branch (security-clear). Formal STORY-5 run on main post-merge.  
-**Acceptance criteria:**
-- Given `backend/app/` exists, When Bandit is run against it, Then findings are recorded in `team/agents/appsec.md`
-- Given `backend/requirements.txt` exists, When pip-audit runs against it, Then dependency CVEs are recorded in `team/agents/appsec.md`
-- Given any HIGH or CRITICAL finding is identified, Then a GitHub issue is opened for each one with the finding details  
-**Owner:** AppSec  
-**Estimate:** XS  
-**GitHub Issue:** #6  
-**Depends on:** STORY-13
+## Priority 2 — Sprint 2 Stories
+
+*Sprint 2 starts 2026-06-29. Ordered by dependency chain: health → logging → rate guard → scheduler (Betfair first, then Odds API) → frontend scaffold. STORY-7 and STORY-21a are blocked on STORY-3 merging.*
 
 ---
 
 ### [STORY-10] Add /health endpoint
 **As a** developer, **I want** a `/health` endpoint **so that** uptime and database connectivity can be confirmed without authenticating.  
-**Note:** Moved to P2 — sprint-ready the moment PR #8 merges to main. XS estimate; can be picked up as the first backend task in Sprint 2.  
+**Note:** XS estimate — first Sprint 2 backend task. Safe to start in parallel with STORY-11 immediately after carry-over PRs merge.  
 **Acceptance criteria:**
 - Given the backend is running, When `GET /health` is called with no auth token, Then HTTP 200 is returned with `{"status": "ok"}`
 - Given the SQLite database file is reachable, When `GET /health` is called, Then the response body includes `{"db": "ok"}`
 - Given the database file is missing or locked, When `GET /health` is called, Then the response body includes `{"db": "error"}` and the HTTP status is still 200 (liveness semantics — a 500 here would break monitoring tools)
-- Given the endpoint is inspected, When the route definition is read, Then no `UserDep` or auth dependency is applied — this is the named public exception (PO decision D5)  
+- Given the endpoint is inspected, When the route definition is read, Then no `UserDep` or auth dependency is applied — this is the named public exception (PO decision D5)
+- Given `GET /health` is called in any state, When the response is received, Then `Content-Type: application/json` is present in the response headers  
 **Owner:** Engineer  
 **Estimate:** XS  
-**GitHub Issue:** none — create at sprint planning  
-**Depends on:** STORY-13
+**GitHub Issue:** #38  
+**Depends on:** STORY-13 ✅
 
 ---
 
 ### [STORY-11] Add structured logging
 **As a** developer, **I want** structured logs **so that** errors and warnings are easy to trace during local development.  
-**Note:** Moved to P2 — sprint-ready when PR #8 merges. Can be picked up alongside STORY-10 in Sprint 2.  
+**Note:** Safe to develop in parallel with STORY-10. No inter-dependency between them.  
 **Acceptance criteria:**
 - Given any poll cycle completes, When the scheduler runs, Then an `INFO` log is emitted with sport name and event count
 - Given the rate-limit guard fires, When `OddsApiService` skips a request, Then a `WARNING` log is emitted with the remaining request count
 - Given any Betfair or Odds API call fails, When the exception is caught, Then an `ERROR` log is emitted with context but without credentials or session tokens
 - Given `LOG_LEVEL=DEBUG` is set in the environment, When the app starts, Then `DEBUG`-level messages are emitted
+- Given any log message is emitted at `WARNING` or higher, When the logger formats the message, Then the output includes the module name to aid debugging
 - ⚠️ Betfair session tokens and The Odds API key must never appear in log output at any level  
 **Owner:** Engineer  
 **Estimate:** S  
-**GitHub Issue:** none — create at sprint planning  
-**Depends on:** STORY-13
+**GitHub Issue:** #39  
+**Depends on:** STORY-13 ✅
 
 ---
 
 ### [STORY-7] Add rate limit guard to OddsApiService
 **As a** developer, **I want** the OddsApiService to halt polling when quota is low **so that** the 500 req/month hard limit is never breached.  
-**Note:** Moved to P2 — sprint-ready when STORY-3 merges. ⚠️ This guard is mandatory before enabling the scheduler (STORY-21). The scheduler must call this guard on every Odds API invocation.  
-**⚠️ Rate limit budget check:** At 60 min default poll interval, OddsApiService would make 720 calls/month — 44% over the 500 req/month cap. The guard prevents exhausting the last 50 requests but cannot prevent the monthly cap being hit. STORY-21 (scheduler) addresses this by using a separate, longer Odds API interval (default: 360 min = 120/month). This guard is a safety net, not the primary control.  
+**Note:** ⚠️ This guard is a safety net, not the primary monthly budget control — `ODDS_API_POLL_INTERVAL_MINUTES=360` (STORY-21b) is the primary control. Mandatory before STORY-21b starts.  
+**⚠️ Rate limit budget check:** At 60-min polling, OddsApiService makes 720 calls/month — 44% over the 500 req/month cap. This guard (threshold < 50 remaining) prevents the tail from exhausting. STORY-21b's 360-min default interval (120 calls/month) is the real protection.  
 **Acceptance criteria:**
 - Given `x-requests-remaining < 50`, When the APScheduler job calls `OddsApiService`, Then the HTTP request is NOT made and a `WARNING` is logged with the current remaining count
 - Given `x-requests-remaining >= 50`, When the scheduler calls `OddsApiService`, Then the HTTP request proceeds normally
 - Given the guard has fired at least once in this process lifetime, When `GET /odds/api-status` is called, Then the response includes `{"requests_remaining": <n>, "guard_active": true}`
-- Given the guard has never fired, When `GET /odds/api-status` is called, Then the response includes `{"requests_remaining": <n>, "guard_active": false}`  
+- Given the guard has never fired, When `GET /odds/api-status` is called, Then the response includes `{"requests_remaining": <n>, "guard_active": false}`
+- Given the guard was active (`x-requests-remaining < 50`), When a subsequent response header shows `x-requests-remaining >= 50`, Then the guard deactivates and `GET /odds/api-status` returns `{"guard_active": false}`  
 **Owner:** Engineer  
 **Estimate:** S  
-**GitHub Issue:** none — create at sprint planning  
+**GitHub Issue:** #40  
 **Depends on:** STORY-3
 
 ---
 
-### [STORY-21] Add APScheduler background polling job
-**As a** developer, **I want** an APScheduler job to poll Betfair and (where quota allows) The Odds API on a configured interval **so that** the database stays fresh without manual triggering.  
-**Note:** Sprint-ready when STORY-2 and STORY-3 merge. ⚠️ Critical rate limit constraint — see below.  
-**⚠️ The Odds API rate limit: 500 req/month hard cap.** At the `ODDS_POLL_INTERVAL_MINUTES` default of 60 min, OddsApiService would make 720 calls/month (60 × 24 × 30 ÷ 60 = 720) — 44% over budget. This story introduces a separate `ODDS_API_POLL_INTERVAL_MINUTES` environment variable defaulting to **360 min (6h)**, giving a safe 120 calls/month. The existing rate guard (STORY-7) remains the safety net but must not be the primary control for monthly budget.  
+### [STORY-21a] Add APScheduler — Betfair background polling job
+**As a** developer, **I want** an APScheduler job to poll Betfair on a configured interval **so that** the database stays fresh without manual triggering.  
+**Note:** Split from STORY-21 (PO decision D17, 2026-06-29). STORY-21b (Odds API job) must not start until this story merges. Original GitHub issue: #33.  
 **Acceptance criteria:**
-- Given the app starts, When the scheduler initialises, Then a Betfair poll job is registered at `BETFAIR_POLL_INTERVAL_MINUTES` (default: 60) and an Odds API poll job is registered at `ODDS_API_POLL_INTERVAL_MINUTES` (default: 360); the two intervals are independent
-- Given a Betfair poll cycle runs, When `BetfairClient.list_events()` returns data, Then `Event`, `Market`, and `Odds` records are upserted in the database with `source="betfair"`
-- Given an Odds API poll cycle runs, When `OddsApiService.fetch()` returns data, Then `Event`, `Market`, and `Odds` records are upserted in the database with `source="odds_api"`
-- Given the OddsApiService rate guard is active (`x-requests-remaining < 50`), When the Odds API scheduler job runs, Then `OddsApiService.fetch()` is NOT called; a `WARNING` is logged; Betfair polling is unaffected and continues on its own schedule
-- Given Betfair re-auth fails during a poll cycle, When the exception is raised, Then the error is logged (without credentials or session tokens) and the scheduler continues — the process does NOT crash
-- Given any test in this story runs, Then no real Betfair or Odds API calls are made; both services are mocked  
+- Given the app starts, When the scheduler initialises, Then a Betfair poll job is registered at `BETFAIR_POLL_INTERVAL_MINUTES` (default: 60 min)
+- Given a Betfair poll cycle runs, When `BetfairClient.list_events()` returns events, Then `Event`, `Market`, and `Odds` records are upserted in SQLite with `source="betfair"` — new records are inserted, changed prices are updated (no duplicate rows)
+- Given a Betfair poll cycle runs and the event already exists in the DB, When the upsert runs, Then the existing record is updated rather than duplicated (idempotent on `source_id`)
+- Given Betfair re-auth fails during a poll cycle, When the exception is raised, Then the error is logged without credentials or session tokens and the scheduler continues — the process does NOT crash
+- Given any test in this story runs, Then no real Betfair API calls are made; `BetfairClient` is mocked  
 **Owner:** Engineer  
-**Estimate:** M  
-**GitHub Issue:** #33  
-**Depends on:** STORY-2 (BetfairClient), STORY-3 (OddsApiService)
+**Estimate:** S  
+**GitHub Issue:** #41  
+**Depends on:** STORY-2 ✅, STORY-3
 
 ---
 
-## Priority 3 — Backlog
+### [STORY-21b] Add APScheduler — Odds API background polling job
+**As a** developer, **I want** an APScheduler job to poll The Odds API on a configured interval **so that** the database stays fresh without exhausting the 500 req/month cap.  
+**Note:** Split from STORY-21 (PO decision D17, 2026-06-29). ⚠️ `ODDS_API_POLL_INTERVAL_MINUTES` must default to **360 min (6h)** — this gives 120 calls/month against the 500 req/month hard cap. Do not lower this default without explicit PO sign-off and rate-limit recalculation. Original GitHub issue: #33.  
+**⚠️ The Odds API has a hard limit of 500 req/month.** Default 360 min = 120 req/month (safe). At 60 min it would be 720 req/month (over cap).  
+**Acceptance criteria:**
+- Given the app starts, When the scheduler initialises, Then an Odds API poll job is registered at `ODDS_API_POLL_INTERVAL_MINUTES` (default: 360 min), independent of `BETFAIR_POLL_INTERVAL_MINUTES`
+- Given an Odds API poll cycle runs, When `OddsApiService.fetch()` returns data, Then `Event`, `Market`, and `Odds` records are upserted in SQLite with `source="odds_api"`
+- Given the OddsApiService rate guard is active (`x-requests-remaining < 50`), When the Odds API scheduler job runs, Then `OddsApiService.fetch()` is NOT called; a `WARNING` is logged; Betfair polling is unaffected and continues on its own schedule
+- Given Betfair polling is running and the Odds API guard fires, When the next `BETFAIR_POLL_INTERVAL_MINUTES` elapses, Then the Betfair job runs normally — the two schedules are fully independent
+- Given any test in this story runs, Then no real Betfair or Odds API calls are made; both services are mocked  
+**Owner:** Engineer  
+**Estimate:** S  
+**GitHub Issue:** #42  
+**Depends on:** STORY-21a, STORY-7
 
-*Sprint 2 and later. Ordered by: reliability > UX > new features.*
+---
 
 ### [STORY-14] Scaffold React/Vite frontend project
 **As a** developer, **I want** the frontend project scaffolded **so that** the team can implement and test UI components.  
-**Note:** Sprint 2 prerequisite. All frontend stories (STORY-6, 8, 9, 22, 23, 12b) are blocked on this. Pull into Sprint 2 immediately.  
+**Note:** All frontend stories (STORY-6, 8, 9, 22, 23, 12b) are blocked on this. Safe to develop in parallel with STORY-21a/21b by a separate developer.  
 **Acceptance criteria:**
 - Given the repo has no `frontend/` directory, When the scaffold is complete, Then `frontend/` exists with the structure from CLAUDE.md (`src/pages/`, `src/components/`, `src/hooks/`, `src/api/`)
 - Given the scaffold is complete, When `cd frontend && npm run dev` is run, Then the app serves on port 5173 without errors
 - Given the scaffold is complete, When `npm run build` is run, Then the build completes with no errors
 - Given the scaffold is complete, When `npm run lint` is run, Then zero lint errors are reported
-- Given the scaffold is complete, When a `.env.local` file is added with `VITE_API_BASE_URL=http://localhost:8000`, When `npm run dev` is run, Then the API base URL is read from the env variable (no hardcoded `localhost:8000` in source files)  
+- Given the scaffold is complete, When a `.env.local` file is added with `VITE_API_BASE_URL=http://localhost:8000`, When `npm run dev` is run, Then the API base URL is read from the env variable (no hardcoded `localhost:8000` in source files)
+- Given the scaffold is complete, When `frontend/` is inspected, Then TypeScript (`tsconfig.json`) is configured — all component files use `.tsx` extension, not `.jsx`
+- Given the scaffold includes a placeholder home page at `/`, When the user navigates to `http://localhost:5173`, Then a placeholder message (e.g. "OddToBelieve") is visible — not a generic Vite default starter page  
 **Owner:** Engineer  
 **Estimate:** S  
 **GitHub Issue:** #7  
 **Blocks:** STORY-6, STORY-8, STORY-9, STORY-22, STORY-23, STORY-12b
+
+---
+
+## Priority 3 — Backlog
+
+*Sprint 2+ scope. Ordered by: reliability > UX > new features. Frontend stories are all blocked on STORY-14.*
 
 ---
 
@@ -222,7 +188,7 @@
 **Owner:** Engineer  
 **Estimate:** M  
 **GitHub Issue:** #35  
-**Depends on:** STORY-14, STORY-22 (login/auth context), STORY-4 (integration tests confirm response shape)
+**Depends on:** STORY-14, STORY-22, STORY-4
 
 ---
 
@@ -235,6 +201,7 @@
 - Given CI is configured, When a PR is opened, Then frontend tests execute in the CI workflow and block merge on failure  
 **Owner:** Engineer + QA  
 **Estimate:** S  
+**GitHub Issue:** #43  
 **Depends on:** STORY-14
 
 ---
@@ -249,25 +216,28 @@
 - Given both filters are cleared, When the view updates, Then all events from both sports are displayed  
 **Owner:** Engineer  
 **Estimate:** S  
+**GitHub Issue:** #44  
 **Depends on:** STORY-14
 
 ---
 
 ### [STORY-9] Frontend loading states and error handling
 **As a** user, **I want** clear loading and error states **so that** I know what is happening when data is slow or unavailable.  
+**Note:** STORY-23 covers loading/error states for the main OddsTable. This story covers the global error boundary and app-level patterns.  
 **Acceptance criteria:**
 - Given an API call is in flight, When the events list is loading, Then a spinner or skeleton placeholder is displayed in place of stale or empty content
 - Given the backend API is unreachable, When the events call fails, Then a user-friendly error message is shown (not a blank screen, raw JSON, or uncaught exception)
 - Given an unexpected JavaScript error is thrown anywhere in the dashboard, When the error boundary catches it, Then a fallback UI is displayed and the error is logged to the browser console  
 **Owner:** Engineer  
 **Estimate:** S  
+**GitHub Issue:** #45  
 **Depends on:** STORY-14
 
 ---
 
 ### [STORY-12a] Backend — cross-source event matching endpoint
 **As a** developer, **I want** a `GET /odds/comparison` endpoint that matches events across Betfair and The Odds API **so that** the frontend can display side-by-side pricing without making new API calls.  
-**Note:** Split from STORY-12 (PO decision D8, 2026-06-22). ⚠️ The comparison endpoint must serve data from the database only — no live API calls triggered by this request. The Odds API 500 req/month limit is entirely a scheduler concern (STORY-21).  
+**Note:** ⚠️ This endpoint serves data from the DB only — no live API calls triggered by this request. The Odds API 500 req/month limit is entirely a scheduler concern (STORY-21b).  
 **Acceptance criteria:**
 - Given events from both sources are stored in the database, When `GET /odds/comparison` is called with a valid JWT, Then a list of matched event objects is returned, each containing Betfair odds and Odds API odds for the same real-world event
 - Given two events with the same sport, fuzzy-matched name (≥85% similarity score), and start times within 5 minutes, When the matching algorithm runs, Then they are returned as a matched pair
@@ -277,13 +247,12 @@
 **Owner:** Engineer  
 **Estimate:** S  
 **GitHub Issue:** #36  
-**Depends on:** STORY-2, STORY-3, STORY-21
+**Depends on:** STORY-2 ✅, STORY-3, STORY-21b
 
 ---
 
 ### [STORY-12b] Frontend — odds comparison view
 **As a** user, **I want** to see Betfair and The Odds API prices side-by-side for the same event **so that** I can spot pricing discrepancies between sources.  
-**Note:** Split from STORY-12 (PO decision D8, 2026-06-22). Depends on STORY-12a for the backend endpoint.  
 **Acceptance criteria:**
 - Given the user is authenticated, When they navigate to `/comparison`, Then `GET /odds/comparison` is called and matched events are displayed in a side-by-side table
 - Given both sources have odds for the same selection, When the view renders, Then the better price is visually highlighted (e.g. green background or bold text)
@@ -301,8 +270,20 @@
 
 *(moved here when merged to main)*
 
+### [STORY-2] Implement BetfairClient + unit tests (TDD) — RESOLVED
+**Resolved:** PR #26 merged 2026-06-23. 40/40 tests passing, 100% coverage. **GitHub Issue:** #3 (close overdue — action for Prod Support).
+
+### [STORY-13] Scaffold FastAPI backend project — RESOLVED
+**Resolved:** PR #8 merged 2026-06-20. All security findings resolved, AppSec CLEAR, QA LGTM 31/31. **GitHub Issue:** #1 (closed).
+
+### [STORY-1] Set up GitHub Actions CI pipeline — RESOLVED
+**Resolved:** PR #9 merged 2026-06-20. CI active on main. **GitHub Issue:** #2 (closed).
+
+### [STORY-5] AppSec baseline scan — RESOLVED
+**Resolved:** 2026-06-20. Bandit: B106 false positive only. pip-audit: 0 CVEs. **GitHub Issue:** #6 (closed).
+
 ### [STORY-15] Fix hardcoded credential defaults in config.py — RESOLVED
-**Resolved:** PR #8 branch. Verified by QA + AppSec. `SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` now raise `ValueError` on startup if not set. No plaintext defaults remain. **GitHub Issue:** #17 (closed).
+**Resolved:** PR #8 branch. `SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` raise `ValueError` on startup if not set. **GitHub Issue:** #17 (closed).
 
 ### [STORY-16] Fix plain-text admin password comparison — use bcrypt — RESOLVED
 **Resolved:** PR #8 branch. `_pwd_context.verify()` in place. **GitHub Issue:** #18 (closed).
@@ -311,7 +292,7 @@
 **Resolved:** PR #8 branch. `python-jose[cryptography]>=3.4.0`, 0 CVEs. **GitHub Issue:** #19 (closed).
 
 ### [STORY-18] Upgrade python-multipart and fastapi to CVE-free versions — RESOLVED
-**Resolved:** PR #8 branch. `fastapi==0.137.1`, `starlette==1.3.1`, `python-multipart==0.0.31`, `pydantic>=2.9.0`. AppSec re-scan 2026-06-18: SECURITY CLEAR. **GitHub Issues:** #20, #24, #25 (all closed).
+**Resolved:** PR #8 branch. `fastapi==0.137.1`, `starlette==1.3.1`, `python-multipart==0.0.31`, `pydantic>=2.9.0`. **GitHub Issues:** #20, #24, #25 (all closed).
 
 ### [STORY-19] Migrate CI credential-shaped env vars to GitHub Actions secrets pattern — RESOLVED
 **Resolved:** PR #9 branch. All 5 credential-shaped vars use `${{ secrets.VAR || 'fallback' }}`. **GitHub Issue:** #21 (closed).

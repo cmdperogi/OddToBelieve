@@ -1,6 +1,85 @@
 # Product Owner — Status
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-29
+
+---
+
+## Backlog Refinement — 2026-06-29 (Monday, Sprint 2 Day 1)
+
+**Sprint 1 end:** 2026-06-27  
+**Sprint 2 start:** 2026-06-29
+
+---
+
+### Sprint 1 Outcome Assessment
+
+Sprint 1 ended with two stories not merged:
+- **STORY-3** (PR #28): Rebased 2026-06-25, 62/62 passing, AppSec CLEAR. QA did not re-verify final rebase HEAD before sprint end; DevOps did not merge.
+- **STORY-4** (PR #31): All gates clear since 2026-06-23; blocked on #28.
+
+Velocity: 11 of 13 stories Done (including all 6 security stories). Sprint goal (CI + test coverage + security baseline) is **partially met** — CI and security are in place; test coverage baseline is incomplete without STORY-3 and STORY-4.
+
+---
+
+### Sprint 2 Planning Decisions (2026-06-29)
+
+**D15: STORY-3 and STORY-4 escalated to P1 carry-overs.**
+
+Both PRs carry into Sprint 2 as the highest-priority items. No Sprint 2 feature work starts until both PRs land on main. QA re-verifies PR #28 today; DevOps merges PR #28 then PR #31 sequentially. This is the first action for Sprint 2.
+
+**D16: Sprint 2 scope confirmed — 6 stories.**
+
+| Story | Estimate | Parallel? | Blocked Until |
+|-------|----------|-----------|---------------|
+| STORY-10: /health endpoint | XS | No (start today) | — |
+| STORY-11: Structured logging | S | Yes (parallel with STORY-10) | — |
+| STORY-7: Rate limit guard | S | No | STORY-3 merges |
+| STORY-21a: Betfair polling job | S | No | STORY-3 merges |
+| STORY-21b: Odds API polling job | S | No | STORY-21a + STORY-7 |
+| STORY-14: Frontend scaffold | S | Yes (parallel with backend stories) | — |
+
+Estimated Sprint 2 capacity: 6 stories × avg 1.5 days = 9 dev-days. Feasible within 2-week sprint.
+
+**D17: STORY-21 split into STORY-21a (Betfair poll) and STORY-21b (Odds API poll).**
+
+STORY-21 was M-estimate. The 1-2 day target requires splitting all M+ stories. Split rationale:
+- STORY-21a focuses solely on the Betfair APScheduler job, upsert logic, and error resilience. Self-contained; deliverable in 1 day.
+- STORY-21b adds the Odds API poll job with rate guard integration. Depends on STORY-21a and STORY-7. Deliverable in 1 day once those land.
+
+Original GitHub issue #33 remains open as reference; new issues #41 (21a) and #42 (21b) created today.
+
+**D18: GitHub issues created for Sprint 2 stories and remaining P3 stories.**
+
+New issues created today:
+- #38: STORY-10 /health endpoint
+- #39: STORY-11 Structured logging
+- #40: STORY-7 Rate limit guard
+- #41: STORY-21a Betfair polling job
+- #42: STORY-21b Odds API polling job
+- #43: STORY-6 Vitest frontend tests
+- #44: STORY-8 Sport filter UI
+- #45: STORY-9 Loading states and error handling
+
+**D19: Issue #3 (STORY-2) close is overdue.**
+
+STORY-2 (BetfairClient) merged via PR #26 on 2026-06-23. Issue #3 was not closed then. Prod Support must close it today.
+
+**D20: Accept STORY-23 at M estimate — no split yet.**
+
+STORY-23 (frontend dashboard) is M-estimate but depends on STORY-14 + STORY-22 which are not started. It is Sprint 2+ scope. Split deferred until closer to sprint pick-up; revisit at Sprint 3 planning if STORY-23 is pulled in.
+
+**D21: STORY-10 and STORY-11 are safe to start immediately on Sprint 2 Day 1.**
+
+Both depend only on STORY-13 (already merged). Engineer should pick up STORY-10 (/health endpoint) and STORY-11 (structured logging) today while waiting for carry-over PRs to clear. STORY-14 (frontend scaffold) can also start in parallel.
+
+**D22: Improved ACs written for top 5 unstarted Sprint 2 stories.**
+
+Stories refined today with additional/improved acceptance criteria:
+- **STORY-10:** Added `Content-Type: application/json` response header AC.
+- **STORY-11:** Added module-name-in-log AC for debuggability. Credential-exposure constraint made explicit.
+- **STORY-7:** Added guard deactivation AC — when `x-requests-remaining` recovers to ≥ 50, `guard_active` must return false. Prior ACs only described one-way (fire) behaviour.
+- **STORY-21a:** Added idempotent upsert AC (updates on `source_id`, no duplicate rows) and BetfairClient mock requirement.
+- **STORY-14:** Added TypeScript (`tsconfig.json`) requirement (`.tsx` not `.jsx`) and placeholder home-page AC (not a generic Vite starter page).
 
 ---
 
