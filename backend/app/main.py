@@ -3,8 +3,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from app.db.database import Base, engine
+from app.dependencies import DbDep
 from app.routers import auth, odds
 from app.scheduler import start_scheduler
 
@@ -31,5 +33,10 @@ app.include_router(odds.router)
 
 
 @app.get("/health", tags=["health"])
-async def health() -> dict[str, str]:
-    return {"status": "ok"}
+async def health(db: DbDep) -> dict[str, str]:
+    try:
+        db.execute(text("SELECT 1"))
+        db_status = "ok"
+    except Exception:
+        db_status = "error"
+    return {"status": "ok", "db": db_status}
