@@ -1,59 +1,53 @@
 # Engineer — Status
 
-**Last updated:** 2026-06-25
+**Last updated:** 2026-07-02
 
-## Current Task
+## Current Tasks
 
-**STORY-3 rebase re-run complete — PR #28 ready to merge** ✅
+### STORY-10: Add /health endpoint — PR OPEN ✅
 
-PR #26 merged to main at `aec366c` (2026-06-23). Main had 2 additional chore commits
-(`b594328`, `090413e`) since the last rebase. Re-rebased branch onto current main HEAD (`090413e`).
+**Branch:** `agent/engineer/health-endpoint`
+**PR:** [#47](https://github.com/cmdperogi/OddToBelieve/pull/47) — open, awaiting QA LGTM + AppSec CLEAR
 
-Branch `agent/engineer/unit-tests-oddsapi` rebased onto `090413e` as of 2026-06-25:
-- `9641eb2` feat: OddsApiService unit tests covering all STORY-3 ACs [STORY-3]
-- `2ed2ce2` feat: add DB persistence to OddsApiService.fetch() [STORY-3]
+**What was done:**
+- Updated `GET /health` in `backend/app/main.py` to inject `DbDep` (no `UserDep`)
+- Executes `SELECT 1` to probe DB; returns `{"status": "ok", "db": "ok"|"error"}`
+- HTTP 200 always returned regardless of DB state
+- Updated `test_scaffold.py::test_health_no_auth` to match new response shape
+- Added `backend/tests/unit/test_health_endpoint.py` with 5 targeted unit tests
+- All 5 STORY-10 ACs covered; 45/45 tests pass; ruff + black clean
 
-Test results: **62/62 PASSED** (40 on main + 22 OddsApi unit tests).
-`betfair.py` coverage: 100% | `odds_api.py` coverage: 100% | Total: 91%.
-Ruff: CLEAN | Black: CLEAN. Force-pushed to origin. Comment posted on PR #28.
+### STORY-11: Add structured logging — PR OPEN ✅
 
-## Merge readiness
+**Branch:** `agent/engineer/structured-logging`
+**PR:** [#48](https://github.com/cmdperogi/OddToBelieve/pull/48) — open, awaiting QA LGTM + AppSec CLEAR
 
-- **PR #26** (`agent/engineer/unit-tests-betfair`) — ✅ MERGED 2026-06-23.
-- **PR #28** (`agent/engineer/unit-tests-oddsapi`) — ✅ Rebase done 2026-06-25. **62/62 passing. Awaiting QA LGTM + DevOps merge.**
+**What was done:**
+- Added `log_level: str = "INFO"` to `Settings` in `backend/app/config.py` (reads from `LOG_LEVEL` env var)
+- Created `backend/app/logging_config.py` with `configure_logging(log_level)`:
+  - INFO and below: compact format `LEVEL: message`
+  - WARNING and above: includes module name `LEVEL [module.path]: message`
+  - Two handlers on root logger (split at WARNING boundary)
+  - Invalid log level strings fall back to INFO
+- Wired `configure_logging(settings.log_level)` into app lifespan in `main.py`
+- Existing log sites in `scheduler.py`, `betfair.py`, `odds_api.py` already emit at correct levels
+- Added `backend/tests/unit/test_structured_logging.py` with 10 unit tests
+- 50/50 tests pass; ruff + black clean
 
-## Last PR
+## Merge Readiness
 
-- **PR #28** — `feat: OddsApiService unit tests + DB persistence [STORY-3]`
-  - Branch: `agent/engineer/unit-tests-oddsapi`
-  - URL: https://github.com/cmdperogi/OddToBelieve/pull/28
-  - Status: Open — **REBASE DONE 2026-06-25** ✅; 62/62 passing; awaiting QA LGTM + DevOps merge
+| PR | Story | Status |
+|----|-------|--------|
+| [#28](https://github.com/cmdperogi/OddToBelieve/pull/28) | STORY-3 | ✅ All gates clear — awaiting DevOps merge |
+| [#47](https://github.com/cmdperogi/OddToBelieve/pull/47) | STORY-10 | 🔄 Open — awaiting QA LGTM + AppSec CLEAR |
+| [#48](https://github.com/cmdperogi/OddToBelieve/pull/48) | STORY-11 | 🔄 Open — awaiting QA LGTM + AppSec CLEAR |
 
-- **PR #26** — `feat: BetfairClient unit tests [STORY-2]`
-  - Branch: `agent/engineer/unit-tests-betfair`
-  - URL: https://github.com/cmdperogi/OddToBelieve/pull/26
-  - Status: **MERGED 2026-06-23** ✅
+## Next Tasks
 
-## Previous Tasks (2026-06-16 – 2026-06-22)
+- **STORY-14**: Scaffold React/Vite frontend (`agent/engineer/frontend-scaffold`) — unblocked, safe to start
+- **STORY-7 / STORY-21a**: Blocked on PR #28 merging to main (DevOps stall)
 
-**STORY-3: Implement OddsApiService + unit tests (TDD)** — DB persistence complete.
+## Previous Tasks
 
-Implemented `OddsApiService._persist()` and wired it into `fetch()` via an optional
-`db: Session` parameter. The method writes `Event`, `Market`, and `Odds` records to
-the database for each item in the Odds API response. Markets are deduplicated by type
-across bookmakers (one `Market` row per market key per event). Six new persistence unit
-tests added; 22/22 unit tests pass, 62/62 full-suite tests pass.
-
-**STORY-2: BetfairClient unit tests (TDD)**
-
-Created `backend/tests/unit/test_betfair_client.py` with 9 unit tests covering all STORY-2 ACs.
-Full test suite: 40/40 pass. Ruff + Black clean.
-
-**STORY-18 second pass:** Applied coordinated dependency bump on `agent/engineer/scaffold-fastapi`.
-`pip-audit` → 0 CVEs. `pytest tests/ -v` → 31/31 passed. Ruff + Black clean.
-
-## Next Task
-
-- **PR #28 is ready to merge.** Awaiting QA final LGTM on the rebased branch and DevOps merge.
-- After PR #28 merges: pick next story from backlog (STORY-14 scaffold React/Vite
-  frontend is Priority 3; STORY-10 /health endpoint is a quick XS win)
+- **STORY-3 rebase (2026-06-25):** PR #28 rebased onto `090413e`. 62/62 passing, 91% coverage. All gates clear; DevOps stall blocking merge.
+- **STORY-2 (merged 2026-06-23):** PR #26 merged. BetfairClient unit tests. 40/40 passing, 100% betfair.py coverage.
