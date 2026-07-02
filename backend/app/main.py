@@ -4,13 +4,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import settings
 from app.db.database import Base, engine
+from app.logging_config import configure_logging
 from app.routers import auth, odds
 from app.scheduler import start_scheduler
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    configure_logging(settings.log_level)
     Base.metadata.create_all(bind=engine)
     start_scheduler()
     yield
