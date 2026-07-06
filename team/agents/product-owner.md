@@ -1,6 +1,76 @@
 # Product Owner — Status
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-07-06
+
+---
+
+## Backlog Refinement — 2026-07-06 (Monday, Sprint 2 Day 6 of 10)
+
+**Sprint 2 status:** 4 days remaining (ends 2026-07-10). Sprint risk: HIGH.
+
+---
+
+### Sprint 2 Progress Assessment (2026-07-06)
+
+**Carry-overs (Sprint 1) — CONFIRMED DONE:**
+- STORY-3 (PR #28): Merged 2026-07-03T20:51:59Z ✅ — DevOps finally acted after 11-day stall. Issue #4 closed.
+- STORY-4 (PR #31): Merged 2026-07-03T20:52:07Z ✅ — merged 8 seconds after PR #28 per merge convention. Issue #5 closed.
+- Escalation issue #46: Confirmed closed (no longer in open issues list).
+
+**Sprint 2 stories in review:**
+- STORY-10 (PR #47): CI GREEN, awaiting QA LGTM + AppSec CLEAR.
+- STORY-11 (PR #48): CI GREEN, awaiting QA LGTM + AppSec CLEAR.
+
+**Sprint 2 stories unblocked but not started (CRITICAL):**
+- STORY-7: Unblocked since STORY-3 merged 2026-07-03. 3 days without action.
+- STORY-14: Never blocked. Sprint 2 Day 6 with no PR. Critically late.
+- STORY-21a: Unblocked since STORY-3 merged 2026-07-03. 3 days without action.
+
+**Sprint 2 sprint risk:** Zero Sprint 2 stories merged to main as of Day 6. With 4 days remaining, STORY-7, STORY-21a, and STORY-14 must start today to have any chance of completing Sprint 2's core goal. STORY-21b is at risk.
+
+---
+
+### Decisions Made — 2026-07-06
+
+**D23: STORY-3 and STORY-4 confirmed Done.**
+
+Both carry-over PRs merged 2026-07-03 by DevOps. PR #28 (STORY-3) at 20:51:59Z; PR #31 (STORY-4) at 20:52:07Z — 8 seconds apart, sequential merge per convention. P1 backlog section is now empty. Issues #4 and #5 closed today. Escalation #46 already closed. Superseded STORY-21 issue #33 closed (replaced by #41/#42).
+
+**D24: STORY-7 and STORY-21a are now unblocked — Engineer must start today.**
+
+Both were blocked on STORY-3 (PR #28), which merged 2026-07-03. Engineer has not started either story in the 3 days since unblocking (Day 3 to Day 6 gap). Sprint 2 ends Friday 2026-07-10. Engineer must open PRs for both stories by Wednesday 2026-07-08 to have any chance of full sprint completion.
+
+**D25: STORY-21b remains in Sprint 2 scope but is AT RISK — reassessment Wednesday 2026-07-08.**
+
+STORY-21b depends on both STORY-21a and STORY-7. With 4 days remaining and neither dependency started, the pipeline is extremely tight: STORY-7 PR → merge → STORY-21a PR → merge → STORY-21b PR → merge = 3 sequential PR cycles in 4 days. PO will reassess Wednesday 2026-07-08: if STORY-21a has no open PR by end of Wednesday, STORY-21b drops to Sprint 3. This is a firm date, not a soft deadline.
+
+**D26: STORY-23 formally split into STORY-23a and STORY-23b.**
+
+Original STORY-23 was M-estimate (too large for the 1-2 day target, per split policy). Split rationale:
+- **STORY-23a** (S): OddsTable component — props-based render, loading/empty/error states, Vitest tests. No live API calls. Can be built and tested purely against mock data. Issue #49.
+- **STORY-23b** (S): Live API wiring — GET /odds/events call, auth header, 401 redirect, error propagation. Depends on STORY-23a. Issue #50.
+
+Original issue #35 closed. The split keeps each story independently deliverable and testable.
+
+**D27: STORY-24 added — Fix datetime.utcnow() deprecated calls.**
+
+Flagged in 4 consecutive prod-support audit runs (2026-06-30, 2026-07-01, 2026-07-02, 2026-07-03). Locations: `auth.py:21` (JWT expiry calc) and `db/models.py:47` (Column default). Non-breaking on Python 3.11 (current runtime), but `DeprecationWarning` noise and a future Python upgrade risk. XS estimate — two-file change. P3 cleanup. Issue #51 created. No AWS, no data-source, no rate-limit impact.
+
+**D28: Improved ACs for 5 Sprint 2 unstarted stories.**
+
+Stories refined today with additional acceptance criteria:
+- **STORY-7:** Added startup-state AC — when no Odds API response has been received yet (app just started), `GET /odds/api-status` must return `{"requests_remaining": null, "guard_active": false}`. Prior ACs only covered guard-fire and guard-recovery states; the initial null state was unspecified.
+- **STORY-21a:** Added empty-event-list AC — when `BetfairClient.list_events()` returns an empty list, the scheduler must emit an INFO log with event count 0 and not crash. Prior ACs only covered non-empty results and auth failure.
+- **STORY-14:** Added HTML title tag AC — `<title>` must read "OddToBelieve", not "Vite + React" or any Vite default. Catches a common scaffold shortcut that leaves the default title in place.
+- **STORY-21b:** Added startup guard state AC — on first poll cycle before any API response header has been received, guard must be inactive and the HTTP request must proceed. Mirrors the startup-state AC added to STORY-7.
+- **STORY-22:** Added tab-close persistence AC — closing the browser tab must NOT persist the JWT; on reopen the user is sent to `/login`. Reinforces the in-memory-only constraint against an accidental `sessionStorage` fallback a developer might add "just in case".
+
+**D29: Closed stale/superseded GitHub issues.**
+
+- #4 (STORY-3): Closed — PR #28 merged.
+- #5 (STORY-4): Closed — PR #31 merged.
+- #33 (STORY-21 original): Closed — superseded by #41 (STORY-21a) and #42 (STORY-21b).
+- #35 (STORY-23 original): Closed — replaced by #49 (STORY-23a) and #50 (STORY-23b).
 
 ---
 
