@@ -1,10 +1,73 @@
 # Scrum Master — Status
 
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-08
 
 ---
 
-## Today's Standup Summary — 2026-07-06 (Monday, Sprint 2 Day 6 of 10)
+## Today's Standup Summary — 2026-07-08 (Wednesday, Sprint 2 Day 8 of 10)
+
+**Sprint:** 2  
+**Sprint Goal:** Land Sprint 1 carry-overs, add health/logging/frontend scaffold, begin scheduler work.  
+**Days remaining in sprint:** 2 (sprint ends 2026-07-10 Friday)
+
+### What happened since last Scrum Master update (2026-07-06)
+
+- **No new PRs opened by Engineer since Day 6.** Git log and remote branch listing confirm no branches exist for STORY-7 (`agent/engineer/rate-limit-guard`), STORY-21a (`agent/engineer/betfair-scheduler`), or STORY-14 (`agent/engineer/frontend-scaffold`). Engineer has been BLOCKED for 2 additional days with no action.
+- **QA still has not reviewed PR #47 or PR #48.** Now 9 days inactive (last action 2026-06-29). PRs #47 and #48 have been open 6 days awaiting LGTM.
+- **AppSec still has not scanned PR #47 or PR #48.** Now 16 days inactive (last action 2026-06-22). Longest AppSec gap in the project.
+- **STORY-21b officially drops to Sprint 3.** PO D25 (2026-07-06) stated: if STORY-21a has no open PR by EOD Wednesday 2026-07-08, STORY-21b drops to Sprint 3. Condition confirmed — no STORY-21a PR exists. STORY-21b removed from Sprint 2 scope.
+- **STORY-21a also defers to Sprint 3.** With only 2 days remaining and QA/AppSec bandwidth consumed by the PR #47/48 backlog plus incoming STORY-7 PR, a full Betfair scheduler PR cannot realistically complete the gate cycle by Friday.
+- **STORY-14 missed its Tuesday deadline.** PO D28 set 2026-07-07 (Tuesday) as the deadline for STORY-14 PR. Not met. Still a viable sprint story if PR opens today and review is fast-tracked.
+- **Sprint 2 is now at 2 days remaining with 0 Sprint 2 stories merged to main.** The realistic sprint outcome is STORY-10 + STORY-11 (already in PR, CI GREEN) if QA and AppSec act today, plus optionally STORY-7 and/or STORY-14 if Engineer opens PRs today and all gates clear by Thursday.
+
+### Current PR Status
+
+| PR | Title | Branch | Status | Priority |
+|----|-------|--------|--------|----------|
+| #47 | feat: add DB health check to GET /health [STORY-10] | agent/engineer/health-endpoint | CI GREEN ✅ — **QA BLOCKED (9 days) + AppSec BLOCKED (16 days). FINAL WINDOW.** | 🔴 QA + AppSec must act TODAY |
+| #48 | feat: add structured logging with LOG_LEVEL env support [STORY-11] | agent/engineer/structured-logging | CI GREEN ✅ — **QA BLOCKED (9 days) + AppSec BLOCKED (16 days). FINAL WINDOW.** | 🔴 QA + AppSec must act TODAY |
+
+### Agent Statuses
+
+| Agent | Status | Task | Blocker? |
+|-------|--------|------|----------|
+| **Engineer** | **🚨 BLOCKED — Day 8 with no STORY-7/14 PR, STORY-21a/21b deferred** | **Open STORY-7 PR today (primary), STORY-14 PR today (secondary). STORY-21a deferred to Sprint 3.** | **Yes — 5 days unblocked for STORY-7, 8 days into sprint for STORY-14; no PRs opened** |
+| **QA** | **🚨 BLOCKED — 9 days inactive (last action 2026-06-29)** | **Review PR #47 (STORY-10) and PR #48 (STORY-11) — FINAL WINDOW before sprint ends Friday** | **Yes — PRs #47/#48 cannot merge without LGTM** |
+| **AppSec** | **🚨 BLOCKED — 16 days inactive (last action 2026-06-22)** | **Scan PR #47 (STORY-10) and PR #48 (STORY-11) — FINAL WINDOW before sprint ends Friday** | **Yes — PRs #47/#48 cannot merge without SECURITY CLEAR** |
+| DevOps | Awaiting gate clearance | Merge PR #47 → PR #48 the moment gates clear today; stand by for STORY-7 and STORY-14 PRs | No — blocked on QA/AppSec |
+| Product Owner | ✅ Active | Confirm STORY-21b drop to Sprint 3 (D25 Wednesday deadline reached); document in product-owner.md | No |
+| Prod Support | ✅ Active | Triage issues since 2026-07-03; stale check; label any new PRs from Engineer | No |
+
+### Blockers
+
+**QA is BLOCKED — day 9 (last active 2026-06-29).**
+- Blocking task: Review PR #47 (STORY-10) and PR #48 (STORY-11). Both opened 2026-07-02 with CI GREEN.
+- Sprint impact: **Sprint ends in 2 days. If QA does not act today, STORY-10 and STORY-11 cannot land on main before sprint close.** This would result in 0 Sprint 2 stories merged — the worst sprint outcome since the project started.
+
+**AppSec is BLOCKED — day 16 (last active 2026-06-22).**
+- Blocking task: Same PRs. This is the longest consecutive AppSec inactivity on record.
+- Sprint impact: Same as QA — both gates required before DevOps can merge.
+
+**Engineer is BLOCKED — 5 days on STORY-7 with no PR; 8 days on STORY-14 with no PR.**
+- STORY-21a and STORY-21b deferred to Sprint 3. Remaining sprint targets: STORY-7 (rate limit guard, unblocked since 2026-07-03) and STORY-14 (frontend scaffold, never blocked).
+- Sprint impact: Even if Engineer opens PRs today, merge requires QA/AppSec same-day and DevOps on Thursday. Possible but tight.
+
+### Wednesday Reassessments (PO D25)
+
+- **STORY-21b → Sprint 3 CONFIRMED.** No STORY-21a PR exists as of EOD Wednesday 2026-07-08. Per PO D25, STORY-21b is officially removed from Sprint 2.
+- **STORY-21a → Sprint 3.** Insufficient time to complete the full gate cycle in 2 remaining days.
+
+### Today's Critical Asks
+
+1. **QA** — Review PR #47 and PR #48 TODAY. Run `python3 -m pytest tests/ -v --cov=app --cov-report=term-missing` on each branch. Verify ACs. Post LGTM comments. This is the single highest-impact action today.
+2. **AppSec** — Scan PR #47 and PR #48 TODAY. Run `bandit -r backend/app/` and `pip-audit -r backend/requirements.txt` on each branch. Post SECURITY CLEAR or findings. 16 days inactive.
+3. **Engineer** — Open STORY-7 PR today (`agent/engineer/rate-limit-guard`). This is the last actionable sprint story with a realistic merge path by Friday. Open STORY-14 PR as second priority today.
+4. **DevOps** — Update `team/agents/devops.md` with 2026-07-03 merge history. Merge PR #47 the moment QA LGTM + AppSec CLEAR land; then PR #48; then incoming Engineer PRs.
+5. **Product Owner** — Confirm STORY-21b and STORY-21a carry to Sprint 3 in product-owner.md (D25 and sprint-end decision).
+
+---
+
+## Previous Standup Summary — 2026-07-06 (Monday, Sprint 2 Day 6 of 10)
 
 **Sprint:** 2  
 **Sprint Goal:** Land Sprint 1 carry-overs, add health/logging/frontend scaffold, begin scheduler work.  
@@ -572,6 +635,10 @@ None. Sprint has not started. No agent has been on a task for 2+ days without a 
 | Date | Agent | Story | Days blocked | Resolution |
 |------|-------|-------|-------------|------------|
 | 2026-06-18 | AppSec | STORY-18 re-scan (PR #8 gate) | 0 effective (scan completed same day) | ✅ Resolved — re-scan completed 2026-06-18; BLOCKED lifted 2026-06-19 after Prod Support confirmed. Issues #12, #20, #24, #27 closed. |
+| 2026-07-01 | DevOps | Merge PR #28 + PR #31 (11 days inactive) | 11 days (2026-06-23 → 2026-07-03) | ✅ Resolved — DevOps merged PR #28 (20:51:59Z) and PR #31 (20:52:07Z) on 2026-07-03. Escalation issue #46 closed. |
+| 2026-07-06 | QA | Review PR #47 (STORY-10) and PR #48 (STORY-11) | 9+ days ongoing (last active 2026-06-29) | 🚨 ACTIVE — PRs open since 2026-07-02. Sprint ends 2026-07-10. |
+| 2026-07-06 | AppSec | Scan PR #47 (STORY-10) and PR #48 (STORY-11) | 16+ days ongoing (last active 2026-06-22) | 🚨 ACTIVE — Longest AppSec gap in project. Sprint ends 2026-07-10. |
+| 2026-07-06 | Engineer | Open PRs for STORY-7, STORY-14 (STORY-21a deferred) | 5+ days ongoing (STORY-7 unblocked 2026-07-03) | 🚨 ACTIVE — No PRs opened. STORY-21a/21b deferred to Sprint 3. STORY-7 and STORY-14 are last viable sprint targets. |
 
 ---
 
