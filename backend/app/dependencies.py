@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db.database import SessionLocal
+from app.services.odds_api import OddsApiService, odds_api_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
@@ -40,3 +41,10 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> str:
 
 UserDep = Annotated[str, Depends(get_current_user)]
 DbDep = Annotated[Session, Depends(get_db)]
+
+
+def get_odds_api_service() -> OddsApiService:
+    return odds_api_service
+
+
+OddsApiDep = Annotated[OddsApiService, Depends(get_odds_api_service)]
