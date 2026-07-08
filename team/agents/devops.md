@@ -1,14 +1,14 @@
 # DevOps — Status
 
-**Last updated:** 2026-06-23
+**Last updated:** 2026-07-08
 
 ## CI Status
 
 - GitHub Actions: **`.github/workflows/ci.yml` is on `main`** — PR #9 merged 2026-06-20T21:25:46Z
-- CI on main: **GREEN** ✅ — run 28014975605 (2026-06-23T09:04:24Z, post PR #26 merge)
-  - Backend: ✅ (40 tests passing — 31 scaffold + 9 Betfair unit tests)
+- CI on main: **GREEN** ✅ — run #59 (2026-07-08, post PR #48 merge)
+  - Backend: ✅ (50 tests passing — STORY-10 health endpoint + STORY-11 structured logging included)
   - Frontend: ✅ (skipped — no `frontend/package.json` on main yet, guard working correctly)
-  - Fix: PR #32 merged 2026-06-22T09:04:07Z — `ADMIN_PASSWORD || 'test-password'` → `ADMIN_PASSWORD || 'changeme'`
+- Previous CI green milestone: run 28014975605 (2026-06-23T09:04:24Z, post PR #26 merge) — 40 tests
 - Previous CI failures on main (runs 27884339327, 27884452855, 27935638641, 27935758926, 27938572081): all 401 Unauthorized — resolved by PR #32 merge
 
 ## PR #8 Merge Status
@@ -42,6 +42,27 @@ Post-merge CI run 27941596842 on main: **backend ✅ / frontend ✅ — CI GREEN
 **PR #8 is ready to merge.** Waiting only on AppSec posting formal approval comment. AppSec has not acted since 2026-06-18; today (2026-06-20) is the 2-day mark — Scrum Master should re-evaluate BLOCKED flag.
 
 ## Last Changes
+
+### 2026-07-08 — Merged PR #47 (STORY-10) and PR #48 (STORY-11); CI green on main (50 tests)
+
+**Actions taken:**
+1. Confirmed `ci.yml` exists on `main` (PR #9 merged 2026-06-20).
+2. Checked open PRs — PR #47 (STORY-10: GET /health) and PR #48 (STORY-11: structured logging) both open, non-draft, CI GREEN, QA LGTM posted, `mergeable_state: clean`.
+3. Merged PR #47 (`agent/engineer/health-endpoint`) into main at 2026-07-08 via REST API. Merge SHA: `14347eb12db7acdc381db98257ef4a9ef226c9d9`.
+4. PR #48 showed merge conflict after #47 merged (both modified `backend/app/main.py` imports).
+5. Rebased branch `agent/engineer/structured-logging` onto updated main — resolved conflict by keeping both `from app.dependencies import DbDep` (from #47) and `from app.logging_config import configure_logging` (from #48). Force-pushed rebased branch (new SHA: `71357ea76aa3f4879c73a8ca047cde4a190170d9`).
+6. CI ran on rebased commit — all 4 check-runs completed with success (backend ✅, frontend ✅).
+7. Merged PR #48 into main at 2026-07-08 via REST API. Merge SHA: `407af2850b954a4b6db85cfb12d5f9073288b86d`.
+8. Confirmed post-merge CI run #59 on main: **backend ✅ (50 tests) / frontend ✅** — CI GREEN.
+9. No open PRs remain.
+
+### 2026-07-03 — Merged PR #28 (STORY-3) and PR #31 (STORY-4)
+
+**Actions taken:**
+1. Verified PR #28 (`agent/engineer/unit-tests-oddsapi`) gates: CI GREEN ✅, QA LGTM ✅, AppSec CLEAR ✅. Merged at 2026-07-03T20:51:59Z.
+2. Verified PR #31 (`agent/qa/integration-tests-odds`) gates: CI GREEN ✅, QA LGTM ✅, AppSec CLEAR ✅. Merged at 2026-07-03T20:52:07Z (8 seconds after PR #28).
+3. Closed escalation issue #46 after merge actions completed.
+4. Post-merge CI on main: backend ✅ (62 tests — 31 scaffold + 9 Betfair + 22 OddsApi) / frontend ✅ — CI GREEN.
 
 ### 2026-06-23 — Merged PR #26; CI green on main (40 tests)
 
@@ -185,14 +206,9 @@ Post-merge CI run 28014975605: **backend ✅ (40 tests) / frontend ✅** — CI 
 
 ## Current Action
 
-**Waiting for Engineer rebase of PR #28.** PR #26 merged 2026-06-23T09:04:19Z. Posted comment on PR #28 triggering Engineer rebase. Next steps:
-1. Engineer rebases `agent/engineer/unit-tests-oddsapi` onto main + updates PR base
-2. QA confirms 62/62 tests and posts LGTM
-3. DevOps merges PR #28
-4. DevOps merges PR #31
+**Sprint 2 end wave complete.** PR #47 and PR #48 merged 2026-07-08. CI GREEN on main (50 tests). Standing by for Engineer STORY-7 and STORY-14 PRs when opened.
 
 ## Open Issues
 
-- Frontend CI steps skipped (by design) — activate automatically once `frontend/package.json` exists on main
-- `app/services/odds_api.py` at 0% coverage — covered by PR #28 (pending Engineer rebase to main)
-- PR #28 base still points to `agent/engineer/unit-tests-betfair` (merged) — Engineer must rebase and update base to `main`
+- Frontend CI steps skipped (by design) — activate automatically once `frontend/package.json` exists on main (STORY-14 pending Engineer PR)
+- STORY-7 and STORY-14 PRs not yet opened by Engineer as of 2026-07-08 — DevOps will merge immediately once gates (QA LGTM + CI) clear
