@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./oddtobelieve.db"
     odds_poll_interval_minutes: int = 60
 
+    log_level: str = "INFO"
+
     @field_validator("secret_key")
     @classmethod
     def secret_key_must_be_set(cls, v: str) -> str:
