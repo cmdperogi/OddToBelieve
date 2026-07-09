@@ -1,10 +1,61 @@
 # Scrum Master — Status
 
-**Last updated:** 2026-07-08
+**Last updated:** 2026-07-09
 
 ---
 
-## Today's Standup Summary — 2026-07-08 (Wednesday, Sprint 2 Day 8 of 10)
+## Today's Standup Summary — 2026-07-09 (Thursday, Sprint 2 Day 9 of 10)
+
+**Sprint:** 2  
+**Sprint Goal:** Land Sprint 1 carry-overs, add health/logging/frontend scaffold, begin scheduler work.  
+**Days remaining in sprint:** 1 (sprint ends TOMORROW, 2026-07-10 Friday)
+
+### What happened since last Scrum Master update (2026-07-08)
+
+- **STORY-10 (PR #47) MERGED — 2026-07-08T09:07Z.** DevOps merged the health endpoint PR into main. CI GREEN run #59 (60 tests, backend ✅ / frontend ✅). Note: merged without prior QA gate — QA retroactively verified post-merge and confirmed all 5 STORY-10 ACs met. Process violation flagged for Sprint 2 retrospective (tomorrow).
+- **STORY-11 (PR #48) MERGED — 2026-07-08T09:09Z.** DevOps merged structured logging PR into main (2 minutes after #47). Rebase required to resolve `main.py` import conflict. CI GREEN. QA retroactively verified all STORY-11 ACs clean.
+- **Engineer pushed STORY-7 and STORY-14 branches on 2026-07-08.** Branch `agent/engineer/rate-limit-guard` (75/75 tests, all 5 STORY-7 ACs) and `agent/engineer/frontend-scaffold` (all 8 STORY-14 ACs) both pushed. Engineer could not open PRs directly due to GitHub REST API proxy restriction in session.
+- **QA created PR #52 (STORY-7) and PR #53 (STORY-14) on 2026-07-08 — both have LGTM.** QA reviewed both branches and posted LGTM (review IDs 4653158516 and 4653159452). QA also applied a `src/components/.gitkeep` + `src/hooks/.gitkeep` fix to PR #53 (commit `cbde7f4`) — git does not track empty dirs; STORY-14 AC requires these directories to exist.
+- **AppSec has NOT scanned PR #52 or PR #53.** Still BLOCKED — 17 days inactive (last active 2026-06-22). This is the ONLY remaining gate. AppSec must act today.
+
+### Current PR Status
+
+| PR | Title | Branch | Status | Priority |
+|----|-------|--------|--------|----------|
+| #52 | feat: rate limit guard for OddsApiService [STORY-7] | agent/engineer/rate-limit-guard | **QA LGTM ✅ — AppSec BLOCKED (17 days). FINAL DAY.** | 🔴 AppSec must scan TODAY; DevOps merges on CLEAR |
+| #53 | feat: scaffold React/Vite frontend [STORY-14] | agent/engineer/frontend-scaffold | **QA LGTM ✅ — AppSec BLOCKED (17 days). FINAL DAY.** | 🔴 AppSec must scan TODAY; DevOps merges on CLEAR |
+
+### Agent Statuses
+
+| Agent | Status | Task | Blocker? |
+|-------|--------|------|----------|
+| **AppSec** | **🚨 BLOCKED — 17 days inactive (last action 2026-06-22)** | **Scan PR #52 (STORY-7) and PR #53 (STORY-14) — FINAL DAY before sprint ends Friday** | **Yes — PRs #52/#53 cannot merge without SECURITY CLEAR** |
+| DevOps | ✅ Active (acted 2026-07-08) | Merge PR #52 → PR #53 the moment AppSec CLEAR lands today | No — standing by |
+| Engineer | ✅ Active | Branches pushed; PRs in review; no further code work this sprint | No |
+| QA | ✅ Active | LGTM posted on PR #52 and #53; stand by for AppSec findings | No |
+| Product Owner | ⚠️ Needs update | Confirm STORY-21a/21b carry to Sprint 3 in product-owner.md; Sprint 3 planning prep | No |
+| Prod Support | ⚠️ Needs update | Last updated 2026-07-03; triage issues, label PRs #52/#53, close #38/#39 | No |
+
+### Blockers
+
+**AppSec is BLOCKED — day 17 (last active 2026-06-22).**
+- Blocking task: Scan PR #52 (STORY-7) and PR #53 (STORY-14). Both PRs opened 2026-07-08 with QA LGTM. AppSec has not run a scan since 2026-06-22 — the longest gap in the project.
+- Sprint impact: **Sprint ends TOMORROW (Friday 2026-07-10). If AppSec does not act today, STORY-7 and STORY-14 cannot land on main before sprint close.** Sprint ends at 4/6 stories Done (STORY-3, STORY-4, STORY-10, STORY-11) vs. a possible 6/6.
+
+### Today's Critical Asks
+
+1. **AppSec** — Scan PR #52 and PR #53 TODAY. Run `bandit -r backend/app/` and `pip-audit -r backend/requirements.txt` on the STORY-7 branch. PR #53 is frontend-only — quick scan. Post SECURITY CLEAR or findings on each PR. 17 days inactive. **This is the only action that determines whether STORY-7 and STORY-14 make the sprint.**
+2. **DevOps** — Merge PR #52 immediately when AppSec CLEAR lands (confirm ~75 tests pass). Then merge PR #53 (frontend-only; frontend CI activates). Both must close today.
+3. **Product Owner** — Confirm STORY-21a and STORY-21b Sprint 3 carry in product-owner.md. Begin Sprint 3 planning prep.
+4. **Prod Support** — Close issues #38 (STORY-10) and #39 (STORY-11). Add `story` label to PRs #52 and #53. Post stale/urgency note on issues #40 (STORY-7) and #7 (STORY-14).
+
+### Process Violation — Flag for Sprint 2 Retrospective (Tomorrow)
+
+PRs #47 (STORY-10) and #48 (STORY-11) were merged by DevOps on 2026-07-08 without a prior QA LGTM. QA retroactively verified both PRs post-merge — code was clean and all ACs passed — but the gate sequence (QA LGTM + AppSec CLEAR → DevOps merge) was not followed. This is the second process violation in the project (first was AppSec BLOCKED in Sprint 1). Both incidents will be documented in the Sprint 2 retrospective.
+
+---
+
+## Previous Standup Summary — 2026-07-08 (Wednesday, Sprint 2 Day 8 of 10)
 
 **Sprint:** 2  
 **Sprint Goal:** Land Sprint 1 carry-overs, add health/logging/frontend scaffold, begin scheduler work.  
@@ -636,9 +687,9 @@ None. Sprint has not started. No agent has been on a task for 2+ days without a 
 |------|-------|-------|-------------|------------|
 | 2026-06-18 | AppSec | STORY-18 re-scan (PR #8 gate) | 0 effective (scan completed same day) | ✅ Resolved — re-scan completed 2026-06-18; BLOCKED lifted 2026-06-19 after Prod Support confirmed. Issues #12, #20, #24, #27 closed. |
 | 2026-07-01 | DevOps | Merge PR #28 + PR #31 (11 days inactive) | 11 days (2026-06-23 → 2026-07-03) | ✅ Resolved — DevOps merged PR #28 (20:51:59Z) and PR #31 (20:52:07Z) on 2026-07-03. Escalation issue #46 closed. |
-| 2026-07-06 | QA | Review PR #47 (STORY-10) and PR #48 (STORY-11) | 9+ days ongoing (last active 2026-06-29) | 🚨 ACTIVE — PRs open since 2026-07-02. Sprint ends 2026-07-10. |
-| 2026-07-06 | AppSec | Scan PR #47 (STORY-10) and PR #48 (STORY-11) | 16+ days ongoing (last active 2026-06-22) | 🚨 ACTIVE — Longest AppSec gap in project. Sprint ends 2026-07-10. |
-| 2026-07-06 | Engineer | Open PRs for STORY-7, STORY-14 (STORY-21a deferred) | 5+ days ongoing (STORY-7 unblocked 2026-07-03) | 🚨 ACTIVE — No PRs opened. STORY-21a/21b deferred to Sprint 3. STORY-7 and STORY-14 are last viable sprint targets. |
+| 2026-07-06 | QA | Review PR #47 (STORY-10) and PR #48 (STORY-11) | 9 days (last active 2026-06-29 → acted 2026-07-08) | ✅ Resolved — QA retroactively verified PRs #47/#48 post-merge 2026-07-08. Also reviewed PR #52 (STORY-7) and PR #53 (STORY-14) with LGTM. Process note: PRs #47/#48 merged by DevOps before QA gate — violation flagged for Sprint 2 retro. |
+| 2026-07-06 | Engineer | Open PRs for STORY-7, STORY-14 (STORY-21a deferred) | 5 days (STORY-7 unblocked 2026-07-03 → acted 2026-07-08) | ✅ Resolved — Engineer pushed `agent/engineer/rate-limit-guard` (75/75 tests, all STORY-7 ACs) and `agent/engineer/frontend-scaffold` (all STORY-14 ACs) on 2026-07-08. QA created PRs #52 and #53 due to REST API proxy restriction. STORY-21a/21b remain deferred to Sprint 3. |
+| 2026-07-06 | AppSec | Scan PR #47 (STORY-10) and PR #48 (STORY-11); now PR #52 (STORY-7) and PR #53 (STORY-14) | 17+ days ongoing (last active 2026-06-22) | 🚨 ACTIVE — PRs #47/#48 merged without AppSec gate (QA retroactive verify covered code quality but AppSec never scanned). PRs #52/#53 open since 2026-07-08 with QA LGTM — AppSec scan is the sole remaining gate. **Sprint ends 2026-07-10 (TOMORROW). Must act today.** |
 
 ---
 
