@@ -1,6 +1,6 @@
 # AppSec — Status
 
-**Last updated:** 2026-06-22 (Mon/Thu scheduled scan)
+**Last updated:** 2026-07-09 (Mon/Thu scheduled scan)
 
 ## Last Scan
 
@@ -12,26 +12,30 @@
 
 ### pip-audit (Dependency CVEs)
 - **Run against:** `backend/requirements.txt` (main)
-- **Result:** ✅ **CLEAN — No known vulnerabilities found**
-- **No change from prior cycle.**
+- **Result:** ⚠️ **1 vulnerability found**
+  - `ecdsa 0.19.2` — PYSEC-2026-1325 (Minerva timing attack on P-256 curve)
+  - **Severity:** LOW — ecdsa is a transitive dep of `python-jose[cryptography]`; application uses HS256 only; no ECDSA signing surfaces exposed
+  - **Fix versions:** None available (upstream considers side-channel attacks out of scope)
+  - **Tracking:** Issue #54 opened
 
 ### PRs scanned this cycle
 
-| PR | Branch | Status | New security findings |
+| PR | Branch | Status | Verdict |
 |---|---|---|---|
-| #26 | `agent/engineer/unit-tests-betfair` | OPEN | None ✅ — AppSec sign-off posted |
-| #28 | `agent/engineer/unit-tests-oddsapi` | OPEN | None ✅ — AppSec sign-off posted |
-| #31 | `agent/qa/integration-tests-odds` | DRAFT | None ✅ — AppSec sign-off posted |
+| #52 | `agent/engineer/rate-limit-guard` | OPEN | ✅ SECURITY CLEAR — sign-off comment posted |
+| #53 | `agent/engineer/frontend-scaffold` | OPEN | ✅ SECURITY CLEAR — sign-off comment posted |
 
 ### Issues opened this cycle
-None.
+- **#54** — `security: ecdsa 0.19.2 PYSEC-2026-1325 — Minerva timing attack (transitive dep, no fix available)` — LOW severity, accepted risk
 
 ### Issues closed this cycle
-None — confirmed via `gh issue list --label security --state open` → empty. Issues #12 and #20 (previously listed as "awaiting formal close") are confirmed CLOSED.
+None — confirmed via GitHub API → 0 open security issues before this cycle. No previously open issues to resolve.
 
 ## Open Security Issues
 
-None. All security issues are closed.
+| # | Title | Severity | Status |
+|---|---|---|---|
+| [#54](https://github.com/cmdperogi/OddToBelieve/issues/54) | ecdsa 0.19.2 PYSEC-2026-1325 — Minerva timing attack (transitive dep, no fix available) | LOW | Accepted risk; monitor for upstream fix |
 
 ## Resolved Issues (closed this scan)
 
@@ -110,6 +114,30 @@ None. All security issues are closed.
   - No new runtime dependencies introduced; pip-audit clean ✅
   - No real HTTP calls to Betfair or Odds API — DB-seeded fixtures only ✅
 
+### PR #52 — feat: add rate limit guard and GET /odds/api-status [STORY-7] [`agent/engineer/rate-limit-guard`]
+- **Reviewed:** 2026-07-09
+- **Outcome:** ✅ **SECURITY CLEAR** — AppSec sign-off comment posted
+- **Clean checks:**
+  - New `GET /odds/api-status` endpoint uses `UserDep` ✅
+  - Response exposes only `requests_remaining: int|None` and `guard_active: bool` — no credential leakage ✅
+  - Quota guard logs only request count, never API key ✅
+  - No raw SQL — ORM-only patterns ✅
+  - No hardcoded credentials ✅
+  - CORS unchanged ✅
+  - No new runtime dependencies; `requirements.txt` unchanged ✅
+  - Betfair/JWT credentials from env only ✅
+
+### PR #53 — feat: scaffold React/Vite TypeScript frontend [STORY-14] [`agent/engineer/frontend-scaffold`]
+- **Reviewed:** 2026-07-09
+- **Outcome:** ✅ **SECURITY CLEAR** — AppSec sign-off comment posted
+- **Clean checks:**
+  - Frontend-only PR — no backend changes ✅
+  - `src/api/config.ts` reads `import.meta.env.VITE_API_BASE_URL` only — no hardcoded URLs ✅
+  - `.env.local.example` contains no real credentials (template only) ✅
+  - `.gitignore` covers `*.local` — prevents committing `.env.local` ✅
+  - No CORS changes ✅
+  - `requirements.txt` unchanged ✅
+
 ## Security Baseline Compliance
 
 | Baseline Rule | Status |
@@ -119,4 +147,4 @@ None. All security issues are closed.
 | SQLAlchemy ORM only — no raw SQL | ✅ |
 | Betfair credentials from env only, never in logs/responses | ✅ |
 | CORS: allow_origins=["http://localhost:5173"] only | ✅ |
-| Dependencies free of known CVEs | ✅ pip-audit clean — starlette 1.3.1 via fastapi 0.137.1 |
+| Dependencies free of known CVEs | ⚠️ ecdsa 0.19.2 PYSEC-2026-1325 (LOW — transitive dep, HS256-only app, no fix available) — tracked in #54 |
