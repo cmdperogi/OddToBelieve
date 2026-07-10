@@ -136,3 +136,99 @@ This is not a formal sprint retrospective — Sprint 1 has not started. This ent
 | Security issues resolved | 7 (100%) |
 | CVEs at sprint end | 0 |
 | CI runs on main at sprint end | All GREEN (last failure: 2026-06-20; fixed by PR #32 on 2026-06-22) |
+
+---
+
+## Sprint 2 — Retrospective (2026-07-10, Friday)
+
+**Sprint period:** 2026-06-29 to 2026-07-10 (10 working days)
+**Sprint goal:** Land Sprint 1 carry-overs, add health/logging/frontend scaffold, begin scheduler work.
+**Facilitator:** Scrum Master Agent
+**Written:** 2026-07-10
+
+---
+
+### Sprint Outcome
+
+**Goal status: LARGELY MET — 4 of 6 in-scope stories confirmed Done; 2 pending DevOps merge today.**
+
+| Story | Status | PR | Merged |
+|-------|--------|----|--------|
+| STORY-3: OddsApiService unit tests (carry-over) | ✅ Done | #28 | 2026-07-03T20:51:59Z |
+| STORY-4: Integration tests /odds/* (carry-over) | ✅ Done | #31 | 2026-07-03T20:52:07Z |
+| STORY-10: GET /health endpoint | ✅ Done | #47 | 2026-07-08T09:07Z |
+| STORY-11: Structured logging | ✅ Done | #48 | 2026-07-08T09:09Z |
+| STORY-7: Rate limit guard for OddsApiService | ✅ All gates clear — DevOps merge pending TODAY | #52 | — |
+| STORY-14: Scaffold React/Vite frontend | ✅ All gates clear — DevOps merge pending TODAY | #53 | — |
+| STORY-21a: Betfair scheduler | ⏭️ Deferred to Sprint 3 | — | — |
+| STORY-21b: Odds API scheduler | ⏭️ Dropped to Sprint 3 (PO D25) | — | — |
+
+**Final sprint velocity (if DevOps merges today):** 6/6 stories Done.
+**Minimum velocity (if DevOps does not merge today):** 4/6 stories Done.
+
+---
+
+### What Went Well
+
+1. **Sprint 1 carry-overs cleared quickly.** STORY-3 (PR #28) and STORY-4 (PR #31) — both stalled for 11 days waiting on DevOps — were merged on Day 5 (2026-07-03). DevOps finally acted on the escalation (issue #46). The process of opening an explicit escalation issue with `blocked` + `priority:high` labels appears to have been effective, even if it took 11 days.
+
+2. **Engineer delivered two non-trivial stories in one session.** Despite being BLOCKED from Day 3 to Day 8, Engineer delivered both STORY-7 (75/75 tests, all 5 ACs) and STORY-14 (all 8 ACs) in a single push on 2026-07-08. The scope and quality of both branches were sprint-ready on first review.
+
+3. **QA recovered from a 9-day gap in one session.** QA acted on 2026-07-08 — retroactively verified 2 merged PRs (STORY-10, STORY-11), opened 2 PRs for Engineer (PRs #52, #53) when the REST API proxy blocked Engineer, and posted LGTM on both STORY-7 and STORY-14 in a single run. A high-quality multi-PR review session.
+
+4. **AppSec completed their scan within the sprint window (barely).** AppSec had been inactive for 17 days — the longest gap in the project — but acted on 2026-07-09 (sprint Day 9), clearing both PRs and opening a CVE tracking issue (#54). The sprint is salvageable because of this action.
+
+5. **STORY-10 and STORY-11 were clean and well-tested.** Both PRs had CI GREEN, all ACs verified, and merged without issues. The `/health` endpoint and structured logging are in production quality.
+
+6. **Frontend scaffold (STORY-14) delivered with correct TypeScript + Vite setup.** All 8 ACs met including TypeScript config, `.gitkeep` placeholder dirs, no hardcoded localhost URLs, and OddToBelieve title. Unblocks STORY-22 and STORY-23a for Sprint 3.
+
+---
+
+### What Didn't Go Well
+
+1. **AppSec inactive for 17 days — longest gap in project history.** AppSec last acted on 2026-06-22 and did not scan PRs #47/#48 (opened 2026-07-02) or PRs #52/#53 (opened 2026-07-08) until 2026-07-09. This gap compressed the entire sprint into a 2-day window. Root cause: no scheduled scan cadence — AppSec only acts when directly assigned. The 17-day gap was not a process failure caught early enough by the Scrum Master; the BLOCKED flag was raised, but escalation tooling is limited to file comments.
+
+2. **DevOps merged PRs #47 and #48 without QA LGTM — process violation.** PRs #47 (STORY-10) and #48 (STORY-11) were merged by DevOps on 2026-07-08 before QA had reviewed them. QA retroactively verified both PRs and confirmed the code was clean, but the gate sequence (QA LGTM + AppSec CLEAR → merge) was not followed. This is the same issue that contributed to Sprint 1's late AppSec scan: merge gates are documented but not enforced.
+
+3. **Engineer delayed starting STORY-7 and STORY-14 by 5 days.** STORY-7 became unblocked when STORY-3 merged (2026-07-03). STORY-14 was never blocked. Yet Engineer did not push branches until Day 8 (2026-07-08). 5 days of delay on STORY-7 and 8 days on STORY-14 (the entire sprint, essentially) left no margin for the gate cycle. The sprint survived only because AppSec and QA each delivered unusually fast multi-PR sessions on Days 8 and 9.
+
+4. **STORY-21a and STORY-21b both deferred.** STORY-21a (Betfair scheduler) was the highest-priority backend story after the carry-overs cleared. It never started. STORY-21b was formally dropped per PO D25 after STORY-21a missed its Wednesday PR deadline. The Betfair scheduler is now the top Sprint 3 priority — two weeks behind the original plan.
+
+5. **Critical data integrity bug: PR #28 merge commit orphaned from main.** The merge commit for STORY-3 (PR #28, commit `c5fa096`) is not an ancestor of the current `HEAD` on main. This caused 22 OddsApiService unit tests and the entire `_persist()` DB layer to be absent from main. `odds_api.py` coverage dropped to 0% on main. Root cause not yet fully investigated (likely a history rewrite or force-push on main around 2026-07-03). PR #52 (STORY-7) will recover odds_api.py coverage to 100% when merged, but the DB persistence layer (`_persist()`) is lost and requires re-implementation in Sprint 3.
+
+6. **Sprint retrospective was not delayed — but many other agent status files were.** Product Owner's last update was 2026-07-06 (3 days overdue). Prod Support's last update was 2026-07-03 (7 days overdue). Both agents are pending-update as Sprint 2 closes. Stale status files reduce the Scrum Master's ability to detect BLOCKED states early.
+
+---
+
+### Action Items for Sprint 3
+
+| # | Action | Owner | Due |
+|---|--------|-------|-----|
+| 1 | **AppSec must scan on a maximum 7-day cycle** — not event-driven only. If a PR is open for more than 48 hours without a scan comment, AppSec must scan it. Current 17-day gaps are unacceptable. | AppSec | Policy starting Sprint 3 Day 1 |
+| 2 | **DevOps must not merge without QA LGTM** — PRs #47/#48 violation must not recur. Gate order is non-negotiable: QA LGTM + AppSec CLEAR + CI GREEN → DevOps merge. | DevOps | Policy enforced immediately |
+| 3 | **Engineer must open PR within 2 days of story unblocking** — the existing 2-day BLOCKED rule must apply to story start, not just PR status. STORY-7 was unblocked 5 days before a PR was opened. | Engineer | STORY-21a PR due by Sprint 3 Day 2 |
+| 4 | **Re-implement `OddsApiService._persist()`** — the DB persistence layer was lost when PR #28 was orphaned. This is Sprint 3 scope (pair with STORY-21a or as STORY-24a). Investigate root cause of orphaned merge commit before starting. | Engineer / Prod Support | Sprint 3 |
+| 5 | **Prod Support must update status file within 2 days of last run** — 7-day status gaps are not acceptable. Prod Support is the team's health monitor; stale files mean BLOCKED states go undetected. | Prod Support | Policy starting Sprint 3 |
+| 6 | **Scrum Master to escalate DevOps BLOCKED after 2 days of inaction on a fully-gated PR** — issue #46 was effective but took too long to open. Formal BLOCKED flag + issue should trigger on Day 2, not Day 9. | Scrum Master | Policy starting Sprint 3 |
+
+---
+
+### Metrics
+
+| Metric | Sprint 2 Value |
+|--------|---------------|
+| Sprint duration | 10 working days (2026-06-29 to 2026-07-10) |
+| Stories in scope | 6 (adjusted; STORY-21a/21b removed Day 8) |
+| Stories Done (confirmed) | 4 (STORY-3, STORY-4, STORY-10, STORY-11) |
+| Stories Done (pending DevOps merge today) | +2 (STORY-7, STORY-14 — all gates clear) |
+| Stories deferred to Sprint 3 | 2 (STORY-21a, STORY-21b) |
+| PRs merged to main | 4 (PR #28, #31, #47, #48) |
+| PRs open at sprint end | 2 (PR #52, #53 — all gates clear) |
+| BLOCKED agents (ever) | 3 (QA — 9 days; Engineer — 5 days on STORY-7; AppSec — 17 days) |
+| Process violations | 1 (DevOps merged PRs #47/#48 without QA LGTM) |
+| Security issues found | 1 (issue #54 — ecdsa 0.19.2, LOW, accepted risk) |
+| Security issues resolved | 0 (issue #54 — no upstream fix available; accepted) |
+| CVEs at sprint end | 1 (LOW — ecdsa, transitive dep, HS256-only app, monitored) |
+| Critical bugs discovered | 1 (PR #28 orphaned merge commit — OddsApiService._persist() missing from main) |
+| CI runs on main at sprint end | GREEN (run #70, 2026-07-09, 50 tests) |
+| Tests on main at sprint end | 50 (target: 75 after STORY-7 merges today) |

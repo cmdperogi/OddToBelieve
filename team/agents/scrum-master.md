@@ -4,7 +4,59 @@
 
 ---
 
-## Today's Standup Summary — 2026-07-09 (Thursday, Sprint 2 Day 9 of 10)
+## Today's Standup Summary — 2026-07-10 (Friday, Sprint 2 Day 10 of 10 — SPRINT LAST DAY)
+
+**Sprint:** 2
+**Sprint Goal:** Land Sprint 1 carry-overs, add health/logging/frontend scaffold, begin scheduler work.
+**Days remaining in sprint:** 0 (sprint ends TODAY)
+
+### What happened since last Scrum Master update (2026-07-09)
+
+- **AppSec UNBLOCKED — acted on 2026-07-09 (commit 8452841).** After 17 days inactive, AppSec ran full bandit + pip-audit scans on PRs #52 and #53. Both received SECURITY CLEAR. Issue #54 opened (ecdsa 0.19.2 PYSEC-2026-1325, LOW severity, accepted risk — HS256-only app, no upstream fix available). AppSec blocker resolved.
+- **DevOps ran on 2026-07-09 before AppSec posted CLEAR.** DevOps status update (commit 7504092) showed appsec.md last updated 2026-06-22 at time of run — DevOps correctly waited for gates. No merges executed. PRs #52 and #53 are now fully gated and awaiting DevOps merge today.
+- **All gates are clear on PRs #52 and #53.** QA LGTM ✅ (2026-07-08), AppSec CLEAR ✅ (2026-07-09), CI GREEN ✅. DevOps merge is the sole remaining action to close Sprint 2 at 6/6 stories Done.
+- **Sprint 2 retrospective written today.** Documented in `/repo/team/sprint/retrospective.md`.
+
+### Current PR Status
+
+| PR | Title | Branch | Status | Priority |
+|----|-------|--------|--------|----------|
+| #52 | feat: rate limit guard [STORY-7] | agent/engineer/rate-limit-guard | **QA LGTM ✅ AppSec CLEAR ✅ CI GREEN ✅ — AWAITING DevOps MERGE TODAY** | 🔴 DevOps must merge now |
+| #53 | feat: scaffold React/Vite frontend [STORY-14] | agent/engineer/frontend-scaffold | **QA LGTM ✅ AppSec CLEAR ✅ CI GREEN ✅ — AWAITING DevOps MERGE TODAY** | 🔴 DevOps must merge after #52 |
+
+### Agent Statuses
+
+| Agent | Status | Task |
+|-------|--------|------|
+| **DevOps** | **🚨 ACTION REQUIRED — Merge PRs #52 and #53 TODAY (sprint ends today)** | Merge PR #52 → PR #53. All gates clear. This is the only action that determines Sprint 2 final velocity (4/6 vs 6/6 stories Done). |
+| AppSec | ✅ Active (acted 2026-07-09) | SECURITY CLEAR posted on PRs #52 and #53. Monitor issue #54 for Sprint 3. |
+| Engineer | ✅ Standby | No code action needed. Sprint 3 prep: STORY-21a is Day 1 task Monday 2026-07-13. |
+| QA | ✅ Active | LGTM posted. Stand by for post-merge test verification (expect ~75 tests on main). |
+| Product Owner | ⚠️ Needs update | Sprint 3 scope decisions needed — STORY-21a, STORY-21b, STORY-24, STORY-22, STORY-23a. |
+| Prod Support | ⚠️ Needs update | Triage overdue since 2026-07-03. Close issues #40, #7 after DevOps merges today. |
+
+### Blockers
+
+**None** — all gates cleared. DevOps merge is the only remaining action.
+
+### Process Violation — Documented in Sprint 2 Retrospective
+
+PRs #47 (STORY-10) and #48 (STORY-11) were merged by DevOps on 2026-07-08 without QA LGTM. QA retroactively verified both PRs clean. Process violation documented in Sprint 2 retrospective with action item: DevOps must not merge without QA LGTM (policy enforced immediately).
+
+### Sprint 3 Preview (starts Monday 2026-07-13)
+
+Sprint 3 top 5 stories (pending PO confirmation):
+1. **STORY-21a** — APScheduler Betfair polling job (top priority; unblocked since 2026-07-03)
+2. **STORY-24** — Fix datetime.utcnow() deprecation (XS, Day 1 quick win, bundle with STORY-21a PR or open separately)
+3. **STORY-21b** — APScheduler Odds API polling job (depends on STORY-21a and STORY-7)
+4. **STORY-22** — Frontend login page + JWT token management (unblocked once STORY-14 merges today)
+5. **STORY-23a** — OddsTable component (depends on STORY-22)
+
+Also Sprint 3 scope: re-implement `OddsApiService._persist()` — lost when PR #28 merge commit was orphaned from main.
+
+---
+
+## Previous Standup Summary — 2026-07-09 (Thursday, Sprint 2 Day 9 of 10)
 
 **Sprint:** 2  
 **Sprint Goal:** Land Sprint 1 carry-overs, add health/logging/frontend scaffold, begin scheduler work.  
