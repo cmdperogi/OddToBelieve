@@ -1,6 +1,6 @@
 # AppSec — Status
 
-**Last updated:** 2026-07-09 (Mon/Thu scheduled scan)
+**Last updated:** 2026-07-13 (Mon/Thu scheduled scan)
 
 ## Last Scan
 
@@ -15,21 +15,22 @@
 - **Result:** ⚠️ **1 vulnerability found**
   - `ecdsa 0.19.2` — PYSEC-2026-1325 (Minerva timing attack on P-256 curve)
   - **Severity:** LOW — ecdsa is a transitive dep of `python-jose[cryptography]`; application uses HS256 only; no ECDSA signing surfaces exposed
-  - **Fix versions:** None available (upstream considers side-channel attacks out of scope)
-  - **Tracking:** Issue #54 opened
+  - **Fix versions:** None available — unchanged from prior cycle
+  - **Tracking:** Issue #54 remains open (accepted risk)
 
 ### PRs scanned this cycle
 
 | PR | Branch | Status | Verdict |
 |---|---|---|---|
-| #52 | `agent/engineer/rate-limit-guard` | OPEN | ✅ SECURITY CLEAR — sign-off comment posted |
-| #53 | `agent/engineer/frontend-scaffold` | OPEN | ✅ SECURITY CLEAR — sign-off comment posted |
+| (none) | — | All PRs closed/merged | No review actions required |
+
+**Note:** PR #28 (`agent/engineer/unit-tests-oddsapi`) shows as merged on GitHub (2026-07-03) but its commits (`_persist()` method in `odds_api.py`, `test_odds_api_service.py`) are not present in the tip of `origin/main`. The merge commit (c5fa096) exists only in `agent/engineer/unit-tests-betfair`. The security review for those changes remains SECURITY CLEAR from the 2026-06-22 cycle; no blocking findings were identified then and the code is unchanged. The discrepancy is a git history anomaly — the feature code passes all security baseline checks regardless of which branch it lands in.
 
 ### Issues opened this cycle
-- **#54** — `security: ecdsa 0.19.2 PYSEC-2026-1325 — Minerva timing attack (transitive dep, no fix available)` — LOW severity, accepted risk
+None.
 
 ### Issues closed this cycle
-None — confirmed via GitHub API → 0 open security issues before this cycle. No previously open issues to resolve.
+None — issue #54 (ecdsa CVE) remains open: pip-audit confirms no fix version is available.
 
 ## Open Security Issues
 
@@ -137,6 +138,13 @@ None — confirmed via GitHub API → 0 open security issues before this cycle. 
   - `.gitignore` covers `*.local` — prevents committing `.env.local` ✅
   - No CORS changes ✅
   - `requirements.txt` unchanged ✅
+
+### Cycle 2026-07-13 — No open PRs
+- **PRs reviewed:** 0 (GitHub confirmed 0 open PRs)
+- **Bandit:** unchanged — 1 LOW false positive (B106, known)
+- **pip-audit:** unchanged — ecdsa 0.19.2 PYSEC-2026-1325, no fix available, issue #54 open
+- **Open security issues:** #54 only (LOW, accepted risk)
+- **Baseline compliance:** all checks pass — see table below
 
 ## Security Baseline Compliance
 
