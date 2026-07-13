@@ -15,13 +15,21 @@ class OddsApiService:
     def __init__(self) -> None:
         self._requests_remaining: int | None = None
 
+    @property
+    def requests_remaining(self) -> int | None:
+        return self._requests_remaining
+
+    @property
+    def guard_active(self) -> bool:
+        return (
+            self._requests_remaining is not None
+            and self._requests_remaining < _QUOTA_GUARD_THRESHOLD
+        )
+
     async def fetch(
         self, sport: str, regions: str = "uk", markets: str = "h2h"
     ) -> list[dict[str, Any]]:
-        if (
-            self._requests_remaining is not None
-            and self._requests_remaining < _QUOTA_GUARD_THRESHOLD
-        ):
+        if self.guard_active:
             logger.warning(
                 "Odds API quota guard active — requests remaining: %s",
                 self._requests_remaining,
@@ -44,3 +52,9 @@ class OddsApiService:
             self._requests_remaining = int(remaining)
 
         return resp.json()
+
+
+# Singleton shared between the scheduler and the API router so that
+# request-quota state persists across poll cycles and is visible via
+# GET /odds/api-status without a live API call.
+odds_api_service = OddsApiService()

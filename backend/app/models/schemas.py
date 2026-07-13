@@ -3,6 +3,11 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class ApiStatusSchema(BaseModel):
+    requests_remaining: int | None
+    guard_active: bool
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str

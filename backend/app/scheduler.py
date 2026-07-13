@@ -11,12 +11,11 @@ scheduler = AsyncIOScheduler()
 
 async def _poll_feeds() -> None:
     logger.info("Scheduler: poll cycle starting")
-    # Services are injected at startup to avoid circular imports
     from app.services.betfair import BetfairClient
-    from app.services.odds_api import OddsApiService
+    from app.services.odds_api import odds_api_service
 
     betfair = BetfairClient()
-    odds_api = OddsApiService()
+    odds_api = odds_api_service
 
     try:
         events = await betfair.list_events(sport_ids=["1", "7"])

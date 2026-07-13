@@ -1,10 +1,18 @@
 from fastapi import APIRouter, HTTPException
 
 from app.db import models as db_models
-from app.dependencies import DbDep, UserDep
-from app.models.schemas import EventSchema, MarketSchema
+from app.dependencies import DbDep, OddsApiDep, UserDep
+from app.models.schemas import ApiStatusSchema, EventSchema, MarketSchema
 
 router = APIRouter(prefix="/odds", tags=["odds"])
+
+
+@router.get("/api-status", response_model=ApiStatusSchema)
+async def get_api_status(_user: UserDep, svc: OddsApiDep) -> ApiStatusSchema:
+    return ApiStatusSchema(
+        requests_remaining=svc.requests_remaining,
+        guard_active=svc.guard_active,
+    )
 
 
 @router.get("/events", response_model=list[EventSchema])
