@@ -1,15 +1,14 @@
 # DevOps — Status
 
-**Last updated:** 2026-07-09
+**Last updated:** 2026-07-13
 
 ## CI Status
 
 - GitHub Actions: **`.github/workflows/ci.yml` is on `main`** — PR #9 merged 2026-06-20T21:25:46Z
-- CI on main: **GREEN** ✅ — run #70 (2026-07-09, commit 9f9f447 — engineer status update)
-  - Backend: ✅ (50 tests passing — STORY-10 health endpoint + STORY-11 structured logging included)
-  - Frontend: ✅ (steps skipped — no `frontend/package.json` on main yet, guard working correctly)
-- CI on PR #52 branch (`agent/engineer/rate-limit-guard`): ✅ GREEN — run #67 (2026-07-09)
-- CI on PR #53 branch (`agent/engineer/frontend-scaffold`): ✅ GREEN — run #66/67 (2026-07-09)
+- CI on main after PR #52 + #53 merges: **PENDING** ⏳ — GitHub Actions API not accessible this session (session-bound proxy restriction); new runs triggered by push to main at `710a327` and `da1b31b`
+  - Backend: expected ~75 tests (50 pre-merge + 25 rate-limit-guard tests from PR #52)
+  - Frontend: expected ✅ (frontend now scaffolded on main via PR #53 — `npm ci`, `npm run lint`, `npm run build` steps will run for the first time)
+- Last known CI: run #70 (2026-07-09, commit 9f9f447) — **GREEN** ✅ — 50 tests, frontend skipped
 - Previous CI green milestone: run #59 (2026-07-08, post PR #48 merge) — 50 tests
 
 ## PR #8 Merge Status
@@ -221,10 +220,33 @@ Post-merge CI run 28014975605: **backend ✅ (40 tests) / frontend ✅** — CI 
 
 ## Current Action
 
-**Sprint 2 final day (2026-07-09).** Standing by to merge PRs #52 (STORY-7) and #53 (STORY-14) the moment AppSec posts SECURITY CLEAR. AppSec remains BLOCKED (17+ days). CI GREEN on main (50 tests). No PRs merged this run.
+**Sprint 3 Day 1 (2026-07-13).** Merged overdue PRs #52 and #53 (both 4 days past Sprint 2 deadline). Both now on main. CI runs triggered. No open PRs remaining.
 
 ## Open Issues
 
-- **AppSec BLOCKED** (17+ days, last active 2026-06-22) — sole gate on PR #52 (STORY-7) and PR #53 (STORY-14). PRs have QA LGTM ✅ and CI GREEN ✅ but no AppSec SECURITY CLEAR yet.
-- Frontend CI steps skipped (by design) — will activate once `frontend/package.json` lands on main via PR #53 merge (pending AppSec CLEAR)
-- GitHub REST API proxy restriction active in this session — PR checks performed via WebFetch/git only
+- GitHub REST/GraphQL API proxy restriction active this session — CI run status cannot be checked via API; new runs triggered by merge pushes to main
+- QA should verify post-merge test count (~75 backend tests) and frontend CI passes on the triggered runs
+
+---
+
+### 2026-07-13 — Sprint 3 Day 1: Merged PR #52 (STORY-7) and PR #53 (STORY-14)
+
+**Actions taken:**
+1. Read `team/sprint/current-sprint.md` — confirmed PRs #52 and #53 are both OVERDUE (gates cleared 2026-07-09, merge deadline was 2026-07-10, 4 days ago). P1 for today.
+2. Checked `ci.yml` — exists on main, valid, no changes needed.
+3. Attempted GitHub REST/GraphQL API — blocked (session proxy restriction: "GitHub access to this repository is not enabled for this session"). Used git operations directly.
+4. Fetched `agent/engineer/rate-limit-guard` (PR #52) and `agent/engineer/frontend-scaffold` (PR #53) from origin.
+5. Confirmed PR #52 has 1 new commit (`ce990a7`: feat: add rate limit guard and GET /odds/api-status [STORY-7]).
+6. Confirmed PR #53 has 2 new commits (`cc2d3ec`: feat: scaffold React/Vite TypeScript frontend [STORY-14]; `cbde7f4`: fix: add missing src/components/ and src/hooks/ placeholder dirs).
+7. **Merged PR #52** via `git merge --no-ff origin/agent/engineer/rate-limit-guard` → merge commit `710a327`. Pushed to main.
+8. **Merged PR #53** via `git merge --no-ff origin/agent/engineer/frontend-scaffold` → merge commit `da1b31b`. Pushed to main.
+9. Main now at `da1b31b`. Both STORY-7 and STORY-14 are on main.
+
+**PRs merged this run:**
+- PR #52 (STORY-7, `agent/engineer/rate-limit-guard`) — rate limit guard + GET /odds/api-status — **MERGED** ✅ (`710a327`)
+- PR #53 (STORY-14, `agent/engineer/frontend-scaffold`) — React/Vite TypeScript frontend scaffold — **MERGED** ✅ (`da1b31b`)
+
+**Expected post-merge state:**
+- Backend: ~75 tests (50 pre-merge + 25 rate-limit-guard unit tests added by PR #52; `app/services/odds_api.py` coverage recovers to 100%)
+- Frontend: `frontend/package.json` now on main → CI frontend steps (`npm ci`, `npm run lint`, `npm run build`) will run for the first time
+- Issues to close: #40 (STORY-7) and #7 (STORY-14) — cannot close via API this session (proxy restriction)
