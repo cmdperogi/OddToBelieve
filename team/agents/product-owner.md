@@ -1,10 +1,85 @@
 # Product Owner — Status
 
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-13
+
+---
+
+## Backlog Refinement — 2026-07-13 (Monday, Sprint 3 Day 1)
+
+**Sprint 3 start:** 2026-07-13  
+**Sprint 3 end:** 2026-07-24
+
+---
+
+### Sprint 2 Final Outcome (closed 2026-07-10)
+
+**Done (merged to main):**
+- STORY-3 (PR #28): Merged 2026-07-03T20:51:59Z ✅
+- STORY-4 (PR #31): Merged 2026-07-03T20:52:07Z ✅
+- STORY-10 (PR #47): Merged 2026-07-08T09:07Z ✅
+- STORY-11 (PR #48): Merged 2026-07-08T09:09Z ✅
+
+**Carry-overs (all gates clear, DevOps missed Sprint 2 merge deadline):**
+- STORY-7 (PR #52): QA LGTM ✅, AppSec CLEAR ✅ (2026-07-09), CI GREEN ✅. DevOps did not merge on 2026-07-10. Now a Sprint 3 P1 carry-over.
+- STORY-14 (PR #53): Same status as STORY-7. Now a Sprint 3 P1 carry-over.
+
+**Deferred to Sprint 3 (planned from 2026-07-08):**
+- STORY-21a: No Engineer PR opened in Sprint 2. Deferred.
+- STORY-21b: PO D25 confirmed — STORY-21a prerequisite not completed, STORY-21b moves to Sprint 3.
+
+Sprint 2 final velocity: **4/6 stories Done** (STORY-7 and STORY-14 not merged by DevOps). Sprint goal partially met: health/logging complete; rate guard and frontend scaffold carry over.
+
+**Known code issue identified during Sprint 3 refinement (2026-07-13):**  
+PR #31 (STORY-4) was branched from a pre-STORY-3 version of main. Its merge resolved in favour of the STORY-4 branch tree, dropping from main: (1) `_persist()` method from `OddsApiService`, (2) `db: Session | None = None` parameter in `fetch()`, and (3) `test_odds_api_service.py` (546 lines). Confirmed via `git diff c5fa096..de55f02`. Reference implementation at commit `2ed2ce2`. Addressed by new STORY-25.
+
+---
+
+### Sprint 3 Planning Decisions (2026-07-13)
+
+**D30: STORY-6 descoped — Vitest setup and component tests now covered by STORY-23a.**
+
+STORY-23a (OddsTable component) explicitly includes Vitest installation and component tests (4 test scenarios: happy-path, empty-state, loading, error). STORY-6's first three ACs are fully subsumed by STORY-23a. STORY-6's unique remaining value is the CI gate: ensuring `npm test` runs in the GitHub Actions workflow and blocks PR merge on test failure. STORY-6 is renamed to "Wire frontend Vitest tests to CI pipeline (merge gate)", scoped down to XS estimate, and now depends on STORY-14 + STORY-23a.
+
+**D31: STORY-25 added — Restore OddsApiService DB persistence layer.**
+
+`OddsApiService._persist()` and the `db: Session | None = None` parameter in `fetch()` were lost from main when PR #31 (STORY-4) merged on 2026-07-03. This was a silent regression — no test failure was raised because the unit tests for `_persist()` (`test_odds_api_service.py`) were also dropped in the same merge. The absence of `_persist()` directly blocks STORY-21b: the Odds API scheduler cannot write to the database without it. STORY-25 is classified P2 (Sprint 3 ready), S estimate. It must be completed after STORY-7 merges (so STORY-25 builds on the correct `odds_api.py` base including the rate guard singleton). GitHub issue to be created. Priority in Sprint 3: Day 2 (after STORY-7 merges and Engineer completes STORY-21a Day 1).
+
+**D32: STORY-21b dependency updated — now depends on STORY-21a, STORY-7, AND STORY-25.**
+
+Previously STORY-21b depended on STORY-21a and STORY-7. STORY-25 is now an explicit prerequisite: the Odds API scheduler calls `OddsApiService.fetch(db=session)` which requires the `db` parameter to exist. Added to backlog and GitHub issue #42 comment to be updated.
+
+**D33: Sprint 3 scope — top 7 stories confirmed.**
+
+| Priority | Story | Estimate | Status | Day |
+|----------|-------|----------|--------|-----|
+| P1 | STORY-7 (carry-over, PR #52) | S | DevOps merge today | Day 1 |
+| P1 | STORY-14 (carry-over, PR #53) | S | DevOps merge today | Day 1 |
+| P2 | STORY-21a (Betfair scheduler) | S | Engineer start Day 1 | Day 1–2 |
+| P2 | STORY-24 (datetime.utcnow fix) | XS | Engineer Day 1 bundle | Day 1 |
+| P2 | STORY-25 (Restore _persist()) | S | Engineer after STORY-7 merges | Day 2 |
+| P2 | STORY-21b (Odds API scheduler) | S | After 21a + 7 + 25 | Day 3–4 |
+| P3 | STORY-22 (Frontend login) | S | After STORY-14 merges | Day 2+ |
+
+Sprint 3 capacity: 7 stories (2 carry-over DevOps merges + 5 new). Achievable if DevOps acts on Day 1.
+
+**D34: Issue #54 (ecdsa CVE) — confirmed not a Sprint 3 blocker.**
+
+ecdsa 0.19.2 PYSEC-2026-1325 (Minerva timing-attack, LOW severity) has no upstream fix available. Accepted risk per AppSec (2026-07-09). AppSec to monitor for upstream patch in Sprint 3 scans. No story required. No impact on Sprint 3 scope.
+
+**D35: ACs improved for top 5 unstarted Sprint 3 stories.**
+
+Stories refined today with additional acceptance criteria:
+- **STORY-21a:** Added `(source_id, source)` upsert key AC (clarifies Betfair event ID mapping) and `Market`/`Odds` refresh pattern AC (existing Odds rows deleted before new ones inserted — prevents price accumulation).
+- **STORY-24:** Added lambda-form AC for `default=` callable — `lambda: datetime.now(timezone.utc)` is preferred over a bare function reference to ensure a fresh datetime per row rather than capturing at import time.
+- **STORY-25:** New story, full ACs written from scratch covering the `db` parameter, persistence behaviour, backward compatibility, upsert idempotency, exception handling, and test requirements.
+- **STORY-21b:** Added exception-handling AC — if `_persist()` raises a DB exception during the Odds API poll cycle, the scheduler logs ERROR (no credentials) and continues without crashing.
+- **STORY-22:** ACs already comprehensive (8 ACs including tab-close persistence). No changes needed.
 
 ---
 
 ## Backlog Refinement — 2026-07-06 (Monday, Sprint 2 Day 6 of 10)
+
+**Sprint 2 status:** 4 days remaining (ends 2026-07-10). Sprint risk: HIGH.
 
 **Sprint 2 status:** 4 days remaining (ends 2026-07-10). Sprint risk: HIGH.
 
